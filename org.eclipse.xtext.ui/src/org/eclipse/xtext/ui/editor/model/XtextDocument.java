@@ -36,6 +36,7 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.resource.ISynchronizable;
 import org.eclipse.xtext.resource.OutdatedStateManager;
 import org.eclipse.xtext.resource.XtextResource;
@@ -707,5 +708,13 @@ public class XtextDocument extends Document implements IXtextDocument {
 
 	public Iterable<ILexerTokenRegion> getTokens() {
 		return tokenSource.getTokenInfos();
+	}
+	// TODO: do we need this?
+	public ParserRule getParserRule() {
+		return resource.getEntryPoint();
+	}
+	
+	public void setParserRule(ParserRule parserRule) {
+		this.resource.setEntryPoint(parserRule);
 	}
 }

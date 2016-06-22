@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.nodemodel.ICompositeNode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.resource.XtextResource;
@@ -173,6 +174,14 @@ public class EmbeddedEditorModelAccess {
 
 	public String getSerializedModel() {
 		return this.viewer.getDocument().get();
+	}
+	// TODO: this may not be necessary
+	public ParserRule getParserRule() {
+		return ((XtextDocument) this.viewer.getDocument()).getParserRule();
+	}
+
+	public void setParserRule(ParserRule parserRule) {
+		((XtextDocument) this.viewer.getDocument()).setParserRule(parserRule);
 	}
 
 }
