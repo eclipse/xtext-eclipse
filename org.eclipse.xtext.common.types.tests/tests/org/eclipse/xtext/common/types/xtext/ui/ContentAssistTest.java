@@ -84,10 +84,7 @@ public class ContentAssistTest extends AbstractContentAssistProcessorTest {
 			builder.assertText("java.util.ArrayList", "com.google.common.collect.ArrayListMultimap");
 		} else {
 			builder.assertText("java.util.ArrayList", "java.util.ArrayList.ArrayListSpliterator", "java.util.ArrayList.Itr",
-					"java.util.ArrayList.ListItr", "java.util.ArrayList.SubList", "com.google.common.collect.ArrayListMultimap",
-					"com.sun.javafx.collections.ArrayListenerHelper", "com.sun.javafx.collections.ArrayListenerHelper.Generic",
-					"com.sun.javafx.collections.ArrayListenerHelper.SingleChange",
-					"com.sun.javafx.collections.ArrayListenerHelper.SingleInvalidation");
+					"java.util.ArrayList.ListItr", "java.util.ArrayList.SubList", "com.google.common.collect.ArrayListMultimap");
 		}
 	}
 
@@ -99,11 +96,7 @@ public class ContentAssistTest extends AbstractContentAssistProcessorTest {
 			builder.assertText("ArrayList", "com.google.common.collect.ArrayListMultimap");
 		} else {
 			builder.assertText("ArrayList", "ArrayList.ArrayListSpliterator", "ArrayList.Itr", "ArrayList.ListItr", "ArrayList.SubList",
-					"com.google.common.collect.ArrayListMultimap",
-					"com.sun.javafx.collections.ArrayListenerHelper",
-					"com.sun.javafx.collections.ArrayListenerHelper.Generic",
-					"com.sun.javafx.collections.ArrayListenerHelper.SingleChange",
-					"com.sun.javafx.collections.ArrayListenerHelper.SingleInvalidation"
+					"com.google.common.collect.ArrayListMultimap"
 					);
 		}
 	}
@@ -150,12 +143,12 @@ public class ContentAssistTest extends AbstractContentAssistProcessorTest {
 	
 	@Test public void testSubtypeArrayList_01() throws Exception {
 		if (isJDT_3_6_orLater())
-			newBuilder().append("subtype ArrayLis").assertText("java.util.ArrayList", "java.util.Arrays.ArrayList", "com.sun.javafx.fxml.builder.ProxyBuilder.ArrayListWrapper");
+			newBuilder().append("subtype ArrayLis").assertText("java.util.ArrayList", "java.util.Arrays.ArrayList");
 	}
 	
 	@Test public void testSubtypeArrayList_02() throws Exception {
 		if (isJDT_3_6_orLater())
-			newBuilder().append("import java.util.* subtype ArrayLis").assertText("ArrayList", "Arrays.ArrayList", "com.sun.javafx.fxml.builder.ProxyBuilder.ArrayListWrapper");
+			newBuilder().append("import java.util.* subtype ArrayLis").assertText("ArrayList", "Arrays.ArrayList");
 	}
 	
 	@Test public void testSubtypeHashSet_01() throws Exception {
