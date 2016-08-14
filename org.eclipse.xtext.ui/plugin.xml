@@ -1159,14 +1159,7 @@
 			schemeId="org.eclipse.ui.emacsAcceleratorConfiguration"
 	        sequence="CTRL+L"/>
    </extension>
- <extension
-       point="org.eclipse.emf.ecore.extension_parser">
-    <parser
-          class="org.eclipse.xtext.resource.impl.BinaryGrammarResourceFactoryImpl"
-          type="xtextbin">
-    </parser>
- </extension>
-	<extension point="org.eclipse.e4.ui.css.swt.theme">	
+   <extension point="org.eclipse.e4.ui.css.swt.theme">	
       <stylesheet uri="css/e4-dark_xtext_syntaxhighlighting.css">	
          <themeid	
                refid="org.eclipse.e4.ui.css.theme.e4_dark">	
