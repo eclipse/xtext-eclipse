@@ -16,8 +16,10 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextListener;
+import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextPresentationListener;
 import org.eclipse.jface.text.SlaveDocumentEvent;
 import org.eclipse.jface.text.TextEvent;
@@ -27,8 +29,13 @@ import org.eclipse.jface.text.source.IOverviewRuler;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.xtext.ui.editor.formatting2.IDocumentAutoFormatter;
+import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 
 import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.MembersInjector;
+import com.google.inject.Provider;
 
 /**
  * @author Sebastian Zarnekow - Initial contribution and API
@@ -45,10 +52,15 @@ public class XtextSourceViewer extends ProjectionViewer implements IAdaptable {
 	
 	public static class DefaultFactory implements Factory {
 
+		@Inject
+		private MembersInjector<XtextSourceViewer> memberInjector;
+		
 		@Override
 		public XtextSourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler,
 				IOverviewRuler overviewRuler, boolean showsAnnotationOverview, int styles) {
-			return new XtextSourceViewer(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
+			XtextSourceViewer viewer = new XtextSourceViewer(parent, ruler, overviewRuler, showsAnnotationOverview, styles);
+			this.memberInjector.injectMembers(viewer);
+			return viewer;
 		}
 		
 	}
@@ -72,8 +84,43 @@ public class XtextSourceViewer extends ProjectionViewer implements IAdaptable {
 		fTextPresentationListeners.add(0, listener);
 	}
 	
+	@Inject
+	private Provider<IDocumentAutoFormatter> autoFormatterProvider;
+	
 	private int lengthDiff = Integer.MIN_VALUE;
 	
+	/** Replies the document auto-formatter.
+	 *
+	 * @return the service.
+	 */
+	public IDocumentAutoFormatter getDocumentAutoFormatter() {
+		final IDocument document = getDocument();
+		if (document instanceof IXtextDocument) {
+			final IDocumentAutoFormatter formatter = this.autoFormatterProvider.get();
+			formatter.bind((IXtextDocument) document, this.fContentFormatter);
+			return formatter;
+		}
+		return IDocumentAutoFormatter.NONE;
+	}
+
+	@Override
+	public void doOperation(int operation) {
+		if (operation == ITextOperationTarget.PASTE) {
+			final IRewriteTarget target = getRewriteTarget();
+			target.beginCompoundChange();
+			final IDocumentAutoFormatter formatter = getDocumentAutoFormatter();
+			formatter.beginAutoFormat();
+			try {
+				super.doOperation(operation);
+			} finally {
+				formatter.endAutoFormat();
+				target.endCompoundChange();
+			}
+		} else {
+			super.doOperation(operation);
+		}
+	}
+
 	/**
 	 * Informs all registered text listeners about the change specified by the
 	 * widget command. This method does not use a robust iterator.
