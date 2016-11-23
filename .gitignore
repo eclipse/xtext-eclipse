@@ -3,3 +3,4 @@ target/
 *._trace
 *.xtendbin
 /build/
+.DS_Store
