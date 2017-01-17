@@ -3,12 +3,10 @@
  */
 package org.eclipse.xtext.xbase.testlanguages.bug462047.ui;
 
-import org.eclipse.xtext.ui.guice.AbstractGuiceAwareExecutableExtensionFactory;
-import org.osgi.framework.Bundle;
-
 import com.google.inject.Injector;
-
-import org.eclipse.xtext.xbase.testlanguages.ui.internal.XImportSectionTestLangActivator;
+import org.eclipse.xtext.ui.guice.AbstractGuiceAwareExecutableExtensionFactory;
+import org.eclipse.xtext.xbase.testlanguages.ui.internal.TestlanguagesActivator;
+import org.osgi.framework.Bundle;
 
 /**
  * This class was generated. Customizations should only happen in a newly
@@ -18,12 +16,12 @@ public class Bug462047LangExecutableExtensionFactory extends AbstractGuiceAwareE
 
 	@Override
 	protected Bundle getBundle() {
-		return XImportSectionTestLangActivator.getInstance().getBundle();
+		return TestlanguagesActivator.getInstance().getBundle();
 	}
 	
 	@Override
 	protected Injector getInjector() {
-		return XImportSectionTestLangActivator.getInstance().getInjector(XImportSectionTestLangActivator.ORG_ECLIPSE_XTEXT_XBASE_TESTLANGUAGES_BUG462047_BUG462047LANG);
+		return TestlanguagesActivator.getInstance().getInjector(TestlanguagesActivator.ORG_ECLIPSE_XTEXT_XBASE_TESTLANGUAGES_BUG462047_BUG462047LANG);
 	}
 	
 }
