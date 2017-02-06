@@ -30,7 +30,7 @@ import com.google.inject.Inject;
 
 /**
  * Calculates the new text for a cross reference when the target is renamed. The functionality differs from the original
- * cross reference serializers {@link CrossReferenceSerializer} and
+ * cross reference serializers {@link CrossReferenceSerializer}Â and
  * {@link org.eclipse.xtext.serializer.tokens.CrossReferenceSerializer} as we have to preserve the syntax of the
  * original cross-reference, e.g. short-cut syntax for a getter call.
  * 
@@ -75,7 +75,7 @@ public class RefactoringCrossReferenceSerializer {
 						bestRefText = convertedRefText;
 				} catch (ValueConverterException e) {
 					status.add(RefactoringStatus.WARNING,
-							"Missconfigured language: New reference text has invalid syntax.", owner, linkTextRegion);
+							"Misconfigured language: New reference text has invalid syntax.", owner, linkTextRegion);
 				}
 			}
 			return bestRefText;
