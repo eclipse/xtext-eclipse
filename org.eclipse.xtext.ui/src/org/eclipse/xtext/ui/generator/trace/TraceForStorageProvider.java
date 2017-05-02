@@ -164,7 +164,10 @@ public class TraceForStorageProvider extends AbstractTraceForURIProvider<IFile, 
 	public IEclipseTrace getTraceToTarget(IStorage sourceResource) {
 		if (sourceResource instanceof IFile) {
 			IFile file = (IFile) sourceResource;
-			return getTraceToTarget(file, getAbsoluteLocation(file), getProjectConfig(file));
+			IProjectConfig sourceProjectConfig = getProjectConfig(file);
+			if (sourceProjectConfig != null) {
+				return getTraceToTarget(file, getAbsoluteLocation(file), sourceProjectConfig);
+			}
 		}
 		return null;
 	}
