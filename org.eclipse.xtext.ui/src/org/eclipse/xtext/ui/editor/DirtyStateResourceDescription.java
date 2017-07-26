@@ -14,7 +14,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
@@ -73,9 +75,13 @@ public class DirtyStateResourceDescription extends AbstractResourceDescription {
 			IResourceDescription delegateDescription = delegate.getResourceDescription(resource);
 			List<IEObjectDescription> result = newArrayList();
 			String hash = getTextHash(resource);
-			ImmutableMap<String, String> userData = ImmutableMap.of(TEXT_HASH, hash);
 			for (IEObjectDescription eObjectDescription : delegateDescription.getExportedObjects()) {
-				result.add(new EObjectDescription(eObjectDescription.getQualifiedName(), eObjectDescription.getEObjectOrProxy(), userData));
+				Map<String,String> userData = new HashMap<String,String>(eObjectDescription.getUserDataKeys().length + 1);
+				for (String userDataKey : eObjectDescription.getUserDataKeys()) {
+					userData.put(userDataKey, eObjectDescription.getUserData(userDataKey));
+				}
+				userData.put(TEXT_HASH, hash);
+				result.add(new EObjectDescription(eObjectDescription.getQualifiedName(), eObjectDescription.getEObjectOrProxy(), ImmutableMap.copyOf(userData)));
 			}
 			return result;
 		}
