@@ -90,6 +90,14 @@
     <description>Github user password</description>
   </setupTask>
   <setupTask
+      xsi:type="setup:VariableTask"
+      id="jenkins.url"
+      type="URI"
+      name="jenkins.url"
+      value="http://services.typefox.io/open-source/jenkins">
+    <description>Base URL of Jenkins build server</description>
+  </setupTask>
+  <setupTask
       xsi:type="setup:CompoundTask"
       name="Workspace Preferences">
     <setupTask
@@ -1341,8 +1349,6 @@
       <requirement
           name="org.eclipse.mylyn.bugzilla_feature.feature.group"/>
       <requirement
-          name="org.eclipse.mylyn.builds.feature.group"/>
-      <requirement
           name="org.eclipse.mylyn.context_feature.feature.group"/>
       <requirement
           name="org.eclipse.mylyn.discovery.feature.group"/>
@@ -1868,6 +1874,77 @@
       </setupTask>
     </stream>
     <description>Add Mylyn integration and Bugzilla/GitHub issues</description>
+  </project>
+  <project name="build"
+      label="Xtext Build Tasks">
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-core"
+        serverURL="${jenkins.url}/job/xtext-core/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-core Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-lib"
+        serverURL="${jenkins.url}/job/xtext-lib/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-lib Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-extras"
+        serverURL="${jenkins.url}/job/xtext-extras/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-extras Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-eclipse"
+        serverURL="${jenkins.url}/job/xtext-eclipse/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-eclipse Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-idea"
+        serverURL="${jenkins.url}/job/xtext-idea/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-idea Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-web"
+        serverURL="${jenkins.url}/job/xtext-web/"
+        userID="">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-web Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-maven"
+        serverURL="${jenkins.url}/job/xtext-maven/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-maven Jenkins Build Job</description>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        id="build.xtext-xtend"
+        serverURL="${jenkins.url}/job/xtext-xtend/">
+      <buildPlan
+          name="${xtext.git.branch}"/>
+      <description>xtext-xtend Jenkins Build Job</description>
+    </setupTask>
+    <stream
+        name="master"/>
+    <description>Adds the Mylyn Build Integration feature and populates the &quot;Builds&quot; view with the Xtext related Jenkins build jobs</description>
   </project>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
