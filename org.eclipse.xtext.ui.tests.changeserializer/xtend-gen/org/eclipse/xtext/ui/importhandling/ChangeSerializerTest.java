@@ -23,7 +23,6 @@ import org.eclipse.xtext.ui.tests.changeserializer.tests.ChangeSerializerInjecto
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,7 +41,6 @@ public class ChangeSerializerTest {
   private ChangeSerializerTestHelper _changeSerializerTestHelper;
   
   @Test
-  @Ignore
   public void testRenameGlobal1() {
     final InMemoryURIHandler fs = new InMemoryURIHandler();
     StringConcatenation _builder = new StringConcatenation();
@@ -65,7 +63,7 @@ public class ChangeSerializerTest {
     _builder_1.append("element Bar {");
     _builder_1.newLine();
     _builder_1.append("\t");
-    _builder_1.append("ref pkg1.Foo");
+    _builder_1.append("ref Foo");
     _builder_1.newLine();
     _builder_1.append("}");
     _builder_1.newLine();
@@ -79,7 +77,37 @@ public class ChangeSerializerTest {
     Assert.assertEquals(1, model.eResource().getResourceSet().getResources().size());
     Collection<IEmfResourceChange> _endRecordChangesToTextDocuments = this._changeSerializerTestHelper.endRecordChangesToTextDocuments(serializer);
     StringConcatenation _builder_2 = new StringConcatenation();
-    _builder_2.append("FIXME");
+    _builder_2.append("---------------- inmemory:/file1.chgser (syntax: <offset|text>) ----------------");
+    _builder_2.newLine();
+    _builder_2.append("package <8:4|newpackage>");
+    _builder_2.newLine();
+    _builder_2.newLine();
+    _builder_2.append("element Foo {");
+    _builder_2.newLine();
+    _builder_2.append("}");
+    _builder_2.newLine();
+    _builder_2.append("--------------------------------------------------------------------------------");
+    _builder_2.newLine();
+    _builder_2.append("8 4 \"pkg1\" -> \"newpackage\"");
+    _builder_2.newLine();
+    _builder_2.append("---------------- inmemory:/file2.chgser (syntax: <offset|text>) ----------------");
+    _builder_2.newLine();
+    _builder_2.append("package pkg2");
+    _builder_2.newLine();
+    _builder_2.newLine();
+    _builder_2.append("import <21:8|newpackage.Foo>");
+    _builder_2.newLine();
+    _builder_2.newLine();
+    _builder_2.append("element Bar {");
+    _builder_2.newLine();
+    _builder_2.append("\t");
+    _builder_2.append("ref Foo");
+    _builder_2.newLine();
+    _builder_2.append("}");
+    _builder_2.newLine();
+    _builder_2.append("--------------------------------------------------------------------------------");
+    _builder_2.newLine();
+    _builder_2.append("21 8 \"pkg1.Foo\" -> \"newpackage.Foo\"");
     _builder_2.newLine();
     this._changeSerializerTestHelper.operator_tripleEquals(_endRecordChangesToTextDocuments, _builder_2);
   }

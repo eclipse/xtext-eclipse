@@ -31,7 +31,7 @@ class ChangeSerializerTest {
 	@Inject Provider<ChangeSerializer> serializerProvider
 	@Inject extension ChangeSerializerTestHelper
 
-	@Test @Ignore
+	@Test
 	def void testRenameGlobal1() {
 		val fs = new InMemoryURIHandler()
 		fs += "inmemory:/file1.chgser" -> '''
@@ -46,7 +46,7 @@ class ChangeSerializerTest {
 			import pkg1.Foo
 			
 			element Bar {
-				ref pkg1.Foo
+				ref Foo
 			}
 		'''
 
@@ -58,7 +58,23 @@ class ChangeSerializerTest {
 		model.name = "newpackage"
 		Assert.assertEquals(1, model.eResource.resourceSet.resources.size)
 		serializer.endRecordChangesToTextDocuments === '''
-			FIXME
+			---------------- inmemory:/file1.chgser (syntax: <offset|text>) ----------------
+			package <8:4|newpackage>
+			
+			element Foo {
+			}
+			--------------------------------------------------------------------------------
+			8 4 "pkg1" -> "newpackage"
+			---------------- inmemory:/file2.chgser (syntax: <offset|text>) ----------------
+			package pkg2
+			
+			import <21:8|newpackage.Foo>
+			
+			element Bar {
+				ref Foo
+			}
+			--------------------------------------------------------------------------------
+			21 8 "pkg1.Foo" -> "newpackage.Foo"
 		'''
 	}
 

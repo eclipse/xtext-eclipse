@@ -5,6 +5,9 @@ package org.eclipse.xtext.ui.tests.changeserializer;
 
 import com.google.inject.Binder;
 import com.google.inject.name.Names;
+import org.eclipse.xtext.resource.IResourceDescriptions;
+import org.eclipse.xtext.resource.impl.LiveShadowedResourceDescriptions;
+import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider;
 import org.eclipse.xtext.ui.tests.changeserializer.AbstractChangeSerializerRuntimeModule;
@@ -16,7 +19,14 @@ import org.eclipse.xtext.ui.tests.changeserializer.scoping.ChangeSerializerImpor
 @SuppressWarnings("all")
 public class ChangeSerializerRuntimeModule extends AbstractChangeSerializerRuntimeModule {
   @Override
+  public void configureIResourceDescriptionsLiveScope(final Binder binder) {
+    binder.<IResourceDescriptions>bind(IResourceDescriptions.class).annotatedWith(Names.named(ResourceDescriptionsProvider.LIVE_SCOPE)).to(
+      LiveShadowedResourceDescriptions.class);
+  }
+  
+  @Override
   public void configureIScopeProviderDelegate(final Binder binder) {
-    binder.<IScopeProvider>bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(ChangeSerializerImportScopeProvider.class);
+    binder.<IScopeProvider>bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(
+      ChangeSerializerImportScopeProvider.class);
   }
 }

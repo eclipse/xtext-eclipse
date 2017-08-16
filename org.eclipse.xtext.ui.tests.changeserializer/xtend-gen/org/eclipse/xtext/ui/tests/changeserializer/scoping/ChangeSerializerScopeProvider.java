@@ -3,6 +3,12 @@
  */
 package org.eclipse.xtext.ui.tests.changeserializer.scoping;
 
+import com.google.inject.Inject;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.xtext.scoping.IGlobalScopeProvider;
+import org.eclipse.xtext.scoping.IScope;
+import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.ChangeSerializerPackage;
 import org.eclipse.xtext.ui.tests.changeserializer.scoping.AbstractChangeSerializerScopeProvider;
 
 /**
@@ -13,4 +19,14 @@ import org.eclipse.xtext.ui.tests.changeserializer.scoping.AbstractChangeSeriali
  */
 @SuppressWarnings("all")
 public class ChangeSerializerScopeProvider extends AbstractChangeSerializerScopeProvider {
+  @Inject
+  private IGlobalScopeProvider global;
+  
+  @Override
+  public IScope getScope(final EObject context, final EReference reference) {
+    if ((reference == ChangeSerializerPackage.Literals.IMPORT__ELEMENT)) {
+      return this.global.getScope(context.eResource(), reference, null);
+    }
+    return super.getScope(context, reference);
+  }
 }

@@ -3,6 +3,11 @@
  */
 package org.eclipse.xtext.ui.tests.changeserializer.scoping
 
+import com.google.inject.Inject
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EReference
+import org.eclipse.xtext.scoping.IGlobalScopeProvider
+import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.ChangeSerializerPackage
 
 /**
  * This class contains custom scoping description.
@@ -11,5 +16,14 @@ package org.eclipse.xtext.ui.tests.changeserializer.scoping
  * on how and when to use it.
  */
 class ChangeSerializerScopeProvider extends AbstractChangeSerializerScopeProvider {
+
+	@Inject IGlobalScopeProvider global
+
+	override getScope(EObject context, EReference reference) {
+		if (reference === ChangeSerializerPackage.Literals.IMPORT__ELEMENT) {
+			return global.getScope(context.eResource, reference, null)
+		}
+		return super.getScope(context, reference)
+	}
 
 }
