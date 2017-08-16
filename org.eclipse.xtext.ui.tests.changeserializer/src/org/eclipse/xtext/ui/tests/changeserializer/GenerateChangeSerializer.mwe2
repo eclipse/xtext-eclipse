@@ -22,6 +22,11 @@ Workflow {
 					root = rootPath
 					root = "${rootPath}/${baseName}"				
 				}
+				runtimeTest = {
+					enabled = true
+					root = rootPath
+					root = "${rootPath}/${baseName}"
+				}
 				createEclipseMetaData = true
 			}
 			code = {
@@ -37,6 +42,10 @@ Workflow {
 			serializer = {
 				generateStub = false
 			}
+			formatter = {
+				generateStub = true
+			}
+			
 			validator = {
 				// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
 			}

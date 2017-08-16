@@ -4,6 +4,7 @@
 package org.eclipse.xtext.ui.tests.changeserializer.ui;
 
 import com.google.inject.Injector;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.xtext.ui.guice.AbstractGuiceAwareExecutableExtensionFactory;
 import org.eclipse.xtext.ui.tests.changeserializer.ui.internal.ChangeserializerActivator;
 import org.osgi.framework.Bundle;
@@ -16,12 +17,13 @@ public class ChangeSerializerExecutableExtensionFactory extends AbstractGuiceAwa
 
 	@Override
 	protected Bundle getBundle() {
-		return ChangeserializerActivator.getInstance().getBundle();
+		return Platform.getBundle(ChangeserializerActivator.PLUGIN_ID);
 	}
 	
 	@Override
 	protected Injector getInjector() {
-		return ChangeserializerActivator.getInstance().getInjector(ChangeserializerActivator.ORG_ECLIPSE_XTEXT_UI_TESTS_CHANGESERIALIZER_CHANGESERIALIZER);
+		ChangeserializerActivator activator = ChangeserializerActivator.getInstance();
+		return activator != null ? activator.getInjector(ChangeserializerActivator.ORG_ECLIPSE_XTEXT_UI_TESTS_CHANGESERIALIZER_CHANGESERIALIZER) : null;
 	}
-	
+
 }

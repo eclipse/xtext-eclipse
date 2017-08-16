@@ -20,7 +20,12 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.ui,
  org.eclipse.xtext.ui,
  org.eclipse.compare,
- org.eclipse.xtext.builder
+ org.eclipse.xtext.builder,
+ org.junit;bundle-version="4.11.0",
+ org.eclipse.xtext.testing;bundle-version="2.13.0",
+ org.eclipse.xtext.ui.testing;bundle-version="2.13.0",
+ org.eclipse.xtext.ide;bundle-version="2.12.0",
+ org.eclipse.xtext.xbase.testing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.xtext.ui.tests.changeserializer.scoping,
  org.eclipse.xtext.ui.tests.changeserializer.parser.antlr.internal,
@@ -37,6 +42,15 @@ Export-Package: org.eclipse.xtext.ui.tests.changeserializer.scoping,
  org.eclipse.xtext.ui.tests.changeserializer.ui.quickfix,
  org.eclipse.xtext.ui.tests.changeserializer.ide.contentassist.antlr,
  org.eclipse.xtext.ui.tests.changeserializer.ide.contentassist.antlr.internal,
- org.eclipse.xtext.ui.tests.changeserializer.ui.contentassist
-Import-Package: org.apache.log4j
+ org.eclipse.xtext.ui.tests.changeserializer.ui.contentassist,
+ org.eclipse.xtext.ui.tests.changeserializer.tests;x-internal=true,
+ org.eclipse.xtext.ui.tests.changeserializer.formatting2
+Import-Package: org.apache.log4j,
+ org.hamcrest.core,
+ org.junit;version="4.5.0",
+ org.junit.runners.model;version="4.5.0",
+ org.junit.runner;version="4.5.0",
+ org.junit.runners;version="4.5.0",
+ org.junit.runner.manipulation;version="4.5.0",
+ org.junit.runner.notification;version="4.5.0"
 Bundle-Activator: org.eclipse.xtext.ui.tests.changeserializer.ui.internal.ChangeserializerActivator
