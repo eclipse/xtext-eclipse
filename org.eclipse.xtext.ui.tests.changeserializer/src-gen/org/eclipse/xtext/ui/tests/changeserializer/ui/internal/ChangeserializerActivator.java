@@ -23,7 +23,6 @@ import org.osgi.framework.BundleContext;
  */
 public class ChangeserializerActivator extends AbstractUIPlugin {
 
-	public static final String PLUGIN_ID = "org.eclipse.xtext.ui.tests.changeserializer.ui";
 	public static final String ORG_ECLIPSE_XTEXT_UI_TESTS_CHANGESERIALIZER_CHANGESERIALIZER = "org.eclipse.xtext.ui.tests.changeserializer.ChangeSerializer";
 	
 	private static final Logger logger = Logger.getLogger(ChangeserializerActivator.class);
@@ -90,6 +89,5 @@ public class ChangeserializerActivator extends AbstractUIPlugin {
 	protected Module getSharedStateModule() {
 		return new SharedStateModule();
 	}
-	
 	
 }

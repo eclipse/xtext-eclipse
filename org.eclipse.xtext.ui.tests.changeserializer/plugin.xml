@@ -413,13 +413,20 @@
 			type="text">
 		</fileTypes>
 	</extension>
- <extension
+	  <extension
        point="org.eclipse.ltk.core.refactoring.moveParticipants">
     <moveParticipant
-          class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveRefactoringParticipant"
-          id="org.eclipse.xtext.ui.tests.changeserializer.moveParticipant"
-          name="ChangeSerializer Move Participant">
+          class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipant"
+          id="org.eclipse.xtext.ui.refactoring.participant.moveParticipant"
+          name="Xtext Move Participant">
        <enablement></enablement>
     </moveParticipant>
- </extension>
+  </extension>
+   <extension
+         point="org.eclipse.xtext.ui.moveParticipantStrategy">
+      <participant
+            class="org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveParticipantStrategy">
+      </participant>
+   </extension>
+	
 </plugin>
