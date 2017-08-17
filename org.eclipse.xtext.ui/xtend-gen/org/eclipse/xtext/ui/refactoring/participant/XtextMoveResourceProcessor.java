@@ -12,21 +12,23 @@ import com.google.inject.Inject;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange;
+import org.eclipse.xtext.ide.refactoring.MoveResourceContext;
 import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor;
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange;
-import org.eclipse.xtext.ide.refactoring.XtextMoveArguments;
 import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy;
 import org.eclipse.xtext.ide.serializer.IChangeSerializer;
-import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.ui.refactoring.participant.ChangeConverter;
 import org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceStrategyRegistry;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer;
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -35,52 +37,44 @@ import org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceStrategyReg
 @SuppressWarnings("all")
 public class XtextMoveResourceProcessor {
   @Inject
+  private IResourceSetProvider resourceSetProvider;
+  
+  @Inject
+  private LiveScopeResourceSetInitializer liveScopeResourceSetInitializer;
+  
+  @Inject
   private IChangeSerializer changeSerializer;
   
   @Inject
-  private ChangeConverter changeConverter;
+  private MoveResourceContext.Factory contextFactory;
   
   @Inject
   private XtextMoveResourceStrategyRegistry strategyRegistry;
   
   @Inject
-  private IResourceServiceProvider.Registry resourceServiceProviderRegistry;
+  private ChangeConverter changeConverter;
   
-  public Change createChange(final String name, final XtextMoveArguments moveArguments, final RefactoringIssueAcceptor issues, final Set<?> excludedElements, final IProgressMonitor pm) throws CoreException, OperationCanceledException {
-    List<ResourceURIChange> _changes = moveArguments.getChanges();
-    for (final ResourceURIChange move : _changes) {
-      boolean _isXtextResource = this.isXtextResource(move.getOldURI());
-      if (_isXtextResource) {
-        final Resource resource = moveArguments.getResourceSet().getResource(move.getOldURI(), true);
-        this.changeSerializer.beginRecordChanges(resource);
-      }
+  public Change createChange(final String name, final List<ResourceURIChange> fileUriChanges, final List<ResourceURIChange> folderUriChanges, final IProject project, final RefactoringIssueAcceptor issues, final Set<?> excludedElements, final IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    if ((folderUriChanges.isEmpty() && fileUriChanges.isEmpty())) {
+      return null;
     }
-    List<ResourceURIChange> _changes_1 = moveArguments.getChanges();
-    for (final ResourceURIChange move_1 : _changes_1) {
-      boolean _isXtextResource_1 = this.isXtextResource(move_1.getOldURI());
-      if (_isXtextResource_1) {
-        final Resource resource_1 = moveArguments.getResourceSet().getResource(move_1.getOldURI(), true);
-        resource_1.setURI(move_1.getNewURI());
-      }
-    }
-    this.applyMoveStrategies(moveArguments, issues);
+    final ResourceSet resourceSet = this.resourceSetProvider.get(project);
+    this.liveScopeResourceSetInitializer.initialize(resourceSet);
+    final MoveResourceContext moveContext = this.contextFactory.create(fileUriChanges, folderUriChanges, issues, this.changeSerializer, resourceSet);
+    this.applyMoveStrategies(moveContext);
     final Predicate<Change> _function = (Change it) -> {
-      return ((!(it instanceof MoveResourceChange)) || (!excludedElements.contains(it.getModifiedElement())));
+      return ((!((it instanceof MoveResourceChange) || (it instanceof RenameResourceChange))) || (!excludedElements.contains(it.getModifiedElement())));
     };
     this.changeConverter.initialize(name, _function, issues);
     this.changeSerializer.endRecordChanges(this.changeConverter);
     return this.changeConverter.getChange();
   }
   
-  protected void applyMoveStrategies(final XtextMoveArguments moveArguments, final RefactoringIssueAcceptor issues) {
+  protected void applyMoveStrategies(final MoveResourceContext context) {
     final Consumer<XtextMoveResourceStrategy> _function = (XtextMoveResourceStrategy it) -> {
-      it.applyMove(moveArguments, issues);
+      it.applyMove(context);
     };
     this.strategyRegistry.getStrategies().forEach(_function);
-  }
-  
-  public boolean isXtextResource(final URI uri) {
-    IResourceServiceProvider _resourceServiceProvider = this.resourceServiceProviderRegistry.getResourceServiceProvider(uri);
-    return (_resourceServiceProvider != null);
+    context.executeModifications();
   }
 }

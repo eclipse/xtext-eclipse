@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -29,12 +28,9 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.ltk.core.refactoring.participants.RenameArguments;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange;
-import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments;
 import org.eclipse.xtext.ui.refactoring.participant.LtkIssueAcceptor;
-import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
+import org.eclipse.xtext.ui.refactoring.participant.ResourceURIConverter;
 import org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceProcessor;
-import org.eclipse.xtext.ui.resource.IResourceSetProvider;
-import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -47,49 +43,43 @@ import org.eclipse.xtext.xbase.lib.Extension;
 @SuppressWarnings("all")
 public class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
   @Inject
-  private IResourceSetProvider resourceSetProvider;
-  
-  @Inject
-  private LiveScopeResourceSetInitializer liveScopeResourceSetInitializer;
-  
-  @Inject
   private LtkIssueAcceptor issues;
   
   @Inject
   @Extension
-  private ResourceURIUtil _resourceURIUtil;
+  private ResourceURIConverter _resourceURIConverter;
   
   @Inject
   private XtextMoveResourceProcessor processor;
   
   private List<ResourceURIChange> folderUriChanges = CollectionLiterals.<ResourceURIChange>newArrayList();
   
-  private List<ResourceURIChange> uriChanges = CollectionLiterals.<ResourceURIChange>newArrayList();
+  private List<ResourceURIChange> fileUriChanges = CollectionLiterals.<ResourceURIChange>newArrayList();
   
-  private Set<IResource> modifiedResources = CollectionLiterals.<IResource>newHashSet();
+  private Set<IResource> renamedResources = CollectionLiterals.<IResource>newHashSet();
   
   private IProject project;
   
+  private Change change;
+  
   @Override
   public RefactoringStatus checkConditions(final IProgressMonitor pm, final CheckConditionsContext context) throws OperationCanceledException {
-    return this.issues.getRefactoringStatus();
+    try {
+      this.change = this.processor.createChange(this.getName(), this.fileUriChanges, this.folderUriChanges, this.project, this.issues, this.renamedResources, pm);
+      return this.issues.getRefactoringStatus();
+    } catch (Throwable _e) {
+      throw Exceptions.sneakyThrow(_e);
+    }
   }
   
   @Override
   public Change createChange(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
-    boolean _isEmpty = this.uriChanges.isEmpty();
-    if (_isEmpty) {
-      return null;
-    }
-    final ResourceSet resourceSet = this.resourceSetProvider.get(this.project);
-    this.liveScopeResourceSetInitializer.initialize(resourceSet);
-    final XtextMoveFolderArguments moveFolderArguments = new XtextMoveFolderArguments(resourceSet, this.uriChanges, this.folderUriChanges);
-    return this.processor.createChange(this.getName(), moveFolderArguments, this.issues, this.modifiedResources, pm);
+    return this.change;
   }
   
   @Override
   public String getName() {
-    return "Xtext rename participant";
+    return "Xtext rename resource participant";
   }
   
   @Override
@@ -105,11 +95,11 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
   @Override
   public void addElement(final Object element, final RefactoringArguments arguments) {
     if ((arguments instanceof RenameArguments)) {
-      if ((element instanceof IContainer)) {
+      if ((element instanceof IResource)) {
         if ((this.project == null)) {
-          this.project = ((IContainer)element).getProject();
+          this.project = ((IResource)element).getProject();
         }
-        final IPath oldPath = ((IContainer)element).getFullPath();
+        final IPath oldPath = ((IResource)element).getFullPath();
         final IPath newPath = oldPath.removeLastSegments(1).append(((RenameArguments)arguments).getNewName());
         this.addResource(((IResource)element), oldPath, newPath, ((RenameArguments)arguments));
       }
@@ -120,15 +110,14 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
     try {
       boolean _isPrefixOf = oldPath.isPrefixOf(resource.getFullPath());
       if (_isPrefixOf) {
-        final URI oldURI = this._resourceURIUtil.toURI(resource);
-        final URI newURI = this._resourceURIUtil.toURI(newPath.append(resource.getFullPath().removeFirstSegments(oldPath.segmentCount())));
+        final URI oldURI = this._resourceURIConverter.toURI(resource);
+        final URI newURI = this._resourceURIConverter.toURI(newPath.append(resource.getFullPath().removeFirstSegments(oldPath.segmentCount())));
         final ResourceURIChange uriChange = new ResourceURIChange(oldURI, newURI);
+        this.renamedResources.add(resource);
         if ((resource instanceof IFile)) {
-          this.modifiedResources.add(((IFile)resource));
-          this.uriChanges.add(uriChange);
+          this.fileUriChanges.add(uriChange);
         } else {
           if ((resource instanceof IContainer)) {
-            this.modifiedResources.add(((IContainer)resource));
             this.folderUriChanges.add(uriChange);
             final Consumer<IResource> _function = (IResource member) -> {
               this.addResource(member, oldPath, newPath, arguments);

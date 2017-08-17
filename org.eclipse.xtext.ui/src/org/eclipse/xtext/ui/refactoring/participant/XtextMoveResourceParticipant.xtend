@@ -22,9 +22,7 @@ import org.eclipse.ltk.core.refactoring.participants.MoveArguments
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange
-import org.eclipse.xtext.ide.refactoring.XtextMoveArguments
-import org.eclipse.xtext.ui.resource.IResourceSetProvider
-import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
+import org.eclipse.ltk.core.refactoring.Change
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -32,32 +30,27 @@ import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
  */
 class XtextMoveResourceParticipant extends MoveParticipant implements ISharableParticipant {
 
-	@Inject IResourceSetProvider resourceSetProvider
-	@Inject LiveScopeResourceSetInitializer liveScopeResourceSetInitializer
 	@Inject LtkIssueAcceptor issues
-	@Inject extension ResourceURIUtil
+	@Inject extension ResourceURIConverter
 	@Inject XtextMoveResourceProcessor processor
-
-	List<ResourceURIChange> uriChanges = newArrayList()
-	Set<IFile> modifiedElements = newHashSet
-
+	
+	List<ResourceURIChange> fileUriChanges = newArrayList()
+	Set<IFile> movedFiles = newHashSet
 	IProject project // TODO: multi-project move
 
+	Change change 
+	
 	override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
+		change = processor.createChange(name, fileUriChanges, emptyList, project, issues, movedFiles, pm)
 		return issues.refactoringStatus
 	}
 
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		if (uriChanges.empty)
-			return null
-		val resourceSet = resourceSetProvider.get(project)
-		liveScopeResourceSetInitializer.initialize(resourceSet)
-		val moveArguments = new XtextMoveArguments(resourceSet, uriChanges)
-		return processor.createChange(name, moveArguments, issues, modifiedElements, pm)
+		return change
 	}
 
 	override getName() {
-		'Xtext move participant'
+		'Xtext move resource participant'
 	}
 
 	override protected initialize(Object element) {
@@ -73,8 +66,8 @@ class XtextMoveResourceParticipant extends MoveParticipant implements ISharableP
 					if (project === null)
 						project = element.project
 					val destinationFile = destination.getFile(element.name)
-					uriChanges += new ResourceURIChange(element.toURI, destinationFile.toURI)
-					modifiedElements += element
+					fileUriChanges += new ResourceURIChange(element.toURI, destinationFile.toURI)
+					movedFiles += element
 				}
 			}
 		}

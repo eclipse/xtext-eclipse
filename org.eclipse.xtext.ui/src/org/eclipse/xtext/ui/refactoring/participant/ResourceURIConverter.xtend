@@ -23,7 +23,7 @@ import org.eclipse.xtext.ui.resource.IStorage2UriMapper
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
-class ResourceURIUtil {
+class ResourceURIConverter {
 	
 	@Inject(optional = true) IWorkspace workspace
 	

@@ -27,7 +27,7 @@ import org.eclipse.xtext.ui.resource.IStorage2UriMapper;
  * @since 2.13
  */
 @SuppressWarnings("all")
-public class ResourceURIUtil {
+public class ResourceURIConverter {
   @Inject(optional = true)
   private IWorkspace workspace;
   

@@ -21,7 +21,7 @@ import org.eclipse.xtext.formatting2.regionaccess.ITextReplacement;
 import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor;
 import org.eclipse.xtext.ide.serializer.IEmfResourceChange;
 import org.eclipse.xtext.ide.serializer.ITextDocumentChange;
-import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
+import org.eclipse.xtext.ui.refactoring.participant.ResourceURIConverter;
 import org.eclipse.xtext.util.IAcceptor;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Extension;
@@ -44,7 +44,7 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
   
   @Inject
   @Extension
-  private ResourceURIUtil _resourceURIUtil;
+  private ResourceURIConverter _resourceURIConverter;
   
   public Predicate<Change> initialize(final String name, final Predicate<Change> changeFilter, final RefactoringIssueAcceptor issues) {
     Predicate<Change> _xblockexpression = null;
@@ -92,7 +92,7 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
         return new ReplaceEdit(_offset, _length, _replacementText);
       };
       final List<ReplaceEdit> textEdits = ListExtensions.<ITextReplacement, ReplaceEdit>map(change.getReplacements(), _function);
-      final IFile file = this._resourceURIUtil.toFile(change.getNewURI());
+      final IFile file = this._resourceURIConverter.toFile(change.getNewURI());
       final MultiTextEdit textEdit = new MultiTextEdit();
       textEdit.addChildren(((TextEdit[])Conversions.unwrapArray(textEdits, TextEdit.class)));
       String _lastSegment = change.getOldURI().lastSegment();
@@ -113,9 +113,9 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
       String _lastSegment_1 = change.getOldURI().lastSegment();
       boolean _equals = Objects.equal(_lastSegment, _lastSegment_1);
       if (_equals) {
-        final IFile newFile = this._resourceURIUtil.toFile(change.getNewURI());
+        final IFile newFile = this._resourceURIConverter.toFile(change.getNewURI());
         final IContainer newContainer = newFile.getParent();
-        final IFile oldFile = this._resourceURIUtil.toFile(change.getOldURI());
+        final IFile oldFile = this._resourceURIConverter.toFile(change.getOldURI());
         final MoveResourceChange ltkChange = new MoveResourceChange(oldFile, newContainer);
         this.addChange(ltkChange);
       } else {
@@ -123,7 +123,7 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
         URI _trimSegments_1 = change.getOldURI().trimSegments(1);
         boolean _equals_1 = Objects.equal(_trimSegments, _trimSegments_1);
         if (_equals_1) {
-          IPath _fullPath = this._resourceURIUtil.toFile(change.getOldURI()).getFullPath();
+          IPath _fullPath = this._resourceURIConverter.toFile(change.getOldURI()).getFullPath();
           String _lastSegment_2 = change.getNewURI().lastSegment();
           final RenameResourceChange ltkChange_1 = new RenameResourceChange(_fullPath, _lastSegment_2);
           this.addChange(ltkChange_1);

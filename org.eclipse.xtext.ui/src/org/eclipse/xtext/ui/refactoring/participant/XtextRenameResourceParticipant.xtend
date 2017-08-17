@@ -24,9 +24,7 @@ import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
 import org.eclipse.ltk.core.refactoring.participants.RenameArguments
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange
-import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments
-import org.eclipse.xtext.ui.resource.IResourceSetProvider
-import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
+import org.eclipse.ltk.core.refactoring.Change
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -34,34 +32,29 @@ import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
  */
 class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
 
-	@Inject IResourceSetProvider resourceSetProvider
-	@Inject LiveScopeResourceSetInitializer liveScopeResourceSetInitializer
-	
 	@Inject LtkIssueAcceptor issues
-	@Inject extension ResourceURIUtil
+	@Inject extension ResourceURIConverter
 	@Inject XtextMoveResourceProcessor processor
 
 	List<ResourceURIChange> folderUriChanges = newArrayList()
-	List<ResourceURIChange> uriChanges = newArrayList()
-	Set<IResource> modifiedResources = newHashSet
+	List<ResourceURIChange> fileUriChanges = newArrayList()
+	Set<IResource> renamedResources = newHashSet
 
 	IProject project
-
+	
+	Change change
+	
 	override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
+		change = processor.createChange(name, fileUriChanges, folderUriChanges, project, issues, renamedResources, pm)
 		return issues.refactoringStatus
 	}
 
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		if(uriChanges.empty)
-			return null
-		val resourceSet = resourceSetProvider.get(project)
-		liveScopeResourceSetInitializer.initialize(resourceSet)
-		val moveFolderArguments = new XtextMoveFolderArguments(resourceSet, uriChanges, folderUriChanges)
-		return processor.createChange(name, moveFolderArguments, issues, modifiedResources, pm)
+		return change 
 	}
 
 	override getName() {
-		'Xtext rename participant'
+		'Xtext rename resource participant'
 	}
 
 	override protected initialize(Object element) {
@@ -71,7 +64,7 @@ class XtextRenameResourceParticipant extends RenameParticipant implements IShara
 
 	override addElement(Object element, RefactoringArguments arguments) {
 		if (arguments instanceof RenameArguments) {
-			if (element instanceof IContainer) {
+			if (element instanceof IResource) {
 				if (project === null)
 					project = element.project
 				val oldPath = element.fullPath
@@ -86,11 +79,10 @@ class XtextRenameResourceParticipant extends RenameParticipant implements IShara
 			val oldURI = resource.toURI
 			val newURI = newPath.append(resource.fullPath.removeFirstSegments(oldPath.segmentCount)).toURI
 			val uriChange = new ResourceURIChange(oldURI, newURI)
+			renamedResources += resource
 			if (resource instanceof IFile) {
-				modifiedResources += resource
-				uriChanges += uriChange
+				fileUriChanges += uriChange
 			} else if (resource instanceof IContainer) {
-				modifiedResources += resource
 				folderUriChanges += uriChange
 				resource.members.forEach [ member |
 					addResource(member, oldPath, newPath, arguments)

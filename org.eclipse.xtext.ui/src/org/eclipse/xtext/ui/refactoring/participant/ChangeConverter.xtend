@@ -26,7 +26,7 @@ class ChangeConverter implements IAcceptor<IEmfResourceChange> {
 	RefactoringIssueAcceptor issues
 	Predicate<Change> changeFilter
 	
-	@Inject extension ResourceURIUtil
+	@Inject extension ResourceURIConverter
 
 	def initialize(String name, Predicate<Change> changeFilter, RefactoringIssueAcceptor issues) {
 		currentChange = new CompositeChange(name)
