@@ -30,10 +30,11 @@ import org.eclipse.ltk.core.refactoring.participants.RenameArguments;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange;
 import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments;
-import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider;
 import org.eclipse.xtext.ui.refactoring.participant.LtkIssueAcceptor;
 import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
 import org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceProcessor;
+import org.eclipse.xtext.ui.resource.IResourceSetProvider;
+import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -46,7 +47,10 @@ import org.eclipse.xtext.xbase.lib.Extension;
 @SuppressWarnings("all")
 public class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
   @Inject
-  private RefactoringResourceSetProvider resourceSetProvider;
+  private IResourceSetProvider resourceSetProvider;
+  
+  @Inject
+  private LiveScopeResourceSetInitializer liveScopeResourceSetInitializer;
   
   @Inject
   private LtkIssueAcceptor issues;
@@ -78,13 +82,14 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
       return null;
     }
     final ResourceSet resourceSet = this.resourceSetProvider.get(this.project);
+    this.liveScopeResourceSetInitializer.initialize(resourceSet);
     final XtextMoveFolderArguments moveFolderArguments = new XtextMoveFolderArguments(resourceSet, this.uriChanges, this.folderUriChanges);
     return this.processor.createChange(this.getName(), moveFolderArguments, this.issues, this.modifiedResources, pm);
   }
   
   @Override
   public String getName() {
-    return "Xtext move participant";
+    return "Xtext rename participant";
   }
   
   @Override

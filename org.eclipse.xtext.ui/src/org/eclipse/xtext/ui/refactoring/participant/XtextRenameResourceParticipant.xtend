@@ -25,7 +25,8 @@ import org.eclipse.ltk.core.refactoring.participants.RenameArguments
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange
 import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments
-import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
+import org.eclipse.xtext.ui.resource.IResourceSetProvider
+import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -33,7 +34,9 @@ import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
  */
 class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
 
-	@Inject RefactoringResourceSetProvider resourceSetProvider
+	@Inject IResourceSetProvider resourceSetProvider
+	@Inject LiveScopeResourceSetInitializer liveScopeResourceSetInitializer
+	
 	@Inject LtkIssueAcceptor issues
 	@Inject extension ResourceURIUtil
 	@Inject XtextMoveResourceProcessor processor
@@ -52,12 +55,13 @@ class XtextRenameResourceParticipant extends RenameParticipant implements IShara
 		if(uriChanges.empty)
 			return null
 		val resourceSet = resourceSetProvider.get(project)
+		liveScopeResourceSetInitializer.initialize(resourceSet)
 		val moveFolderArguments = new XtextMoveFolderArguments(resourceSet, uriChanges, folderUriChanges)
 		return processor.createChange(name, moveFolderArguments, issues, modifiedResources, pm)
 	}
 
 	override getName() {
-		'Xtext move participant'
+		'Xtext rename participant'
 	}
 
 	override protected initialize(Object element) {
