@@ -428,5 +428,13 @@
             class="org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveResourceStrategy">
       </participant>
    </extension>
-	
+   <extension
+         point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+          	class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.participant.XtextRenameResourceParticipant"
+         	 id="org.eclipse.xtext.ui.refactoring.participant.renameResourceParticipant"
+            name="Xtext Rename Resource Participant">
+       <enablement></enablement>
+      </renameParticipant>
+   </extension>
 </plugin>
