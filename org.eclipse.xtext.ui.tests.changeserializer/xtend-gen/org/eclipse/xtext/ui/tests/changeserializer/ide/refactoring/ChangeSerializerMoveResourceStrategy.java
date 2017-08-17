@@ -1,4 +1,4 @@
-package org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring;
+package org.eclipse.xtext.ui.tests.changeserializer.ide.refactoring;
 
 import com.google.inject.Inject;
 import java.util.List;

@@ -3,9 +3,14 @@
  */
 package org.eclipse.xtext.ui.tests.changeserializer.ide
 
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy
+import org.eclipse.xtext.ui.tests.changeserializer.ide.refactoring.ChangeSerializerMoveResourceStrategy
 
 /**
  * Use this class to register ide components.
  */
 class ChangeSerializerIdeModule extends AbstractChangeSerializerIdeModule {
+	def Class<? extends XtextMoveResourceStrategy> bindXtextMoveParticipantStrategy() {
+		ChangeSerializerMoveResourceStrategy
+	}
 }

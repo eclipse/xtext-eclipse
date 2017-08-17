@@ -416,7 +416,7 @@
    <extension
          point="org.eclipse.xtext.ui.resourceMoveStrategy">
       <strategy
-            class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveResourceStrategy">
+            class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.tests.changeserializer.ide.refactoring.ChangeSerializerMoveResourceStrategy">
       </strategy>
    </extension>
 </plugin>

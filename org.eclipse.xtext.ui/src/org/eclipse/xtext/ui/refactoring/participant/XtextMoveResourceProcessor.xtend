@@ -46,7 +46,6 @@ class XtextMoveResourceProcessor {
 				val resource = moveArguments.resourceSet.getResource(move.oldURI, true)
 				resource.setURI(move.newURI)
 			}
-			// TODO: should we add it if the newURI is an Xtext URI?
 		}
 		applyMoveStrategies(moveArguments, issues)
 		changeConverter.initialize(name, [

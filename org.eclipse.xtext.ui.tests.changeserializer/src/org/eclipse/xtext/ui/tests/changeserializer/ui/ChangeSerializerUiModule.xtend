@@ -4,16 +4,10 @@
 package org.eclipse.xtext.ui.tests.changeserializer.ui
 
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
-import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy
-import org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveResourceStrategy
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
  */
 @FinalFieldsConstructor
 class ChangeSerializerUiModule extends AbstractChangeSerializerUiModule {
-	
-	def Class<? extends XtextMoveResourceStrategy> bindXtextMoveParticipantStrategy() {
-		ChangeSerializerMoveResourceStrategy
-	}
 }
