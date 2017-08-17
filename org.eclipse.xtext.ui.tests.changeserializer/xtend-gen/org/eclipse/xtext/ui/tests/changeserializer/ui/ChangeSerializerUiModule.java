@@ -5,9 +5,9 @@ package org.eclipse.xtext.ui.tests.changeserializer.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor;
-import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy;
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy;
 import org.eclipse.xtext.ui.tests.changeserializer.ui.AbstractChangeSerializerUiModule;
-import org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveParticipantStrategy;
+import org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveResourceStrategy;
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
@@ -15,8 +15,8 @@ import org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializ
 @FinalFieldsConstructor
 @SuppressWarnings("all")
 public class ChangeSerializerUiModule extends AbstractChangeSerializerUiModule {
-  public Class<? extends XtextMoveStrategy> bindXtextMoveParticipantStrategy() {
-    return ChangeSerializerMoveParticipantStrategy.class;
+  public Class<? extends XtextMoveResourceStrategy> bindXtextMoveParticipantStrategy() {
+    return ChangeSerializerMoveResourceStrategy.class;
   }
   
   public ChangeSerializerUiModule(final AbstractUIPlugin plugin) {

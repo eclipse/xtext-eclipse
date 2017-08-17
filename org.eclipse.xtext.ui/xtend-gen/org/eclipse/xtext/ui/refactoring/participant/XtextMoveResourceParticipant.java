@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -29,23 +30,24 @@ import org.eclipse.ltk.core.refactoring.participants.MoveArguments;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
-import org.eclipse.xtext.ide.refactoring.ResourceMove;
+import org.eclipse.xtext.ide.refactoring.ResourceURIChange;
 import org.eclipse.xtext.ide.refactoring.XtextMoveArguments;
-import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy;
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy;
 import org.eclipse.xtext.ide.serializer.IChangeSerializer;
-import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider;
 import org.eclipse.xtext.ui.refactoring.participant.ChangeConverter;
 import org.eclipse.xtext.ui.refactoring.participant.LtkIssueAcceptor;
+import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
 import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategyRegistry;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
+import org.eclipse.xtext.xbase.lib.Extension;
 
 /**
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
 @SuppressWarnings("all")
-public class XtextMoveParticipant extends MoveParticipant implements ISharableParticipant {
+public class XtextMoveResourceParticipant extends MoveParticipant implements ISharableParticipant {
   @Inject
   private IChangeSerializer changeSerializer;
   
@@ -62,9 +64,10 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   private XtextMoveParticipantStrategyRegistry strategyRegistry;
   
   @Inject
-  private IResourceServiceProvider.Registry resourceServiceProviderRegistry;
+  @Extension
+  private ResourceURIUtil _resourceURIUtil;
   
-  private List<ResourceMove> moves = CollectionLiterals.<ResourceMove>newArrayList();
+  private List<ResourceURIChange> uriChanges = CollectionLiterals.<ResourceURIChange>newArrayList();
   
   private Set<IFile> modifiedElements = CollectionLiterals.<IFile>newHashSet();
   
@@ -77,19 +80,19 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   
   @Override
   public Change createChange(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
-    boolean _isEmpty = this.moves.isEmpty();
+    boolean _isEmpty = this.uriChanges.isEmpty();
     if (_isEmpty) {
       return null;
     }
     final ResourceSet resourceSet = this.resourceSetProvider.get(this.project);
-    final XtextMoveArguments moveArguments = new XtextMoveArguments(resourceSet, this.moves);
-    for (final ResourceMove move : this.moves) {
+    final XtextMoveArguments moveArguments = new XtextMoveArguments(resourceSet, this.uriChanges);
+    for (final ResourceURIChange move : this.uriChanges) {
       {
         final Resource resource = resourceSet.getResource(move.getOldURI(), true);
         this.changeSerializer.beginRecordChanges(resource);
       }
     }
-    for (final ResourceMove move_1 : this.moves) {
+    for (final ResourceURIChange move_1 : this.uriChanges) {
       {
         final Resource resource = resourceSet.getResource(move_1.getOldURI(), true);
         resource.setURI(move_1.getNewURI());
@@ -106,7 +109,7 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   }
   
   protected void applyMove(final XtextMoveArguments moveArguments) {
-    final Consumer<XtextMoveStrategy> _function = (XtextMoveStrategy it) -> {
+    final Consumer<XtextMoveResourceStrategy> _function = (XtextMoveResourceStrategy it) -> {
       it.applyMove(moveArguments, this.issues);
     };
     this.strategyRegistry.getStrategies().forEach(_function);
@@ -131,8 +134,8 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   public void addElement(final Object element, final RefactoringArguments arguments) {
     if ((arguments instanceof MoveArguments)) {
       if ((element instanceof IFile)) {
-        final URI oldURI = this.getURI(((IFile)element));
-        boolean _isXtextResource = this.isXtextResource(oldURI);
+        final URI oldURI = this._resourceURIUtil.toURI(((IResource)element));
+        boolean _isXtextResource = this._resourceURIUtil.isXtextResource(oldURI);
         if (_isXtextResource) {
           final Object destination = ((MoveArguments)arguments).getDestination();
           if ((destination instanceof IFolder)) {
@@ -140,23 +143,14 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
               this.project = ((IFile)element).getProject();
             }
             final IFile destinationFile = ((IFolder)destination).getFile(((IFile)element).getName());
-            URI _uRI = this.getURI(((IFile)element));
-            URI _uRI_1 = this.getURI(destinationFile);
-            ResourceMove _resourceMove = new ResourceMove(_uRI, _uRI_1);
-            this.moves.add(_resourceMove);
+            URI _uRI = this._resourceURIUtil.toURI(((IResource)element));
+            URI _uRI_1 = this._resourceURIUtil.toURI(destinationFile);
+            ResourceURIChange _resourceURIChange = new ResourceURIChange(_uRI, _uRI_1);
+            this.uriChanges.add(_resourceURIChange);
             this.modifiedElements.add(((IFile)element));
           }
         }
       }
     }
-  }
-  
-  public boolean isXtextResource(final URI uri) {
-    IResourceServiceProvider _resourceServiceProvider = this.resourceServiceProviderRegistry.getResourceServiceProvider(uri);
-    return (_resourceServiceProvider != null);
-  }
-  
-  public URI getURI(final IFile file) {
-    return URI.createPlatformResourceURI(file.getFullPath().toString(), true);
   }
 }

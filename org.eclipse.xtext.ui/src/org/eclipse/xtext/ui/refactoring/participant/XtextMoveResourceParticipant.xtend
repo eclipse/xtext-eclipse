@@ -9,32 +9,30 @@ package org.eclipse.xtext.ui.refactoring.participant
 
 import com.google.inject.Inject
 import java.util.List
+import java.util.Set
 import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
-import org.eclipse.emf.common.util.URI
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext
 import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant
 import org.eclipse.ltk.core.refactoring.participants.MoveArguments
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
+import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
+import org.eclipse.xtext.ide.refactoring.ResourceURIChange
+import org.eclipse.xtext.ide.refactoring.XtextMoveArguments
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy
 import org.eclipse.xtext.ide.serializer.IChangeSerializer
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
-import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
-import java.util.Set
-import org.eclipse.xtext.resource.IResourceServiceProvider
-import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy
-import org.eclipse.xtext.ide.refactoring.ResourceMove
-import org.eclipse.xtext.ide.refactoring.XtextMoveArguments
 
 /**
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
-class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveStrategy> {
+class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveResourceStrategy> {
 	override protected getExtensionPointID() {
 		'org.eclipse.xtext.ui.moveParticipantStrategy'
 	}
@@ -44,16 +42,16 @@ class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRe
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
-class XtextMoveParticipant extends MoveParticipant implements ISharableParticipant {
+class XtextMoveResourceParticipant extends MoveParticipant implements ISharableParticipant {
 	
 	@Inject IChangeSerializer changeSerializer
 	@Inject ChangeConverter changeConverter
 	@Inject RefactoringResourceSetProvider resourceSetProvider
 	@Inject LtkIssueAcceptor issues
 	@Inject XtextMoveParticipantStrategyRegistry strategyRegistry
-	@Inject IResourceServiceProvider.Registry resourceServiceProviderRegistry 
+	@Inject extension ResourceURIUtil
 	
-	List<ResourceMove> moves = newArrayList()
+	List<ResourceURIChange> uriChanges = newArrayList()
 	Set<IFile> modifiedElements = newHashSet
 	
 	IProject project // TODO: multi-project move
@@ -63,15 +61,15 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	}
 	
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		if(moves.empty)
+		if(uriChanges.empty)
 			return null
 		val resourceSet = resourceSetProvider.get(project)
-		val moveArguments = new XtextMoveArguments(resourceSet, moves)
-		for(move: moves) {
+		val moveArguments = new XtextMoveArguments(resourceSet, uriChanges)
+		for(move: uriChanges) {
 			val resource = resourceSet.getResource(move.oldURI, true)
 			changeSerializer.beginRecordChanges(resource)
 		}
-		for(move: moves) {
+		for(move: uriChanges) {
 			val resource = resourceSet.getResource(move.oldURI, true)
 			resource.setURI(move.newURI)
 		}
@@ -99,27 +97,19 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	override addElement(Object element, RefactoringArguments arguments) {
 		if (arguments instanceof MoveArguments) {
 			if (element instanceof IFile) {
-				val oldURI = element.URI
+				val oldURI = element.toURI
 				if (oldURI.isXtextResource) {					
 					val destination = arguments.destination
 					if(destination instanceof IFolder) {
 						if(project === null)
 							project = element.project
 						val destinationFile = destination.getFile(element.name)
-						moves += new ResourceMove(element.URI, destinationFile.URI)
+						uriChanges += new ResourceURIChange(element.toURI, destinationFile.toURI)
 						modifiedElements += element
 					}
 				}
 			}
 		}
-	}
-	
-	def isXtextResource(URI uri) {
-		resourceServiceProviderRegistry.getResourceServiceProvider(uri) !== null
-	}
-	
-	def URI getURI(IFile file) {
-		URI.createPlatformResourceURI(file.fullPath.toString, true) 
 	}
 }
 

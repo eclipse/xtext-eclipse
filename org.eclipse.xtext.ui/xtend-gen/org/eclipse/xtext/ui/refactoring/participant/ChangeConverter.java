@@ -7,14 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -22,8 +21,10 @@ import org.eclipse.xtext.formatting2.regionaccess.ITextReplacement;
 import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor;
 import org.eclipse.xtext.ide.serializer.IEmfResourceChange;
 import org.eclipse.xtext.ide.serializer.ITextDocumentChange;
+import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
 import org.eclipse.xtext.util.IAcceptor;
 import org.eclipse.xtext.xbase.lib.Conversions;
+import org.eclipse.xtext.xbase.lib.Extension;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 
@@ -41,8 +42,9 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
   
   private Predicate<Change> changeFilter;
   
-  @Inject(optional = true)
-  private IWorkspace workspace;
+  @Inject
+  @Extension
+  private ResourceURIUtil _resourceURIUtil;
   
   public Predicate<Change> initialize(final String name, final Predicate<Change> changeFilter, final RefactoringIssueAcceptor issues) {
     Predicate<Change> _xblockexpression = null;
@@ -90,7 +92,7 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
         return new ReplaceEdit(_offset, _length, _replacementText);
       };
       final List<ReplaceEdit> textEdits = ListExtensions.<ITextReplacement, ReplaceEdit>map(change.getReplacements(), _function);
-      final IFile file = this.toFile(change.getNewURI());
+      final IFile file = this._resourceURIUtil.toFile(change.getNewURI());
       final MultiTextEdit textEdit = new MultiTextEdit();
       textEdit.addChildren(((TextEdit[])Conversions.unwrapArray(textEdits, TextEdit.class)));
       String _lastSegment = change.getOldURI().lastSegment();
@@ -111,11 +113,21 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
       String _lastSegment_1 = change.getOldURI().lastSegment();
       boolean _equals = Objects.equal(_lastSegment, _lastSegment_1);
       if (_equals) {
-        final IFile newFile = this.toFile(change.getNewURI());
+        final IFile newFile = this._resourceURIUtil.toFile(change.getNewURI());
         final IContainer newContainer = newFile.getParent();
-        final IFile oldFile = this.toFile(change.getOldURI());
+        final IFile oldFile = this._resourceURIUtil.toFile(change.getOldURI());
         final MoveResourceChange ltkChange = new MoveResourceChange(oldFile, newContainer);
         this.addChange(ltkChange);
+      } else {
+        URI _trimSegments = change.getNewURI().trimSegments(1);
+        URI _trimSegments_1 = change.getOldURI().trimSegments(1);
+        boolean _equals_1 = Objects.equal(_trimSegments, _trimSegments_1);
+        if (_equals_1) {
+          IPath _fullPath = this._resourceURIUtil.toFile(change.getOldURI()).getFullPath();
+          String _lastSegment_2 = change.getNewURI().lastSegment();
+          final RenameResourceChange ltkChange_1 = new RenameResourceChange(_fullPath, _lastSegment_2);
+          this.addChange(ltkChange_1);
+        }
       }
     }
   }
@@ -125,13 +137,6 @@ public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
     if (_apply) {
       this.currentChange.add(change);
     }
-  }
-  
-  protected IFile toFile(final URI uri) {
-    IWorkspaceRoot _root = this.workspace.getRoot();
-    String _platformString = uri.toPlatformString(true);
-    Path _path = new Path(_platformString);
-    return _root.getFile(_path);
   }
   
   protected void doConvert(final IEmfResourceChange change) {

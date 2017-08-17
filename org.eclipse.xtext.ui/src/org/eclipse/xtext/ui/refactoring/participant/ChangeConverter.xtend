@@ -2,13 +2,11 @@ package org.eclipse.xtext.ui.refactoring.participant
 
 import com.google.common.base.Predicate
 import com.google.inject.Inject
-import org.eclipse.core.resources.IWorkspace
-import org.eclipse.core.runtime.Path
-import org.eclipse.emf.common.util.URI
 import org.eclipse.ltk.core.refactoring.Change
 import org.eclipse.ltk.core.refactoring.CompositeChange
 import org.eclipse.ltk.core.refactoring.TextFileChange
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange
 import org.eclipse.text.edits.MultiTextEdit
 import org.eclipse.text.edits.ReplaceEdit
 import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor
@@ -28,7 +26,7 @@ class ChangeConverter implements IAcceptor<IEmfResourceChange> {
 	RefactoringIssueAcceptor issues
 	Predicate<Change> changeFilter
 	
-	@Inject(optional=true) IWorkspace workspace
+	@Inject extension ResourceURIUtil
 
 	def initialize(String name, Predicate<Change> changeFilter, RefactoringIssueAcceptor issues) {
 		currentChange = new CompositeChange(name)
@@ -81,6 +79,9 @@ class ChangeConverter implements IAcceptor<IEmfResourceChange> {
 				val oldFile = change.oldURI.toFile
 				val ltkChange = new MoveResourceChange(oldFile, newContainer)
 				addChange(ltkChange)
+			} else if(change.newURI.trimSegments(1) == change.oldURI.trimSegments(1)) {
+				val ltkChange = new RenameResourceChange(change.oldURI.toFile.fullPath, change.newURI.lastSegment)
+				addChange(ltkChange)
 			} 
 		}
 	}
@@ -88,9 +89,5 @@ class ChangeConverter implements IAcceptor<IEmfResourceChange> {
 	protected def void addChange(Change change) {
 		if(changeFilter.apply(change))
 			currentChange.add(change)
-	}
-	
-	protected def toFile(URI uri) {
-		workspace.root.getFile(new Path(uri.toPlatformString(true)))
 	}
 }

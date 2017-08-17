@@ -416,16 +416,16 @@
 	  <extension
        point="org.eclipse.ltk.core.refactoring.moveParticipants">
     <moveParticipant
-          class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipant"
-          id="org.eclipse.xtext.ui.refactoring.participant.moveParticipant"
-          name="Xtext Move Participant">
+          class="org.eclipse.xtext.ui.tests.changeserializer.ui.ChangeSerializerExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceParticipant"
+          id="org.eclipse.xtext.ui.refactoring.participant.renameResourceParticipant"
+          name="Xtext Move Resource Participant">
        <enablement></enablement>
     </moveParticipant>
   </extension>
    <extension
          point="org.eclipse.xtext.ui.moveParticipantStrategy">
       <participant
-            class="org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveParticipantStrategy">
+            class="org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring.ChangeSerializerMoveResourceStrategy">
       </participant>
    </extension>
 	
