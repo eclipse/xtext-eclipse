@@ -6,31 +6,29 @@ package org.eclipse.xtext.ui.tests.changeserializer.formatting2
 import com.google.inject.Inject
 import org.eclipse.xtext.formatting2.AbstractFormatter2
 import org.eclipse.xtext.formatting2.IFormattableDocument
+import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.ChangeSerializerPackage
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.Element
-import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.Import
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.PackageDeclaration
 import org.eclipse.xtext.ui.tests.changeserializer.services.ChangeSerializerGrammarAccess
 
 class ChangeSerializerFormatter extends AbstractFormatter2 {
-	
+
 	@Inject extension ChangeSerializerGrammarAccess
 
-	def dispatch void format(PackageDeclaration packageDeclaration, extension IFormattableDocument document) {
-		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
-		for (Import _import : packageDeclaration.getImports()) {
-			_import.format;
+	def dispatch void format(PackageDeclaration pkg, extension IFormattableDocument document) {
+		pkg.regionFor.feature(ChangeSerializerPackage.Literals.PACKAGE_DECLARATION__NAME).append[newLines = 2]
+		for (imp : pkg.imports) {
+			imp.format;
+			imp.append[newLines = if(imp === pkg.imports.last) 2 else 1]
 		}
-		for (Element element : packageDeclaration.getContents()) {
+		for (Element element : pkg.getContents()) {
 			element.format;
 		}
 	}
 
 	def dispatch void format(Element element, extension IFormattableDocument document) {
-		// TODO: format HiddenRegions around keywords, attributes, cross references, etc. 
 		for (Element _element : element.getContents()) {
 			_element.format;
 		}
 	}
-	
-	// TODO: implement for 
 }

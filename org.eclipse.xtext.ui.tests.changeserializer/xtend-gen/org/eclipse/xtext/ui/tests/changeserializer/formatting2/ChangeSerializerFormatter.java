@@ -9,12 +9,16 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.formatting2.AbstractFormatter2;
 import org.eclipse.xtext.formatting2.IFormattableDocument;
+import org.eclipse.xtext.formatting2.IHiddenRegionFormatter;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.ChangeSerializerPackage;
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.Element;
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.Import;
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.PackageDeclaration;
 import org.eclipse.xtext.ui.tests.changeserializer.services.ChangeSerializerGrammarAccess;
 import org.eclipse.xtext.xbase.lib.Extension;
+import org.eclipse.xtext.xbase.lib.IterableExtensions;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 
 @SuppressWarnings("all")
 public class ChangeSerializerFormatter extends AbstractFormatter2 {
@@ -22,12 +26,30 @@ public class ChangeSerializerFormatter extends AbstractFormatter2 {
   @Extension
   private ChangeSerializerGrammarAccess _changeSerializerGrammarAccess;
   
-  protected void _format(final PackageDeclaration packageDeclaration, @Extension final IFormattableDocument document) {
-    EList<Import> _imports = packageDeclaration.getImports();
-    for (final Import _import : _imports) {
-      document.<Import>format(_import);
+  protected void _format(final PackageDeclaration pkg, @Extension final IFormattableDocument document) {
+    final Procedure1<IHiddenRegionFormatter> _function = (IHiddenRegionFormatter it) -> {
+      it.setNewLines(2);
+    };
+    document.append(this.textRegionExtensions.regionFor(pkg).feature(ChangeSerializerPackage.Literals.PACKAGE_DECLARATION__NAME), _function);
+    EList<Import> _imports = pkg.getImports();
+    for (final Import imp : _imports) {
+      {
+        document.<Import>format(imp);
+        final Procedure1<IHiddenRegionFormatter> _function_1 = (IHiddenRegionFormatter it) -> {
+          int _xifexpression = (int) 0;
+          Import _last = IterableExtensions.<Import>last(pkg.getImports());
+          boolean _tripleEquals = (imp == _last);
+          if (_tripleEquals) {
+            _xifexpression = 2;
+          } else {
+            _xifexpression = 1;
+          }
+          it.setNewLines(_xifexpression);
+        };
+        document.<Import>append(imp, _function_1);
+      }
     }
-    EList<Element> _contents = packageDeclaration.getContents();
+    EList<Element> _contents = pkg.getContents();
     for (final Element element : _contents) {
       document.<Element>format(element);
     }

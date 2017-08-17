@@ -77,5 +77,96 @@ class ChangeSerializerTest {
 			21 8 "pkg1.Foo" -> "newpackage.Foo"
 		'''
 	}
+	
+	@Test
+	def void testMoveToNewPackage() {
+		val fs = new InMemoryURIHandler()
+		fs += "inmemory:/file1.chgser" -> '''
+			package pkg1
+			
+			element Foo {
+			}
+		'''
+		fs += "inmemory:/file2.chgser" -> '''
+			package pkg1
+			
+			element Bar {
+				ref Foo
+			}
+		'''
+
+		val rs = fs.createResourceSet
+		val model = rs.contents("inmemory:/file1.chgser", PackageDeclaration)
+
+		val serializer = serializerProvider.get()
+		serializer.beginRecordChanges(model.eResource)
+		model.name = "newpackage"
+		Assert.assertEquals(1, model.eResource.resourceSet.resources.size)
+		serializer.endRecordChangesToTextDocuments === '''
+			---------------- inmemory:/file1.chgser (syntax: <offset|text>) ----------------
+			package <8:4|newpackage>
+			
+			element Foo {
+			}
+			--------------------------------------------------------------------------------
+			8 4 "pkg1" -> "newpackage"
+			---------------- inmemory:/file2.chgser (syntax: <offset|text>) ----------------
+			<0:39|package pkg1
+			
+			import newpackage.Foo
+			
+			element Bar {
+				ref Foo
+			}
+			>
+			--------------------------------------------------------------------------------
+			0 39 "package pkg1\n\nele..." -> "package pkg1\n\nimp..."
+		'''
+	}
+	
+	@Test
+	def void testMoveIntoLocalPackage() {
+		val fs = new InMemoryURIHandler()
+		fs += "inmemory:/file1.chgser" -> '''
+			package other
+			
+			element Foo {
+			}
+		'''
+		fs += "inmemory:/file2.chgser" -> '''
+			package pkg1
+			
+			import other.Foo
+			
+			element Bar {
+				ref Foo
+			}
+		'''
+
+		val rs = fs.createResourceSet
+		val model = rs.contents("inmemory:/file1.chgser", PackageDeclaration)
+
+		val serializer = serializerProvider.get()
+		serializer.beginRecordChanges(model.eResource)
+		model.name = "pkg1"
+		Assert.assertEquals(1, model.eResource.resourceSet.resources.size)
+		serializer.endRecordChangesToTextDocuments === '''
+			---------------- inmemory:/file1.chgser (syntax: <offset|text>) ----------------
+			package <8:5|pkg1>
+			
+			element Foo {
+			}
+			--------------------------------------------------------------------------------
+			8 5 "other" -> "pkg1"
+			---------------- inmemory:/file2.chgser (syntax: <offset|text>) ----------------
+			package pkg1<12:20|
+			
+			>element Bar {
+				ref Foo
+			}
+			--------------------------------------------------------------------------------
+			12 20 "\n\nimport other.Foo\n\n" -> "\n\n"
+		'''
+	}
 
 }
