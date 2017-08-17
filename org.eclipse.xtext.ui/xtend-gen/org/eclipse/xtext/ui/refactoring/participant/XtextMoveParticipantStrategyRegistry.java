@@ -7,11 +7,15 @@
  */
 package org.eclipse.xtext.ui.refactoring.participant;
 
+import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy;
 import org.eclipse.xtext.ui.refactoring.participant.AbstractParticipantStrategyRegistry;
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategy;
 
+/**
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
 @SuppressWarnings("all")
-public class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveParticipantStrategy> {
+public class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveStrategy> {
   @Override
   protected String getExtensionPointID() {
     return "org.eclipse.xtext.ui.moveParticipantStrategy";

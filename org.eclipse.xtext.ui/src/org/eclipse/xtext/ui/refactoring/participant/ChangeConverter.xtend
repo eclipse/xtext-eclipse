@@ -1,5 +1,6 @@
 package org.eclipse.xtext.ui.refactoring.participant
 
+import com.google.common.base.Predicate
 import com.google.inject.Inject
 import org.eclipse.core.resources.IWorkspace
 import org.eclipse.core.runtime.Path
@@ -10,23 +11,28 @@ import org.eclipse.ltk.core.refactoring.TextFileChange
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
 import org.eclipse.text.edits.MultiTextEdit
 import org.eclipse.text.edits.ReplaceEdit
+import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor
 import org.eclipse.xtext.ide.serializer.IEmfResourceChange
 import org.eclipse.xtext.ide.serializer.ITextDocumentChange
-import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper
 import org.eclipse.xtext.util.IAcceptor
-import com.google.common.base.Predicate
 
+/**
+ * Converts {@link IEmfResourceChange}s to LTK {@link Change}s.
+ * 
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
 class ChangeConverter implements IAcceptor<IEmfResourceChange> {
 	
 	CompositeChange currentChange 
-	StatusWrapper status
+	RefactoringIssueAcceptor issues
 	Predicate<Change> changeFilter
 	
 	@Inject(optional=true) IWorkspace workspace
 
-	def initialize(String name, StatusWrapper status, Predicate<Change> changeFilter) {
+	def initialize(String name, Predicate<Change> changeFilter, RefactoringIssueAcceptor issues) {
 		currentChange = new CompositeChange(name)
-		this.status = status
+		this.issues = issues
 		this.changeFilter = changeFilter
 	}
 	

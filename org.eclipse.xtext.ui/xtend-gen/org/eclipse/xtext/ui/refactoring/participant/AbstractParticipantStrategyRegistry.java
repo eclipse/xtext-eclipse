@@ -19,6 +19,7 @@ import org.eclipse.xtext.xbase.lib.Exceptions;
 
 /**
  * @author koehnlein - Initial contribution and API
+ * @since 2.13
  */
 @Singleton
 @SuppressWarnings("all")

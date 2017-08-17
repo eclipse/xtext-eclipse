@@ -15,6 +15,7 @@ import org.apache.log4j.Logger
 
 /**
  * @author koehnlein - Initial contribution and API
+ * @since 2.13
  */
 @Singleton
 abstract class AbstractParticipantStrategyRegistry<T> {

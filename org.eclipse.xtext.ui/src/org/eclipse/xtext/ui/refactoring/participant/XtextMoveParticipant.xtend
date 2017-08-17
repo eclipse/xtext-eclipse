@@ -7,11 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.ui.refactoring.participant
 
-/**
- * @author koehnlein - Initial contribution and API
- * @since 2.13
- */
-
 import com.google.inject.Inject
 import java.util.List
 import org.eclipse.core.resources.IFile
@@ -21,49 +16,40 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
 import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.resource.ResourceSet
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext
 import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant
 import org.eclipse.ltk.core.refactoring.participants.MoveArguments
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
-import org.eclipse.xtend.lib.annotations.Data
 import org.eclipse.xtext.ide.serializer.IChangeSerializer
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
-import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
 import java.util.Set
 import org.eclipse.xtext.resource.IResourceServiceProvider
+import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy
+import org.eclipse.xtext.ide.refactoring.ResourceMove
+import org.eclipse.xtext.ide.refactoring.XtextMoveArguments
 
-@Data
-class XtextMoveArguments {
-	ResourceSet resourceSet
-	// TODO pass error reporting facility
-	List<ResourceMove> moves
-}
-
-@Data
-class ResourceMove {
-	URI oldURI
-	URI newURI
-}
-
-interface XtextMoveParticipantStrategy {
-	def void applyMove(XtextMoveArguments arguments)
-}
-
-class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveParticipantStrategy> {
+/**
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
+class XtextMoveParticipantStrategyRegistry extends AbstractParticipantStrategyRegistry<XtextMoveStrategy> {
 	override protected getExtensionPointID() {
 		'org.eclipse.xtext.ui.moveParticipantStrategy'
 	}
 }
 
+/**
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
 class XtextMoveParticipant extends MoveParticipant implements ISharableParticipant {
 	
 	@Inject IChangeSerializer changeSerializer
 	@Inject ChangeConverter changeConverter
 	@Inject RefactoringResourceSetProvider resourceSetProvider
-	@Inject StatusWrapper statusWrapper
+	@Inject LtkIssueAcceptor issues
 	@Inject XtextMoveParticipantStrategyRegistry strategyRegistry
 	@Inject IResourceServiceProvider.Registry resourceServiceProviderRegistry 
 	
@@ -73,7 +59,7 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	IProject project // TODO: multi-project move
 	
 	override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
-		return statusWrapper.refactoringStatus
+		return issues.refactoringStatus
 	}
 	
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
@@ -90,15 +76,15 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 			resource.setURI(move.newURI)
 		}
 		applyMove(moveArguments) 
-		changeConverter.initialize(name, statusWrapper, [
-			!(it instanceof MoveResourceChange) || !modifiedElements.contains(modifiedElement)
-		])
+		changeConverter.initialize(name, 
+			[ !(it instanceof MoveResourceChange) || !modifiedElements.contains(modifiedElement) ], 
+			issues)
 		changeSerializer.endRecordChanges(changeConverter)
 		return changeConverter.change
 	}
 	
-	protected def applyMove(XtextMoveArguments moveArguments) {
-		strategyRegistry.strategies.forEach[ it.applyMove(moveArguments) ]
+	protected def void applyMove(XtextMoveArguments moveArguments) {
+		strategyRegistry.strategies.forEach[ applyMove(moveArguments, issues) ]
 	}
 	
 	override getName() {

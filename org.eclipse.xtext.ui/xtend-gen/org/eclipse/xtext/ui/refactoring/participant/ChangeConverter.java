@@ -19,31 +19,37 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.xtext.formatting2.regionaccess.ITextReplacement;
+import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor;
 import org.eclipse.xtext.ide.serializer.IEmfResourceChange;
 import org.eclipse.xtext.ide.serializer.ITextDocumentChange;
-import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper;
 import org.eclipse.xtext.util.IAcceptor;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.ListExtensions;
 
+/**
+ * Converts {@link IEmfResourceChange}s to LTK {@link Change}s.
+ * 
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
 @SuppressWarnings("all")
 public class ChangeConverter implements IAcceptor<IEmfResourceChange> {
   private CompositeChange currentChange;
   
-  private StatusWrapper status;
+  private RefactoringIssueAcceptor issues;
   
   private Predicate<Change> changeFilter;
   
   @Inject(optional = true)
   private IWorkspace workspace;
   
-  public Predicate<Change> initialize(final String name, final StatusWrapper status, final Predicate<Change> changeFilter) {
+  public Predicate<Change> initialize(final String name, final Predicate<Change> changeFilter, final RefactoringIssueAcceptor issues) {
     Predicate<Change> _xblockexpression = null;
     {
       CompositeChange _compositeChange = new CompositeChange(name);
       this.currentChange = _compositeChange;
-      this.status = status;
+      this.issues = issues;
       _xblockexpression = this.changeFilter = changeFilter;
     }
     return _xblockexpression;

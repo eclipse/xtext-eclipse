@@ -29,17 +29,21 @@ import org.eclipse.ltk.core.refactoring.participants.MoveArguments;
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
+import org.eclipse.xtext.ide.refactoring.ResourceMove;
+import org.eclipse.xtext.ide.refactoring.XtextMoveArguments;
+import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy;
 import org.eclipse.xtext.ide.serializer.IChangeSerializer;
 import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider;
-import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper;
 import org.eclipse.xtext.ui.refactoring.participant.ChangeConverter;
-import org.eclipse.xtext.ui.refactoring.participant.ResourceMove;
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveArguments;
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategy;
+import org.eclipse.xtext.ui.refactoring.participant.LtkIssueAcceptor;
 import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategyRegistry;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 
+/**
+ * @author koehnlein - Initial contribution and API
+ * @since 2.13
+ */
 @SuppressWarnings("all")
 public class XtextMoveParticipant extends MoveParticipant implements ISharableParticipant {
   @Inject
@@ -52,7 +56,7 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   private RefactoringResourceSetProvider resourceSetProvider;
   
   @Inject
-  private StatusWrapper statusWrapper;
+  private LtkIssueAcceptor issues;
   
   @Inject
   private XtextMoveParticipantStrategyRegistry strategyRegistry;
@@ -68,7 +72,7 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   
   @Override
   public RefactoringStatus checkConditions(final IProgressMonitor pm, final CheckConditionsContext context) throws OperationCanceledException {
-    return this.statusWrapper.getRefactoringStatus();
+    return this.issues.getRefactoringStatus();
   }
   
   @Override
@@ -95,14 +99,15 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
     final Predicate<Change> _function = (Change it) -> {
       return ((!(it instanceof MoveResourceChange)) || (!this.modifiedElements.contains(it.getModifiedElement())));
     };
-    this.changeConverter.initialize(this.getName(), this.statusWrapper, _function);
+    this.changeConverter.initialize(this.getName(), _function, 
+      this.issues);
     this.changeSerializer.endRecordChanges(this.changeConverter);
     return this.changeConverter.getChange();
   }
   
   protected void applyMove(final XtextMoveArguments moveArguments) {
-    final Consumer<XtextMoveParticipantStrategy> _function = (XtextMoveParticipantStrategy it) -> {
-      it.applyMove(moveArguments);
+    final Consumer<XtextMoveStrategy> _function = (XtextMoveStrategy it) -> {
+      it.applyMove(moveArguments, this.issues);
     };
     this.strategyRegistry.getStrategies().forEach(_function);
   }

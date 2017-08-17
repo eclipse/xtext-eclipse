@@ -1,12 +1,13 @@
 package org.eclipse.xtext.ui.tests.changeserializer.ui.refactoring
 
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveArguments
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategy
+import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor
+import org.eclipse.xtext.ide.refactoring.XtextMoveArguments
+import org.eclipse.xtext.ide.refactoring.XtextMoveStrategy
 import org.eclipse.xtext.ui.tests.changeserializer.changeSerializer.PackageDeclaration
 
-class ChangeSerializerMoveParticipantStrategy implements XtextMoveParticipantStrategy {
+class ChangeSerializerMoveParticipantStrategy implements XtextMoveStrategy {
 
-	override applyMove(XtextMoveArguments arguments) {
+	override applyMove(XtextMoveArguments arguments, RefactoringIssueAcceptor issues) {
 		for (move : arguments.moves) {
 			val resource = arguments.resourceSet.getResource(move.newURI, true)
 			val rootElement = resource.contents.head
