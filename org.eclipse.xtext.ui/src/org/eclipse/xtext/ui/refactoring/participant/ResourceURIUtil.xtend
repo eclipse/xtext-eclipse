@@ -10,11 +10,10 @@ package org.eclipse.xtext.ui.refactoring.participant
 import com.google.inject.Inject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtext.ui.resource.IStorage2UriMapper
-import org.eclipse.xtext.resource.IResourceServiceProvider
-import org.eclipse.core.runtime.IPath
 
 /**
  * Converts platform resource URIs to IResources and back.
@@ -28,8 +27,6 @@ class ResourceURIUtil {
 	
 	@Inject(optional = true) IWorkspace workspace
 	
-	@Inject IResourceServiceProvider.Registry resourceServiceProviderRegistry 
-	
 	def URI toURI(IResource file) {
 		toURI(file.fullPath) 
 	}
@@ -41,13 +38,8 @@ class ResourceURIUtil {
 	def toFile(URI uri) {
 		workspace.root.getFile(new Path(uri.toPlatformString(true)))
 	}
-	
+
 	def toFolder(URI uri) {
 		workspace.root.getFolder(new Path(uri.toPlatformString(true)))
-	}
-	
-	def isXtextResource(URI uri) {
-		resourceServiceProviderRegistry.getResourceServiceProvider(uri) !== null
-	}
-	
+	}	
 }

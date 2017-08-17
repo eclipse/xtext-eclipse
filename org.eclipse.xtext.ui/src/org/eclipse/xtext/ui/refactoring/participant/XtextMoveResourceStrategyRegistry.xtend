@@ -7,32 +7,29 @@
  *******************************************************************************/
 package org.eclipse.xtext.ui.refactoring.participant
 
-import org.eclipse.core.runtime.Platform
 import java.util.List
-import com.google.inject.Singleton
-import org.eclipse.core.runtime.CoreException
 import org.apache.log4j.Logger
+import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.Platform
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy
 
 /**
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
-@Singleton
-abstract class AbstractParticipantStrategyRegistry<T> {
+class XtextMoveResourceStrategyRegistry {
 	
-	static Logger LOG = Logger.getLogger(AbstractParticipantStrategyRegistry)
+	static Logger LOG = Logger.getLogger(XtextMoveResourceStrategyRegistry)
 	
-	protected abstract def String getExtensionPointID()
+	private List<XtextMoveResourceStrategy> strategies
 	
-	private List<T> strategies
-	
-	def List<? extends T> getStrategies() {
+	def List<? extends XtextMoveResourceStrategy> getStrategies() {
 		return strategies ?: {
 			val configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(extensionPointID);
-			val strategies= <T>newArrayList
+			val strategies= <XtextMoveResourceStrategy>newArrayList
 			for (configurationElement : configurationElements) {
 				try {
-					strategies += configurationElement.createExecutableExtension('class') as T
+					strategies += configurationElement.createExecutableExtension('class') as XtextMoveResourceStrategy
 				} catch (CoreException e) {
 					LOG.error("Error instantiating participant strategy", e);
 				}
@@ -40,4 +37,9 @@ abstract class AbstractParticipantStrategyRegistry<T> {
 			strategies
 		}
 	}
+	
+	def  protected getExtensionPointID() {
+		'org.eclipse.xtext.ui.resourceMoveStrategy'
+	}
 }
+

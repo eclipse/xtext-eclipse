@@ -7,7 +7,6 @@
  */
 package org.eclipse.xtext.ui.refactoring.participant;
 
-import com.google.common.base.Predicate;
 import com.google.inject.Inject;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -30,16 +28,12 @@ import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.ltk.core.refactoring.participants.RenameArguments;
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant;
-import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange;
 import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments;
-import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy;
-import org.eclipse.xtext.ide.serializer.IChangeSerializer;
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider;
-import org.eclipse.xtext.ui.refactoring.participant.ChangeConverter;
 import org.eclipse.xtext.ui.refactoring.participant.LtkIssueAcceptor;
 import org.eclipse.xtext.ui.refactoring.participant.ResourceURIUtil;
-import org.eclipse.xtext.ui.refactoring.participant.XtextMoveParticipantStrategyRegistry;
+import org.eclipse.xtext.ui.refactoring.participant.XtextMoveResourceProcessor;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Conversions;
 import org.eclipse.xtext.xbase.lib.Exceptions;
@@ -52,23 +46,17 @@ import org.eclipse.xtext.xbase.lib.Extension;
 @SuppressWarnings("all")
 public class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
   @Inject
-  private IChangeSerializer changeSerializer;
-  
-  @Inject
-  private ChangeConverter changeConverter;
-  
-  @Inject
   private RefactoringResourceSetProvider resourceSetProvider;
   
   @Inject
   private LtkIssueAcceptor issues;
   
   @Inject
-  private XtextMoveParticipantStrategyRegistry strategyRegistry;
-  
-  @Inject
   @Extension
   private ResourceURIUtil _resourceURIUtil;
+  
+  @Inject
+  private XtextMoveResourceProcessor processor;
   
   private List<ResourceURIChange> folderUriChanges = CollectionLiterals.<ResourceURIChange>newArrayList();
   
@@ -91,33 +79,7 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
     }
     final ResourceSet resourceSet = this.resourceSetProvider.get(this.project);
     final XtextMoveFolderArguments moveFolderArguments = new XtextMoveFolderArguments(resourceSet, this.uriChanges, this.folderUriChanges);
-    for (final ResourceURIChange move : this.uriChanges) {
-      {
-        final Resource resource = resourceSet.getResource(move.getOldURI(), true);
-        this.changeSerializer.beginRecordChanges(resource);
-      }
-    }
-    for (final ResourceURIChange move_1 : this.uriChanges) {
-      {
-        final Resource resource = resourceSet.getResource(move_1.getOldURI(), true);
-        resource.setURI(move_1.getNewURI());
-      }
-    }
-    this.applyMove(moveFolderArguments);
-    final Predicate<Change> _function = (Change it) -> {
-      return ((!(it instanceof MoveResourceChange)) || (!this.modifiedResources.contains(it.getModifiedElement())));
-    };
-    this.changeConverter.initialize(this.getName(), _function, 
-      this.issues);
-    this.changeSerializer.endRecordChanges(this.changeConverter);
-    return this.changeConverter.getChange();
-  }
-  
-  protected void applyMove(final XtextMoveFolderArguments renameArguments) {
-    final Consumer<XtextMoveResourceStrategy> _function = (XtextMoveResourceStrategy it) -> {
-      it.applyMove(renameArguments, this.issues);
-    };
-    this.strategyRegistry.getStrategies().forEach(_function);
+    return this.processor.createChange(this.getName(), moveFolderArguments, this.issues, this.modifiedResources, pm);
   }
   
   @Override

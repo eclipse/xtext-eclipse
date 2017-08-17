@@ -7,13 +7,13 @@
  */
 package org.eclipse.xtext.ui.refactoring.participant;
 
-import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.xtext.ide.refactoring.XtextMoveResourceStrategy;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 
@@ -21,32 +21,29 @@ import org.eclipse.xtext.xbase.lib.Exceptions;
  * @author koehnlein - Initial contribution and API
  * @since 2.13
  */
-@Singleton
 @SuppressWarnings("all")
-public abstract class AbstractParticipantStrategyRegistry<T extends Object> {
-  private static Logger LOG = Logger.getLogger(AbstractParticipantStrategyRegistry.class);
+public class XtextMoveResourceStrategyRegistry {
+  private static Logger LOG = Logger.getLogger(XtextMoveResourceStrategyRegistry.class);
   
-  protected abstract String getExtensionPointID();
+  private List<XtextMoveResourceStrategy> strategies;
   
-  private List<T> strategies;
-  
-  public List<? extends T> getStrategies() {
-    List<T> _elvis = null;
+  public List<? extends XtextMoveResourceStrategy> getStrategies() {
+    List<? extends XtextMoveResourceStrategy> _elvis = null;
     if (this.strategies != null) {
       _elvis = this.strategies;
     } else {
-      ArrayList<T> _xblockexpression = null;
+      ArrayList<XtextMoveResourceStrategy> _xblockexpression = null;
       {
         final IConfigurationElement[] configurationElements = Platform.getExtensionRegistry().getConfigurationElementsFor(this.getExtensionPointID());
-        final ArrayList<T> strategies = CollectionLiterals.<T>newArrayList();
+        final ArrayList<XtextMoveResourceStrategy> strategies = CollectionLiterals.<XtextMoveResourceStrategy>newArrayList();
         for (final IConfigurationElement configurationElement : configurationElements) {
           try {
             Object _createExecutableExtension = configurationElement.createExecutableExtension("class");
-            strategies.add(((T) _createExecutableExtension));
+            strategies.add(((XtextMoveResourceStrategy) _createExecutableExtension));
           } catch (final Throwable _t) {
             if (_t instanceof CoreException) {
               final CoreException e = (CoreException)_t;
-              AbstractParticipantStrategyRegistry.LOG.error("Error instantiating participant strategy", e);
+              XtextMoveResourceStrategyRegistry.LOG.error("Error instantiating participant strategy", e);
             } else {
               throw Exceptions.sneakyThrow(_t);
             }
@@ -57,5 +54,9 @@ public abstract class AbstractParticipantStrategyRegistry<T extends Object> {
       _elvis = _xblockexpression;
     }
     return _elvis;
+  }
+  
+  protected String getExtensionPointID() {
+    return "org.eclipse.xtext.ui.resourceMoveStrategy";
   }
 }

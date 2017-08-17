@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.ui.resource.IStorage2UriMapper;
 
 /**
@@ -31,9 +30,6 @@ import org.eclipse.xtext.ui.resource.IStorage2UriMapper;
 public class ResourceURIUtil {
   @Inject(optional = true)
   private IWorkspace workspace;
-  
-  @Inject
-  private IResourceServiceProvider.Registry resourceServiceProviderRegistry;
   
   public URI toURI(final IResource file) {
     return this.toURI(file.getFullPath());
@@ -55,10 +51,5 @@ public class ResourceURIUtil {
     String _platformString = uri.toPlatformString(true);
     Path _path = new Path(_platformString);
     return _root.getFolder(_path);
-  }
-  
-  public boolean isXtextResource(final URI uri) {
-    IResourceServiceProvider _resourceServiceProvider = this.resourceServiceProviderRegistry.getResourceServiceProvider(uri);
-    return (_resourceServiceProvider != null);
   }
 }

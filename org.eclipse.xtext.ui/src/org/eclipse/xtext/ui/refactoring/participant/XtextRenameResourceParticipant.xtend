@@ -23,10 +23,8 @@ import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
 import org.eclipse.ltk.core.refactoring.participants.RenameArguments
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant
-import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange
 import org.eclipse.xtext.ide.refactoring.XtextMoveFolderArguments
-import org.eclipse.xtext.ide.serializer.IChangeSerializer
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
 
 /**
@@ -35,12 +33,10 @@ import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
  */
 class XtextRenameResourceParticipant extends RenameParticipant implements ISharableParticipant {
 
-	@Inject IChangeSerializer changeSerializer
-	@Inject ChangeConverter changeConverter
 	@Inject RefactoringResourceSetProvider resourceSetProvider
 	@Inject LtkIssueAcceptor issues
-	@Inject XtextMoveParticipantStrategyRegistry strategyRegistry
 	@Inject extension ResourceURIUtil
+	@Inject XtextMoveResourceProcessor processor
 
 	List<ResourceURIChange> folderUriChanges = newArrayList()
 	List<ResourceURIChange> uriChanges = newArrayList()
@@ -57,24 +53,7 @@ class XtextRenameResourceParticipant extends RenameParticipant implements IShara
 			return null
 		val resourceSet = resourceSetProvider.get(project)
 		val moveFolderArguments = new XtextMoveFolderArguments(resourceSet, uriChanges, folderUriChanges)
-		for(move: uriChanges) {
-			val resource = resourceSet.getResource(move.oldURI, true)
-			changeSerializer.beginRecordChanges(resource)
-		}
-		for(move: uriChanges) {
-			val resource = resourceSet.getResource(move.oldURI, true)
-			resource.setURI(move.newURI)
-		}
-		applyMove(moveFolderArguments) 
-		changeConverter.initialize(name, 
-			[ !(it instanceof MoveResourceChange) || !modifiedResources.contains(modifiedElement) ], 
-			issues)
-		changeSerializer.endRecordChanges(changeConverter)
-		return changeConverter.change
-	}
-
-	protected def void applyMove(XtextMoveFolderArguments renameArguments) {
-		strategyRegistry.strategies.forEach[applyMove(renameArguments, issues)]
+		return processor.createChange(name, moveFolderArguments, issues, modifiedResources, pm)
 	}
 
 	override getName() {
