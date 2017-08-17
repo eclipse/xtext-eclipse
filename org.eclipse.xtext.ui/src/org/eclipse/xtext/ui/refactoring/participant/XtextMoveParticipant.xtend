@@ -33,6 +33,7 @@ import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider
 import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
 import java.util.Set
+import org.eclipse.xtext.resource.IResourceServiceProvider
 
 @Data
 class XtextMoveArguments {
@@ -64,6 +65,7 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	@Inject RefactoringResourceSetProvider resourceSetProvider
 	@Inject StatusWrapper statusWrapper
 	@Inject XtextMoveParticipantStrategyRegistry strategyRegistry
+	@Inject IResourceServiceProvider.Registry resourceServiceProviderRegistry 
 	
 	List<ResourceMove> moves = newArrayList()
 	Set<IFile> modifiedElements = newHashSet
@@ -75,6 +77,8 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	}
 	
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+		if(moves.empty)
+			return null
 		val resourceSet = resourceSetProvider.get(project)
 		val moveArguments = new XtextMoveArguments(resourceSet, moves)
 		for(move: moves) {
@@ -109,16 +113,23 @@ class XtextMoveParticipant extends MoveParticipant implements ISharableParticipa
 	override addElement(Object element, RefactoringArguments arguments) {
 		if (arguments instanceof MoveArguments) {
 			if (element instanceof IFile) {
-				val destination = arguments.destination
-				if(destination instanceof IFolder) {
-					if(project === null)
-						project = element.project
-					val destinationFile = destination.getFile(element.name)
-					moves += new ResourceMove(element.URI, destinationFile.URI)
-					modifiedElements += element
+				val oldURI = element.URI
+				if (oldURI.isXtextResource) {					
+					val destination = arguments.destination
+					if(destination instanceof IFolder) {
+						if(project === null)
+							project = element.project
+						val destinationFile = destination.getFile(element.name)
+						moves += new ResourceMove(element.URI, destinationFile.URI)
+						modifiedElements += element
+					}
 				}
 			}
 		}
+	}
+	
+	def isXtextResource(URI uri) {
+		resourceServiceProviderRegistry.getResourceServiceProvider(uri) !== null
 	}
 	
 	def URI getURI(IFile file) {

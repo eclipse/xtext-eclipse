@@ -30,6 +30,7 @@ import org.eclipse.ltk.core.refactoring.participants.MoveParticipant;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange;
 import org.eclipse.xtext.ide.serializer.IChangeSerializer;
+import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.ui.refactoring.impl.RefactoringResourceSetProvider;
 import org.eclipse.xtext.ui.refactoring.impl.StatusWrapper;
 import org.eclipse.xtext.ui.refactoring.participant.ChangeConverter;
@@ -56,6 +57,9 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   @Inject
   private XtextMoveParticipantStrategyRegistry strategyRegistry;
   
+  @Inject
+  private IResourceServiceProvider.Registry resourceServiceProviderRegistry;
+  
   private List<ResourceMove> moves = CollectionLiterals.<ResourceMove>newArrayList();
   
   private Set<IFile> modifiedElements = CollectionLiterals.<IFile>newHashSet();
@@ -69,6 +73,10 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   
   @Override
   public Change createChange(final IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    boolean _isEmpty = this.moves.isEmpty();
+    if (_isEmpty) {
+      return null;
+    }
     final ResourceSet resourceSet = this.resourceSetProvider.get(this.project);
     final XtextMoveArguments moveArguments = new XtextMoveArguments(resourceSet, this.moves);
     for (final ResourceMove move : this.moves) {
@@ -118,20 +126,29 @@ public class XtextMoveParticipant extends MoveParticipant implements ISharablePa
   public void addElement(final Object element, final RefactoringArguments arguments) {
     if ((arguments instanceof MoveArguments)) {
       if ((element instanceof IFile)) {
-        final Object destination = ((MoveArguments)arguments).getDestination();
-        if ((destination instanceof IFolder)) {
-          if ((this.project == null)) {
-            this.project = ((IFile)element).getProject();
+        final URI oldURI = this.getURI(((IFile)element));
+        boolean _isXtextResource = this.isXtextResource(oldURI);
+        if (_isXtextResource) {
+          final Object destination = ((MoveArguments)arguments).getDestination();
+          if ((destination instanceof IFolder)) {
+            if ((this.project == null)) {
+              this.project = ((IFile)element).getProject();
+            }
+            final IFile destinationFile = ((IFolder)destination).getFile(((IFile)element).getName());
+            URI _uRI = this.getURI(((IFile)element));
+            URI _uRI_1 = this.getURI(destinationFile);
+            ResourceMove _resourceMove = new ResourceMove(_uRI, _uRI_1);
+            this.moves.add(_resourceMove);
+            this.modifiedElements.add(((IFile)element));
           }
-          final IFile destinationFile = ((IFolder)destination).getFile(((IFile)element).getName());
-          URI _uRI = this.getURI(((IFile)element));
-          URI _uRI_1 = this.getURI(destinationFile);
-          ResourceMove _resourceMove = new ResourceMove(_uRI, _uRI_1);
-          this.moves.add(_resourceMove);
-          this.modifiedElements.add(((IFile)element));
         }
       }
     }
+  }
+  
+  public boolean isXtextResource(final URI uri) {
+    IResourceServiceProvider _resourceServiceProvider = this.resourceServiceProviderRegistry.getResourceServiceProvider(uri);
+    return (_resourceServiceProvider != null);
   }
   
   public URI getURI(final IFile file) {
