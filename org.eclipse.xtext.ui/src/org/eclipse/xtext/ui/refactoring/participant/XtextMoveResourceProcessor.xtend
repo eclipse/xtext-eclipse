@@ -10,18 +10,22 @@ package org.eclipse.xtext.ui.refactoring.participant
 import com.google.inject.Inject
 import java.util.List
 import java.util.Set
+import org.eclipse.core.resources.IContainer
+import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
 import org.eclipse.ltk.core.refactoring.resource.MoveResourceChange
+import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange
+import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtext.ide.refactoring.MoveResourceContext
-import org.eclipse.xtext.ide.refactoring.RefactoringIssueAcceptor
 import org.eclipse.xtext.ide.refactoring.ResourceURIChange
 import org.eclipse.xtext.ide.serializer.IChangeSerializer
 import org.eclipse.xtext.ui.resource.IResourceSetProvider
 import org.eclipse.xtext.ui.resource.LiveScopeResourceSetInitializer
-import org.eclipse.ltk.core.refactoring.resource.RenameResourceChange
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -31,17 +35,20 @@ class XtextMoveResourceProcessor {
 
 	@Inject IResourceSetProvider resourceSetProvider
 	@Inject LiveScopeResourceSetInitializer liveScopeResourceSetInitializer
+	@Accessors(PACKAGE_GETTER) @Inject LtkIssueAcceptor issues
+	@Inject extension ResourceURIConverter
 	@Inject IChangeSerializer changeSerializer
 	@Inject MoveResourceContext.Factory contextFactory
 	@Inject XtextMoveResourceStrategyRegistry strategyRegistry
 	@Inject ChangeConverter changeConverter
 
+	List<ResourceURIChange> folderUriChanges = newArrayList()
+	List<ResourceURIChange> fileUriChanges = newArrayList()
+	
+	Set<IResource> excludedResources = newHashSet()
+
 	def createChange(String name, 
-					List<ResourceURIChange> fileUriChanges,
-					List<ResourceURIChange> folderUriChanges,
 					IProject project,
-					RefactoringIssueAcceptor issues, 
-					Set<? extends Object> excludedElements, 
 					IProgressMonitor pm) throws CoreException, OperationCanceledException {
 		if (folderUriChanges.empty && fileUriChanges.empty)
 			return null
@@ -51,7 +58,7 @@ class XtextMoveResourceProcessor {
 		applyMoveStrategies(moveContext)
 		changeConverter.initialize(name, [
 			(!(it instanceof MoveResourceChange || it instanceof RenameResourceChange) 
-				|| !excludedElements.contains(modifiedElement))
+				|| !excludedResources.contains(modifiedElement))
 		], issues)
 		changeSerializer.endRecordChanges(changeConverter)
 		return changeConverter.change
@@ -60,5 +67,22 @@ class XtextMoveResourceProcessor {
 	protected def void applyMoveStrategies(MoveResourceContext context) {
 		strategyRegistry.strategies.forEach[applyMove(context)]
 		context.executeModifications
+	}
+	
+	def void addMovedResource(IResource resource, IPath oldPath, IPath newPath) {
+		if (oldPath.isPrefixOf(resource.fullPath)) {
+			val oldURI = resource.toURI
+			val newURI = newPath.append(resource.fullPath.removeFirstSegments(oldPath.segmentCount)).toURI
+			val uriChange = new ResourceURIChange(oldURI, newURI)
+			excludedResources.add(resource)
+			if (resource instanceof IFile) {
+				fileUriChanges += uriChange
+			} else if (resource instanceof IContainer) {
+				folderUriChanges += uriChange
+				resource.members.forEach [ member |
+					addMovedResource(member, oldPath, newPath)
+				]
+			}
+		}
 	}
 }

@@ -8,21 +8,18 @@
 package org.eclipse.xtext.ui.refactoring.participant
 
 import com.google.inject.Inject
-import java.util.List
-import java.util.Set
-import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
+import org.eclipse.ltk.core.refactoring.Change
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext
 import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant
 import org.eclipse.ltk.core.refactoring.participants.MoveArguments
 import org.eclipse.ltk.core.refactoring.participants.MoveParticipant
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments
-import org.eclipse.xtext.ide.refactoring.ResourceURIChange
-import org.eclipse.ltk.core.refactoring.Change
 
 /**
  * @author koehnlein - Initial contribution and API
@@ -30,19 +27,15 @@ import org.eclipse.ltk.core.refactoring.Change
  */
 class XtextMoveResourceParticipant extends MoveParticipant implements ISharableParticipant {
 
-	@Inject LtkIssueAcceptor issues
-	@Inject extension ResourceURIConverter
 	@Inject XtextMoveResourceProcessor processor
 	
-	List<ResourceURIChange> fileUriChanges = newArrayList()
-	Set<IFile> movedFiles = newHashSet
 	IProject project // TODO: multi-project move
 
 	Change change 
 	
 	override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
-		change = processor.createChange(name, fileUriChanges, emptyList, project, issues, movedFiles, pm)
-		return issues.refactoringStatus
+		change = processor.createChange(name, project, pm)
+		return processor.issues.refactoringStatus
 	}
 
 	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
@@ -60,14 +53,16 @@ class XtextMoveResourceParticipant extends MoveParticipant implements ISharableP
 
 	override addElement(Object element, RefactoringArguments arguments) {
 		if (arguments instanceof MoveArguments) {
-			if (element instanceof IFile) {
+			if (element instanceof IResource) {
 				val destination = arguments.destination
-				if (destination instanceof IFolder) {
+				if (destination instanceof IFolder || destination instanceof IProject) {
 					if (project === null)
 						project = element.project
-					val destinationFile = destination.getFile(element.name)
-					fileUriChanges += new ResourceURIChange(element.toURI, destinationFile.toURI)
-					movedFiles += element
+					val destinationFile = switch destination {
+						IFolder: destination.getFile(element.name)
+						IProject: destination.getFile(element.name)
+					}
+					processor.addMovedResource(element, element.fullPath, destinationFile.fullPath)
 				}
 			}
 		}
