@@ -38,7 +38,6 @@ class XtextMoveResourceProcessor {
 	@Accessors(PACKAGE_GETTER) @Inject LtkIssueAcceptor issues
 	@Inject extension ResourceURIConverter
 	@Inject IChangeSerializer changeSerializer
-	@Inject MoveResourceContext.Factory contextFactory
 	@Inject XtextMoveResourceStrategyRegistry strategyRegistry
 	@Inject ChangeConverter changeConverter
 
@@ -54,7 +53,7 @@ class XtextMoveResourceProcessor {
 			return null
 		val resourceSet = resourceSetProvider.get(project)
 		liveScopeResourceSetInitializer.initialize(resourceSet)
-		val moveContext = contextFactory.create(fileUriChanges, folderUriChanges, issues, changeSerializer, resourceSet)
+		val moveContext = new MoveResourceContext(fileUriChanges, folderUriChanges, issues, changeSerializer, resourceSet)
 		applyMoveStrategies(moveContext)
 		changeConverter.initialize(name, [
 			(!(it instanceof MoveResourceChange || it instanceof RenameResourceChange) 

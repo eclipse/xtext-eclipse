@@ -67,9 +67,6 @@ public class XtextMoveResourceProcessor {
   private IChangeSerializer changeSerializer;
   
   @Inject
-  private MoveResourceContext.Factory contextFactory;
-  
-  @Inject
   private XtextMoveResourceStrategyRegistry strategyRegistry;
   
   @Inject
@@ -87,7 +84,7 @@ public class XtextMoveResourceProcessor {
     }
     final ResourceSet resourceSet = this.resourceSetProvider.get(project);
     this.liveScopeResourceSetInitializer.initialize(resourceSet);
-    final MoveResourceContext moveContext = this.contextFactory.create(this.fileUriChanges, this.folderUriChanges, this.issues, this.changeSerializer, resourceSet);
+    final MoveResourceContext moveContext = new MoveResourceContext(this.fileUriChanges, this.folderUriChanges, this.issues, this.changeSerializer, resourceSet);
     this.applyMoveStrategies(moveContext);
     final Predicate<Change> _function = (Change it) -> {
       return ((!((it instanceof MoveResourceChange) || (it instanceof RenameResourceChange))) || (!this.excludedResources.contains(it.getModifiedElement())));
