@@ -79,6 +79,10 @@ public class TaskMarkerContributorTest extends AbstractXtextTests {
       Assert.assertEquals(Integer.valueOf(27), markers[1].getAttribute(IMarker.CHAR_END));
       Assert.assertEquals(Integer.valueOf(IMarker.PRIORITY_HIGH), markers[1].getAttribute(IMarker.PRIORITY));
       Assert.assertEquals("line 3", markers[1].getAttribute(IMarker.LOCATION));
+      NullProgressMonitor _nullProgressMonitor_1 = new NullProgressMonitor();
+      this.markerContributor.updateMarkers(file, resource, _nullProgressMonitor_1);
+      final IMarker[] markers2 = file.findMarkers(TaskMarkerTypeProvider.XTEXT_TASK_TYPE, true, IResource.DEPTH_ZERO);
+      Assert.assertEquals(2, ((List<IMarker>)Conversions.doWrapArray(markers2)).size());
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

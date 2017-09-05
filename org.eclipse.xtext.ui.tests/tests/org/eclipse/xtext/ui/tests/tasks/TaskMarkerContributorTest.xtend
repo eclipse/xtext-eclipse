@@ -65,6 +65,12 @@ class TaskMarkerContributorTest extends AbstractXtextTests {
 		assertEquals(27, markers.get(1).getAttribute(IMarker.CHAR_END))
 		assertEquals(IMarker.PRIORITY_HIGH, markers.get(1).getAttribute(IMarker.PRIORITY))
 		assertEquals("line 3", markers.get(1).getAttribute(IMarker.LOCATION))
+
+		// issue#348: trigger an update again. this is a no-op and won't cause delete and add of markers
+		markerContributor.updateMarkers(file, resource, new NullProgressMonitor())
+		val markers2 = file.findMarkers(TaskMarkerTypeProvider.XTEXT_TASK_TYPE, true, IResource.DEPTH_ZERO)
+		assertEquals(2, markers2.size)
+		
 	}
 
 	def getResource(IFile file) {
