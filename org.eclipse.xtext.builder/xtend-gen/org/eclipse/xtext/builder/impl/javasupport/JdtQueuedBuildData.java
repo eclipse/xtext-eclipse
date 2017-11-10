@@ -89,19 +89,30 @@ public class JdtQueuedBuildData implements IQueuedBuildDataContribution {
     {
       final JavaBuilderState oldState = this.javaBuildState.get(it.getName());
       final JavaBuilderState newState = JavaBuilderState.getLastBuiltState(it);
-      Procedure1<UnconfirmedStructuralChangesDelta> _xifexpression = null;
-      if (((oldState == null) || (!Objects.equal(oldState.getLastStructuralBuildTime(), newState.getLastStructuralBuildTime())))) {
-        final Procedure1<UnconfirmedStructuralChangesDelta> _function = (UnconfirmedStructuralChangesDelta it_1) -> {
-          final Set<QualifiedName> structurallyChangedTypes = newState.getStructurallyChangedTypes();
-          if ((this.namesIntersect(it_1.getNew(), structurallyChangedTypes) || this.namesIntersect(it_1.getOld(), structurallyChangedTypes))) {
-            deltas.add(it_1);
-          }
-        };
-        _xifexpression = _function;
-      } else {
-        _xifexpression = null;
+      boolean _xtrycatchfinallyexpression = false;
+      try {
+        Procedure1<UnconfirmedStructuralChangesDelta> _xifexpression = null;
+        if (((oldState == null) || (!Objects.equal(oldState.getLastStructuralBuildTime(), newState.getLastStructuralBuildTime())))) {
+          final Procedure1<UnconfirmedStructuralChangesDelta> _function = (UnconfirmedStructuralChangesDelta it_1) -> {
+            final Set<QualifiedName> structurallyChangedTypes = newState.getStructurallyChangedTypes();
+            if ((this.namesIntersect(it_1.getNew(), structurallyChangedTypes) || 
+              this.namesIntersect(it_1.getOld(), structurallyChangedTypes))) {
+              deltas.add(it_1);
+            }
+          };
+          _xifexpression = _function;
+        } else {
+          _xifexpression = null;
+        }
+        _xtrycatchfinallyexpression = this.doNeedRebuild(newState, _xifexpression);
+      } finally {
+        if ((newState != null)) {
+          this.javaBuildState.put(it.getName(), newState);
+        } else {
+          this.javaBuildState.remove(it.getName());
+        }
       }
-      _xblockexpression = this.doNeedRebuild(newState, _xifexpression);
+      _xblockexpression = _xtrycatchfinallyexpression;
     }
     return _xblockexpression;
   }

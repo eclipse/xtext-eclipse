@@ -71,17 +71,26 @@ class JdtQueuedBuildData implements IQueuedBuildDataContribution {
 	override needsRebuild(IProject it, Collection<Delta> deltas) {
 		val oldState = javaBuildState.get(name)
 		val newState = lastBuiltState
-		newState.doNeedRebuild(
-			if (oldState === null || oldState.lastStructuralBuildTime != newState.lastStructuralBuildTime) {
-				[
-					val structurallyChangedTypes = newState.structurallyChangedTypes
-					if (getNew.namesIntersect(structurallyChangedTypes) || old.namesIntersect(structurallyChangedTypes)) {
-						deltas += it
-					}
-				]
+		try {
+			newState.doNeedRebuild(
+				if (oldState === null || oldState.lastStructuralBuildTime != newState.lastStructuralBuildTime) {
+					[
+						val structurallyChangedTypes = newState.structurallyChangedTypes
+						if (getNew.namesIntersect(structurallyChangedTypes) ||
+							old.namesIntersect(structurallyChangedTypes)) {
+							deltas += it
+						}
+					]
+				} else {
+					null
+				})
+		} finally {
+			if (newState !== null) {
+				javaBuildState.put(name, newState)
 			} else {
-				null
-			})
+				javaBuildState.remove(name);
+			}
+		}
 	}
 
 	protected def doNeedRebuild(JavaBuilderState it, (UnconfirmedStructuralChangesDelta)=>void processor) {
