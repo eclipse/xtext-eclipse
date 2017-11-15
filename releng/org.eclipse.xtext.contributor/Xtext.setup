@@ -1069,7 +1069,8 @@
         id="buildship.xtext-idea"
         launcher="GenerateBuildshipPreferences"/>
     <setupTask
-        xsi:type="projects:ProjectsImportTask">
+        xsi:type="projects:ProjectsImportTask"
+        predecessor="xtext-idea.autobuild_disable git.clone.xtext.idea">
       <sourceLocator
           rootFolder="${git.clone.xtext.idea.location}"
           locateNestedProjects="true"/>
@@ -1091,6 +1092,36 @@
         </predicate>
       </workingSet>
     </setupTask>
+    <setupTask
+        xsi:type="launching:LaunchTask"
+        id="xtext-idea.dowloadIdea"
+        predecessor="//@projects[name='idea']/@setupTasks.4"
+        launcher="download-idea"/>
+    <setupTask
+        xsi:type="launching:LaunchTask"
+        id="xtext-idea.refresh-deps"
+        predecessor="xtext-idea.dowloadIdea"
+        launcher="refresh-gradle-dependencies"/>
+    <setupTask
+        xsi:type="setup.p2:P2Task"
+        label="Tools">
+      <requirement
+          name="org.eclipse.buildship.feature.group"/>
+      <repository
+          url="${p2.buildship}"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="xtext-idea.autobuild_disable"
+        excludedTriggers="MANUAL"
+        disabled="true"
+        key="/instance/org.eclipse.core.resources/description.autobuilding"/>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="xtext-idea.autobuild_enable"
+        excludedTriggers="MANUAL"
+        predecessor="xtext-idea.refresh-deps"
+        key="/instance/org.eclipse.core.resources/description.autobuilding"/>
     <stream
         name="master"/>
     <stream
