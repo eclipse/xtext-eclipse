@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -596,9 +597,14 @@ public class ConfigurableCompletionProposal implements
 				eObject = (EObject) additionalProposalInfo;
 			} else { 
 				if (additionalProposalInfo instanceof Provider) {
-					Object o = ((Provider<?>) additionalProposalInfo).get();
-					if (o instanceof EObject)
-						eObject = (EObject) o;
+					try {
+						Object o = ((Provider<?>) additionalProposalInfo).get();
+						if (o instanceof EObject)
+							eObject = (EObject) o;
+					} catch (OperationCanceledException e) {
+						monitor.setCanceled(true);
+						return null;
+					}
 				}
 			}
 			if (eObject != null) {
