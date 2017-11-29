@@ -7,6 +7,8 @@
  */
 package org.eclipse.xtext.example.domainmodel;
 
+import com.google.inject.Binder;
+import com.google.inject.name.Names;
 import org.eclipse.xtext.example.domainmodel.AbstractDomainmodelRuntimeModule;
 import org.eclipse.xtext.resource.persistence.IResourceStorageFacade;
 import org.eclipse.xtext.xbase.resource.BatchLinkableResourceStorageFacade;
@@ -18,5 +20,9 @@ import org.eclipse.xtext.xbase.resource.BatchLinkableResourceStorageFacade;
 public class DomainmodelRuntimeModule extends AbstractDomainmodelRuntimeModule {
   public Class<? extends IResourceStorageFacade> bindResourceStorageFacade() {
     return BatchLinkableResourceStorageFacade.class;
+  }
+  
+  public void configureCodeBuff(final Binder binder) {
+    binder.<String>bind(String.class).annotatedWith(Names.named("COMMENTRULE")).toInstance("RULE_SL_COMMENT");
   }
 }

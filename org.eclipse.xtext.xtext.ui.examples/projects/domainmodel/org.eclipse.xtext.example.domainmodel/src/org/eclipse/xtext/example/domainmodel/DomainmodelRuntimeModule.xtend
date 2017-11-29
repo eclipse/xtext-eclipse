@@ -9,6 +9,9 @@ package org.eclipse.xtext.example.domainmodel
 
 import org.eclipse.xtext.resource.persistence.IResourceStorageFacade
 import org.eclipse.xtext.xbase.resource.BatchLinkableResourceStorageFacade
+import org.eclipse.xtext.Constants
+import com.google.inject.name.Names
+import com.google.inject.Binder
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -16,5 +19,9 @@ import org.eclipse.xtext.xbase.resource.BatchLinkableResourceStorageFacade
 class DomainmodelRuntimeModule extends AbstractDomainmodelRuntimeModule {
 	def Class<? extends IResourceStorageFacade> bindResourceStorageFacade() {
 		return BatchLinkableResourceStorageFacade
+	}
+	
+	def void configureCodeBuff(Binder binder) {
+		binder.bind(String).annotatedWith(Names.named("COMMENTRULE")).toInstance("RULE_SL_COMMENT");
 	}
 }
