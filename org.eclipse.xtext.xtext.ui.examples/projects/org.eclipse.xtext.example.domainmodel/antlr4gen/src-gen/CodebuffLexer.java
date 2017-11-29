@@ -1,4 +1,4 @@
-// Generated from org/antlr/codebuff/Codebuff.g4 by ANTLR 4.5.3
+// Generated from /Users/schill/dev/xtext-master/git/xtext-eclipse/org.eclipse.xtext.xtext.ui.examples/projects/org.eclipse.xtext.example.domainmodel/../org.eclipse.xtext.example.domainmodel/src-gen/org/eclipse/xtext/example/domainmodel/parser/antlr/internal/Codebuff.g4 by ANTLR 4.5.3
 package org.antlr.codebuff;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

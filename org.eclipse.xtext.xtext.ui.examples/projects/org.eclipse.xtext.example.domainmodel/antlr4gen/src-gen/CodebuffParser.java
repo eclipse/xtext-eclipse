@@ -1,4 +1,4 @@
-// Generated from org/antlr/codebuff/Codebuff.g4 by ANTLR 4.5.3
+// Generated from /Users/schill/dev/xtext-master/git/xtext-eclipse/org.eclipse.xtext.xtext.ui.examples/projects/org.eclipse.xtext.example.domainmodel/../org.eclipse.xtext.example.domainmodel/src-gen/org/eclipse/xtext/example/domainmodel/parser/antlr/internal/Codebuff.g4 by ANTLR 4.5.3
 package org.antlr.codebuff;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -159,7 +159,7 @@ public class CodebuffParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
-	public static class RuleDomainModelContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleDomainModelContext extends ParserRuleContext {
 		public RuleXImportSectionContext ruleXImportSection() {
 			return getRuleContext(RuleXImportSectionContext.class,0);
 		}
@@ -226,7 +226,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleAbstractElementContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleAbstractElementContext extends ParserRuleContext {
 		public RulePackageDeclarationContext rulePackageDeclaration() {
 			return getRuleContext(RulePackageDeclarationContext.class,0);
 		}
@@ -283,7 +283,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RulePackageDeclarationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RulePackageDeclarationContext extends ParserRuleContext {
 		public RuleQualifiedNameContext ruleQualifiedName() {
 			return getRuleContext(RuleQualifiedNameContext.class,0);
 		}
@@ -349,7 +349,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleEntityContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleEntityContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -429,7 +429,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleFeatureContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleFeatureContext extends ParserRuleContext {
 		public RulePropertyContext ruleProperty() {
 			return getRuleContext(RulePropertyContext.class,0);
 		}
@@ -486,7 +486,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RulePropertyContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RulePropertyContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -532,7 +532,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOperationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOperationContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -628,7 +628,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXExpressionContext extends ParserRuleContext {
 		public RuleXAssignmentContext ruleXAssignment() {
 			return getRuleContext(RuleXAssignmentContext.class,0);
 		}
@@ -667,7 +667,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXAssignmentContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXAssignmentContext extends ParserRuleContext {
 		public RuleFeatureCallIDContext ruleFeatureCallID() {
 			return getRuleContext(RuleFeatureCallIDContext.class,0);
 		}
@@ -750,7 +750,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpSingleAssignContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpSingleAssignContext extends ParserRuleContext {
 		public RuleOpSingleAssignContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -786,7 +786,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpMultiAssignContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpMultiAssignContext extends ParserRuleContext {
 		public RuleOpMultiAssignContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -883,7 +883,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXOrExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXOrExpressionContext extends ParserRuleContext {
 		public List<RuleXAndExpressionContext> ruleXAndExpression() {
 			return getRuleContexts(RuleXAndExpressionContext.class);
 		}
@@ -952,7 +952,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpOrContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpOrContext extends ParserRuleContext {
 		public RuleOpOrContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -988,7 +988,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXAndExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXAndExpressionContext extends ParserRuleContext {
 		public List<RuleXEqualityExpressionContext> ruleXEqualityExpression() {
 			return getRuleContexts(RuleXEqualityExpressionContext.class);
 		}
@@ -1057,7 +1057,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpAndContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpAndContext extends ParserRuleContext {
 		public RuleOpAndContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1093,7 +1093,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXEqualityExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXEqualityExpressionContext extends ParserRuleContext {
 		public List<RuleXRelationalExpressionContext> ruleXRelationalExpression() {
 			return getRuleContexts(RuleXRelationalExpressionContext.class);
 		}
@@ -1162,7 +1162,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpEqualityContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpEqualityContext extends ParserRuleContext {
 		public RuleOpEqualityContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1204,7 +1204,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXRelationalExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXRelationalExpressionContext extends ParserRuleContext {
 		public List<RuleXOtherOperatorExpressionContext> ruleXOtherOperatorExpression() {
 			return getRuleContexts(RuleXOtherOperatorExpressionContext.class);
 		}
@@ -1298,7 +1298,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpCompareContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpCompareContext extends ParserRuleContext {
 		public RuleOpCompareContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1362,7 +1362,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXOtherOperatorExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXOtherOperatorExpressionContext extends ParserRuleContext {
 		public List<RuleXAdditiveExpressionContext> ruleXAdditiveExpression() {
 			return getRuleContexts(RuleXAdditiveExpressionContext.class);
 		}
@@ -1431,7 +1431,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpOtherContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpOtherContext extends ParserRuleContext {
 		public RuleOpOtherContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1571,7 +1571,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXAdditiveExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXAdditiveExpressionContext extends ParserRuleContext {
 		public List<RuleXMultiplicativeExpressionContext> ruleXMultiplicativeExpression() {
 			return getRuleContexts(RuleXMultiplicativeExpressionContext.class);
 		}
@@ -1640,7 +1640,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpAddContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpAddContext extends ParserRuleContext {
 		public RuleOpAddContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1682,7 +1682,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXMultiplicativeExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXMultiplicativeExpressionContext extends ParserRuleContext {
 		public List<RuleXUnaryOperationContext> ruleXUnaryOperation() {
 			return getRuleContexts(RuleXUnaryOperationContext.class);
 		}
@@ -1751,7 +1751,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpMultiContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpMultiContext extends ParserRuleContext {
 		public RuleOpMultiContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1793,7 +1793,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXUnaryOperationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXUnaryOperationContext extends ParserRuleContext {
 		public RuleOpUnaryContext ruleOpUnary() {
 			return getRuleContext(RuleOpUnaryContext.class,0);
 		}
@@ -1885,7 +1885,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpUnaryContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpUnaryContext extends ParserRuleContext {
 		public RuleOpUnaryContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1927,7 +1927,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXCastedExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXCastedExpressionContext extends ParserRuleContext {
 		public RuleXPostfixOperationContext ruleXPostfixOperation() {
 			return getRuleContext(RuleXPostfixOperationContext.class,0);
 		}
@@ -1993,7 +1993,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXPostfixOperationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXPostfixOperationContext extends ParserRuleContext {
 		public RuleXMemberFeatureCallContext ruleXMemberFeatureCall() {
 			return getRuleContext(RuleXMemberFeatureCallContext.class,0);
 		}
@@ -2045,7 +2045,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleOpPostfixContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleOpPostfixContext extends ParserRuleContext {
 		public RuleOpPostfixContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2087,7 +2087,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXMemberFeatureCallContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXMemberFeatureCallContext extends ParserRuleContext {
 		public RuleXPrimaryExpressionContext ruleXPrimaryExpression() {
 			return getRuleContext(RuleXPrimaryExpressionContext.class,0);
 		}
@@ -2313,7 +2313,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXPrimaryExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXPrimaryExpressionContext extends ParserRuleContext {
 		public RuleXConstructorCallContext ruleXConstructorCall() {
 			return getRuleContext(RuleXConstructorCallContext.class,0);
 		}
@@ -2490,7 +2490,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXLiteralContext extends ParserRuleContext {
 		public RuleXCollectionLiteralContext ruleXCollectionLiteral() {
 			return getRuleContext(RuleXCollectionLiteralContext.class,0);
 		}
@@ -2597,7 +2597,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXCollectionLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXCollectionLiteralContext extends ParserRuleContext {
 		public RuleXSetLiteralContext ruleXSetLiteral() {
 			return getRuleContext(RuleXSetLiteralContext.class,0);
 		}
@@ -2653,7 +2653,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXSetLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXSetLiteralContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -2725,7 +2725,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXListLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXListLiteralContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -2797,7 +2797,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXClosureContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXClosureContext extends ParserRuleContext {
 		public RuleXExpressionInClosureContext ruleXExpressionInClosure() {
 			return getRuleContext(RuleXExpressionInClosureContext.class,0);
 		}
@@ -2884,7 +2884,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXExpressionInClosureContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXExpressionInClosureContext extends ParserRuleContext {
 		public List<RuleXExpressionOrVarDeclarationContext> ruleXExpressionOrVarDeclaration() {
 			return getRuleContexts(RuleXExpressionOrVarDeclarationContext.class);
 		}
@@ -2948,7 +2948,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXShortClosureContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXShortClosureContext extends ParserRuleContext {
 		public RuleXExpressionContext ruleXExpression() {
 			return getRuleContext(RuleXExpressionContext.class,0);
 		}
@@ -3023,7 +3023,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXParenthesizedExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXParenthesizedExpressionContext extends ParserRuleContext {
 		public RuleXExpressionContext ruleXExpression() {
 			return getRuleContext(RuleXExpressionContext.class,0);
 		}
@@ -3066,7 +3066,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXIfExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXIfExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3130,7 +3130,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXSwitchExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXSwitchExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3251,7 +3251,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXCasePartContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXCasePartContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3334,7 +3334,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXForLoopExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXForLoopExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3393,7 +3393,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXBasicForLoopExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXBasicForLoopExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3511,7 +3511,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXWhileExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXWhileExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3561,7 +3561,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXDoWhileExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXDoWhileExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -3613,7 +3613,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXBlockExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXBlockExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionOrVarDeclarationContext> ruleXExpressionOrVarDeclaration() {
 			return getRuleContexts(RuleXExpressionOrVarDeclarationContext.class);
 		}
@@ -3681,7 +3681,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXExpressionOrVarDeclarationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXExpressionOrVarDeclarationContext extends ParserRuleContext {
 		public RuleXVariableDeclarationContext ruleXVariableDeclaration() {
 			return getRuleContext(RuleXVariableDeclarationContext.class,0);
 		}
@@ -3770,7 +3770,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXVariableDeclarationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXVariableDeclarationContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -3852,7 +3852,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmFormalParameterContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmFormalParameterContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -3904,7 +3904,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleFullJvmFormalParameterContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleFullJvmFormalParameterContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -3948,7 +3948,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXFeatureCallContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXFeatureCallContext extends ParserRuleContext {
 		public RuleIdOrSuperContext ruleIdOrSuper() {
 			return getRuleContext(RuleIdOrSuperContext.class,0);
 		}
@@ -4093,7 +4093,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleFeatureCallIDContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleFeatureCallIDContext extends ParserRuleContext {
 		public RuleValidIDContext ruleValidID() {
 			return getRuleContext(RuleValidIDContext.class,0);
 		}
@@ -4165,7 +4165,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleIdOrSuperContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleIdOrSuperContext extends ParserRuleContext {
 		public RuleFeatureCallIDContext ruleFeatureCallID() {
 			return getRuleContext(RuleFeatureCallIDContext.class,0);
 		}
@@ -4223,7 +4223,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXConstructorCallContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXConstructorCallContext extends ParserRuleContext {
 		public RuleQualifiedNameContext ruleQualifiedName() {
 			return getRuleContext(RuleQualifiedNameContext.class,0);
 		}
@@ -4373,7 +4373,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXBooleanLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXBooleanLiteralContext extends ParserRuleContext {
 		public RuleXBooleanLiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4415,7 +4415,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXNullLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXNullLiteralContext extends ParserRuleContext {
 		public RuleXNullLiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4451,7 +4451,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXNumberLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXNumberLiteralContext extends ParserRuleContext {
 		public RuleNumberContext ruleNumber() {
 			return getRuleContext(RuleNumberContext.class,0);
 		}
@@ -4490,7 +4490,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXStringLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXStringLiteralContext extends ParserRuleContext {
 		public TerminalNode RULE_STRING() { return getToken(CodebuffParser.RULE_STRING, 0); }
 		public RuleXStringLiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4527,7 +4527,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXTypeLiteralContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXTypeLiteralContext extends ParserRuleContext {
 		public RuleQualifiedNameContext ruleQualifiedName() {
 			return getRuleContext(RuleQualifiedNameContext.class,0);
 		}
@@ -4593,7 +4593,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXThrowExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXThrowExpressionContext extends ParserRuleContext {
 		public RuleXExpressionContext ruleXExpression() {
 			return getRuleContext(RuleXExpressionContext.class,0);
 		}
@@ -4634,7 +4634,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXReturnExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXReturnExpressionContext extends ParserRuleContext {
 		public RuleXExpressionContext ruleXExpression() {
 			return getRuleContext(RuleXExpressionContext.class,0);
 		}
@@ -4683,7 +4683,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXTryCatchFinallyExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXTryCatchFinallyExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -4785,7 +4785,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXSynchronizedExpressionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXSynchronizedExpressionContext extends ParserRuleContext {
 		public List<RuleXExpressionContext> ruleXExpression() {
 			return getRuleContexts(RuleXExpressionContext.class);
 		}
@@ -4837,7 +4837,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXCatchClauseContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXCatchClauseContext extends ParserRuleContext {
 		public RuleFullJvmFormalParameterContext ruleFullJvmFormalParameter() {
 			return getRuleContext(RuleFullJvmFormalParameterContext.class,0);
 		}
@@ -4889,7 +4889,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleQualifiedNameContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleQualifiedNameContext extends ParserRuleContext {
 		public List<RuleValidIDContext> ruleValidID() {
 			return getRuleContexts(RuleValidIDContext.class);
 		}
@@ -4952,7 +4952,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleNumberContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleNumberContext extends ParserRuleContext {
 		public TerminalNode RULE_HEX() { return getToken(CodebuffParser.RULE_HEX, 0); }
 		public List<TerminalNode> RULE_INT() { return getTokens(CodebuffParser.RULE_INT); }
 		public TerminalNode RULE_INT(int i) {
@@ -5036,7 +5036,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmTypeReferenceContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmTypeReferenceContext extends ParserRuleContext {
 		public RuleJvmParameterizedTypeReferenceContext ruleJvmParameterizedTypeReference() {
 			return getRuleContext(RuleJvmParameterizedTypeReferenceContext.class,0);
 		}
@@ -5117,7 +5117,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleArrayBracketsContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleArrayBracketsContext extends ParserRuleContext {
 		public RuleArrayBracketsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -5155,7 +5155,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXFunctionTypeRefContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXFunctionTypeRefContext extends ParserRuleContext {
 		public List<RuleJvmTypeReferenceContext> ruleJvmTypeReference() {
 			return getRuleContexts(RuleJvmTypeReferenceContext.class);
 		}
@@ -5236,7 +5236,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmParameterizedTypeReferenceContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmParameterizedTypeReferenceContext extends ParserRuleContext {
 		public RuleQualifiedNameContext ruleQualifiedName() {
 			return getRuleContext(RuleQualifiedNameContext.class,0);
 		}
@@ -5373,7 +5373,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmArgumentTypeReferenceContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmArgumentTypeReferenceContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -5432,7 +5432,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmWildcardTypeReferenceContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmWildcardTypeReferenceContext extends ParserRuleContext {
 		public RuleJvmUpperBoundContext ruleJvmUpperBound() {
 			return getRuleContext(RuleJvmUpperBoundContext.class,0);
 		}
@@ -5535,7 +5535,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmUpperBoundContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmUpperBoundContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -5576,7 +5576,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmUpperBoundAndedContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmUpperBoundAndedContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -5617,7 +5617,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmLowerBoundContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmLowerBoundContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -5658,7 +5658,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleJvmLowerBoundAndedContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleJvmLowerBoundAndedContext extends ParserRuleContext {
 		public RuleJvmTypeReferenceContext ruleJvmTypeReference() {
 			return getRuleContext(RuleJvmTypeReferenceContext.class,0);
 		}
@@ -5699,7 +5699,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleQualifiedNameWithWildcardContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleQualifiedNameWithWildcardContext extends ParserRuleContext {
 		public RuleQualifiedNameContext ruleQualifiedName() {
 			return getRuleContext(RuleQualifiedNameContext.class,0);
 		}
@@ -5742,7 +5742,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleValidIDContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleValidIDContext extends ParserRuleContext {
 		public TerminalNode RULE_ID() { return getToken(CodebuffParser.RULE_ID, 0); }
 		public RuleValidIDContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -5779,7 +5779,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXImportSectionContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXImportSectionContext extends ParserRuleContext {
 		public List<RuleXImportDeclarationContext> ruleXImportDeclaration() {
 			return getRuleContexts(RuleXImportDeclarationContext.class);
 		}
@@ -5834,7 +5834,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleXImportDeclarationContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleXImportDeclarationContext extends ParserRuleContext {
 		public RuleQualifiedNameInStaticImportContext ruleQualifiedNameInStaticImport() {
 			return getRuleContext(RuleQualifiedNameInStaticImportContext.class,0);
 		}
@@ -5942,7 +5942,7 @@ public class CodebuffParser extends Parser {
 		return _localctx;
 	}
 
-	public static class RuleQualifiedNameInStaticImportContext extends org.antlr.v4.runtime.RuleContextWithAltNum {
+	public static class RuleQualifiedNameInStaticImportContext extends ParserRuleContext {
 		public List<RuleValidIDContext> ruleValidID() {
 			return getRuleContexts(RuleValidIDContext.class);
 		}
