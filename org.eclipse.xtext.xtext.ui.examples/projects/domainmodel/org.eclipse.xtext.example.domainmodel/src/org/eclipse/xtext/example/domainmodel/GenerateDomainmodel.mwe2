@@ -61,7 +61,7 @@ Workflow {
 				generateXtendStub = false
 			}
 			
-			fragment = CodebuffGrammarGeneratorFragment{}
+//			fragment = CodebuffGrammarGeneratorFragment{}
 		}
 	}
 }
