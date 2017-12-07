@@ -20,6 +20,7 @@ import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.resource.IExternalContentSupport.IExternalContentProvider;
 import org.eclipse.xtext.resource.IResourceDescription;
+import org.eclipse.xtext.resource.IResourceDescription.Delta;
 import org.eclipse.xtext.resource.impl.AbstractResourceDescriptionChangeEventSource;
 import org.eclipse.xtext.resource.impl.ResourceDescriptionChangeEvent;
 import org.eclipse.xtext.resource.persistence.ResourceStorageLoadable;
@@ -35,24 +36,30 @@ import com.google.common.collect.MapMaker;
 public class DirtyStateManager extends AbstractResourceDescriptionChangeEventSource implements IDirtyStateManager, IDirtyStateManagerExtension {
 
 	private ConcurrentMap<URI, IDirtyResource> managedResources;
+	private ConcurrentMap<URI, IDirtyResource> discardCandidates;
 	
 	public DirtyStateManager() {
 		managedResources = new MapMaker().makeMap();
+		discardCandidates = new MapMaker().makeMap();
 	}
 	
 	@Override
 	public void announceDirtyStateChanged(IDirtyResource dirtyResource) {
 		// avoid putting a dirtyResource into the map that wasn't managed before
-		if (managedResources.replace(dirtyResource.getURI(), dirtyResource) != null) {
+		URI uri = dirtyResource.getURI();
+		if (managedResources.replace(uri, dirtyResource) != null) {
+			// the resource is dirty and may not be discarded, ensure that it's 
+			// not in the list to be discarded 
+			discardCandidates.remove(uri);
 			notifyListeners(dirtyResource, true);
 		}
 	}
 
 	@Override
 	public void discardDirtyState(IDirtyResource dirtyResource) {
-		if (managedResources.remove(dirtyResource.getURI(), dirtyResource)) {
-			notifyListeners(dirtyResource, false);
-		}
+		// flag dirtyResource to be discarded but don't really do it until index updated this resource
+		// so that even with auto build = off, we see the newest references 
+		discardCandidates.put(dirtyResource.getURI(), dirtyResource);
 	}
 
 	protected void notifyListeners(final IDirtyResource dirtyResource, boolean managed) {
@@ -108,6 +115,15 @@ public class DirtyStateManager extends AbstractResourceDescriptionChangeEventSou
 	public boolean manageDirtyState(IDirtyResource dirtyResource) {
 		IDirtyResource prevValue = managedResources.putIfAbsent(dirtyResource.getURI(), dirtyResource);
 		return prevValue == null || prevValue == dirtyResource;
+	}
+	
+	@Override
+	public void unmanageDirtyState(IDirtyResource dirtyResource) {
+		URI uri = dirtyResource.getURI();
+		discardCandidates.remove(uri);
+		if (managedResources.remove(uri, dirtyResource)) {
+			notifyListeners(dirtyResource, false);
+		}
 	}
 	
 	public IDirtyResource getDirtyResource(URI uri) {
@@ -263,4 +279,15 @@ public class DirtyStateManager extends AbstractResourceDescriptionChangeEventSou
 		return ImmutableList.copyOf(managedResources.keySet());
 	}
 	
+	@Override
+	public void indexUpdated(List<Delta> indexChanges) {
+		// builder's index updated some resources
+		indexChanges.forEach(delta -> {
+			IDirtyResource dirtyResource = discardCandidates.get(delta.getUri());
+			// see if this resource was flagged to be discarded
+			if (dirtyResource != null) {
+				unmanageDirtyState(dirtyResource);
+			}
+		});
+	}
 }

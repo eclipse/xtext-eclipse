@@ -18,6 +18,7 @@ import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.resource.IResourceDescription.Delta;
+import org.eclipse.xtext.resource.IResourceDescription.Event;
 import org.eclipse.xtext.resource.IResourceDescriptions;
 import org.eclipse.xtext.resource.ISelectable;
 import org.eclipse.xtext.resource.IShadowedResourceDescriptions;
@@ -26,6 +27,7 @@ import org.eclipse.xtext.resource.impl.ChangedResourceDescriptionDelta;
 import org.eclipse.xtext.resource.impl.CoarseGrainedChangeEvent;
 import org.eclipse.xtext.resource.impl.ResourceDescriptionChangeEvent;
 import org.eclipse.xtext.ui.editor.IDirtyStateManager;
+import org.eclipse.xtext.ui.editor.IDirtyStateManagerExtension;
 import org.eclipse.xtext.ui.notification.IStateChangeEventBroker;
 
 import com.google.common.base.Function;
@@ -112,8 +114,14 @@ public class DirtyStateAwareResourceDescriptions extends AbstractResourceDescrip
 		@Override
 		public void descriptionsChanged(IResourceDescription.Event event) {
 			globalDescriptionsChanged(event);
+			notifyDirtyStateManager(event);
 		}
-		
+
+		private void notifyDirtyStateManager(Event event) {
+			if (dirtyStateManager instanceof IDirtyStateManagerExtension) {
+				((IDirtyStateManagerExtension) dirtyStateManager).indexUpdated(event.getDeltas());
+			}
+		}
 	}
 
 	@Override

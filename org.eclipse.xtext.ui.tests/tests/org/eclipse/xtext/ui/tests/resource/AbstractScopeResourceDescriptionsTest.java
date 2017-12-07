@@ -102,7 +102,7 @@ public abstract class AbstractScopeResourceDescriptionsTest {
 			if (!(Throwables.getRootCause(t) instanceof org.eclipse.core.internal.resources.ResourceException))
 				Throwables.propagate(t);
 		} finally {
-			dirtyStateManager.discardDirtyState(mockDirtyResource);
+			dirtyStateManager.unmanageDirtyState(mockDirtyResource);
 		}
 	}
 

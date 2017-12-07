@@ -52,6 +52,12 @@ public interface IDirtyStateManager extends ISelectable, IExternalContentSupport
 	 * same {@link URI} will not become unmanaged. A call to this method will raise an event.
 	 * @see #announceDirtyStateChanged(IDirtyResource)
 	 */
+	void unmanageDirtyState(IDirtyResource dirtyResource);
+	
+	/**
+	 * Mark the given dirty resource as to be discarded. The dirty resource will be kept until
+	 * the index for it gets updated so that the new state is available even when auto build is off.
+	 */
 	void discardDirtyState(IDirtyResource dirtyResource);
 	
 	/**
@@ -68,5 +74,4 @@ public interface IDirtyStateManager extends ISelectable, IExternalContentSupport
 	void announceDirtyStateChanged(IDirtyResource dirtyResource);
 	
 	IResourceDescription getDirtyResourceDescription(URI uri);
-	
 }

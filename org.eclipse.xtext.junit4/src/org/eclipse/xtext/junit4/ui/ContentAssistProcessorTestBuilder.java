@@ -487,7 +487,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 			return computeCompletionProposals(xtextDocument, cursorPosition);
 		} finally {
 			if (announceDirtyState) {
-				dirtyStateManager.discardDirtyState(dirtyResource);
+				dirtyStateManager.unmanageDirtyState(dirtyResource);
 			}
 		}
 	}

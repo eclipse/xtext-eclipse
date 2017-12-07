@@ -10,6 +10,7 @@ package org.eclipse.xtext.ui.editor;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.xtext.resource.IResourceDescription.Delta;
 
 /**
  * @author Jan Koehnlein - Initial contribution and API
@@ -20,4 +21,6 @@ import org.eclipse.emf.common.util.URI;
 public interface IDirtyStateManagerExtension {
 
 	List<URI> getDirtyResourceURIs();
+	
+	void indexUpdated(List<Delta> indexChanges);
 }

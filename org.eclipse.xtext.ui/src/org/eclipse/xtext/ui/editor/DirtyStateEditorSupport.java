@@ -418,7 +418,7 @@ public class DirtyStateEditorSupport implements IResourceDescription.Event.Liste
 				}
 			}
 			if (!isConcurrentEditingIgnored()) {
-				dirtyStateManager.discardDirtyState(delegatingClientAwareResource);
+				dirtyStateManager.unmanageDirtyState(delegatingClientAwareResource);
 				return false;
 			}
 		}
@@ -455,7 +455,7 @@ public class DirtyStateEditorSupport implements IResourceDescription.Event.Liste
 		stateChangeEventBroker.removeListener(this);
 		synchronized (dirtyStateManager) {
 			if (dirtyResource.isInitialized()) 
-				dirtyStateManager.discardDirtyState(delegatingClientAwareResource);
+				dirtyStateManager.unmanageDirtyState(delegatingClientAwareResource);
 			IXtextDocument document = client.getDocument();
 			if (document == null)
 				document = dirtyResource.getUnderlyingDocument();
