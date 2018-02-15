@@ -11,19 +11,18 @@
 	<artifactId>org.eclipse.xtext.builder.tests</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
 
-	<!--
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
+					<failIfNoTests>false</failIfNoTests>
 					<includes>
-						<include>**/standalone/*.java</include>
+						<include>org/eclipse/xtext/xtext/ui/**/*.java</include>
 					</includes>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	-->
 </project>
