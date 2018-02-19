@@ -13,8 +13,10 @@ import com.google.inject.Injector;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.example.arithmetics.ArithmeticsRuntimeModule;
+import org.eclipse.xtext.example.arithmetics.ide.ArithmeticsIdeModule;
 import org.eclipse.xtext.example.arithmetics.ui.ArithmeticsUiModule;
 import org.eclipse.xtext.ui.shared.SharedStateModule;
 import org.eclipse.xtext.util.Modules2;
@@ -27,6 +29,7 @@ import org.osgi.framework.BundleContext;
 public class ArithmeticsActivator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "org.eclipse.xtext.example.arithmetics.ui";
+	private static final String PLUGIN_ID_XTEXT_IDE = "org.eclipse.xtext.ide";
 	public static final String ORG_ECLIPSE_XTEXT_EXAMPLE_ARITHMETICS_ARITHMETICS = "org.eclipse.xtext.example.arithmetics.Arithmetics";
 	
 	private static final Logger logger = Logger.getLogger(ArithmeticsActivator.class);
@@ -65,9 +68,16 @@ public class ArithmeticsActivator extends AbstractUIPlugin {
 	protected Injector createInjector(String language) {
 		try {
 			com.google.inject.Module runtimeModule = getRuntimeModule(language);
+			com.google.inject.Module ideModule = getIdeModule(language);
 			com.google.inject.Module sharedStateModule = getSharedStateModule();
 			com.google.inject.Module uiModule = getUiModule(language);
-			com.google.inject.Module mergedModule = Modules2.mixin(runtimeModule, sharedStateModule, uiModule);
+			com.google.inject.Module mergedModule = null;
+			if (ideModule != null) {
+				mergedModule = Modules2.mixin(runtimeModule, ideModule, sharedStateModule, uiModule);
+			} else {
+				// backward compatibility
+				mergedModule = Modules2.mixin(runtimeModule, sharedStateModule, uiModule);
+			}
 			return Guice.createInjector(mergedModule);
 		} catch (Exception e) {
 			logger.error("Failed to create injector for " + language);
@@ -83,6 +93,14 @@ public class ArithmeticsActivator extends AbstractUIPlugin {
 		throw new IllegalArgumentException(grammar);
 	}
 	
+	protected com.google.inject.Module getIdeModule(String grammar) {
+		if (ORG_ECLIPSE_XTEXT_EXAMPLE_ARITHMETICS_ARITHMETICS.equals(grammar)) {
+			// check for Xtext >= 2.11
+			return (Platform.getBundle(PLUGIN_ID_XTEXT_IDE) != null) ? new ArithmeticsIdeModule() : null;
+		}
+		throw new IllegalArgumentException(grammar);
+	}
+
 	protected com.google.inject.Module getUiModule(String grammar) {
 		if (ORG_ECLIPSE_XTEXT_EXAMPLE_ARITHMETICS_ARITHMETICS.equals(grammar)) {
 			return new ArithmeticsUiModule(this);
