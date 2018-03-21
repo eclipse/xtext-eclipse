@@ -34,6 +34,7 @@
 		<module>repository</module>
 	</modules>
 	<build>
+		<defaultGoal>clean verify</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -46,14 +47,6 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<target>
-						<artifact>
-							<groupId>org.eclipse.xtext.example.domainmodel</groupId>
-							<artifactId>${targetplatform.artifactId}</artifactId>
-							<version>${targetplatform.version}</version>
-							<classifier>${targetplatform.classifier}</classifier>
-						</artifact>
-					</target>
 					<environments>
 						<environment>
 							<os>macosx</os>
@@ -325,6 +318,48 @@
 			<properties>
 				<moduleProperties>--add-modules=ALL-SYSTEM</moduleProperties>
 			</properties>
+		</profile>
+		<profile>
+			<id>tp-remote</id>
+			<activation>
+				<file>
+					<missing>${maven.multiModuleProjectDirectory}/tp/.repository/final/content.jar</missing>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho</groupId>
+						<artifactId>target-platform-configuration</artifactId>
+						<version>${tycho-version}</version>
+						<configuration>
+							<target>
+								<artifact>
+									<groupId>${targetplatform.groupId}</groupId>
+									<artifactId>${targetplatform.artifactId}</artifactId>
+									<version>${targetplatform.version}</version>
+									<classifier>${targetplatform.classifier}</classifier>
+								</artifact>
+							</target>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>tp-local</id>
+			<activation>
+				<file>
+					<exists>${maven.multiModuleProjectDirectory}/tp/.repository/final/content.jar</exists>
+				</file>
+			</activation>
+			<repositories>
+				<repository>
+					<id>LOCAL_AGGREGATED_REPO</id>
+					<layout>p2</layout>
+					<url>file:tp/.repository/final</url>
+				</repository>
+			</repositories>
 		</profile>
 	</profiles>
 </project>
