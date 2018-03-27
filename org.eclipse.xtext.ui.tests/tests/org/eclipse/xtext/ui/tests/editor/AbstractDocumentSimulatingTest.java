@@ -23,6 +23,7 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.IXtextDocumentContentObserver;
 import org.eclipse.xtext.ui.editor.model.IXtextModelListener;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork.Void;
 
 /**
  * @author Sebastian Zarnekow - Initial contribution and API
@@ -311,12 +312,25 @@ public abstract class AbstractDocumentSimulatingTest extends AbstractXtextTests 
 		return null;
 	}
 	
+	@Deprecated
 	@Override
 	public <T> T readOnly(IUnitOfWork<T, XtextResource> work) {
 		fail("Unexpected call");
 		return null;
 	}
+	
+	@Override
+	public <T> T readOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		fail("Unexpected call");
+		return null;
+	}
 
+	@Override
+	public boolean readOnly(Void<XtextResource> work) {
+		fail("Unexpected call");
+		return false;
+	}
+	
 	@Override
 	public ITypedRegion[] computePartitioning(String partitioning, int offset, int length,
 			boolean includeZeroLengthPartitions) throws BadLocationException, BadPartitioningException {

@@ -31,6 +31,7 @@ import org.eclipse.xtext.ui.editor.DocumentBasedDirtyResource;
 import org.eclipse.xtext.ui.editor.model.ILexerTokenRegion;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork.Void;
 import org.junit.Test;
 
 /**
@@ -189,6 +190,7 @@ public class DocumentBasedDirtyResourceTest extends AbstractDocumentSimulatingTe
 		return documentContent;
 	}
 
+	@Deprecated
 	@Override
 	public <T> T readOnly(IUnitOfWork<T, XtextResource> work) {
 		try {
@@ -199,7 +201,32 @@ public class DocumentBasedDirtyResourceTest extends AbstractDocumentSimulatingTe
 	}
 	
 	@Override
+	public boolean readOnly(Void<XtextResource> work) {
+		Object success = readOnly(Boolean.FALSE, work);
+		// Void always returns null
+		return success == null;
+	}
+	
+	@Override
+	public <T> T readOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		if (resource == null) return defaultValue;
+		
+		return readOnly(defaultValue, work);
+	}
+	
+	@Deprecated
+	@Override
 	public <T> T priorityReadOnly(IUnitOfWork<T, XtextResource> work) {
+		return readOnly(work);
+	}
+	
+	@Override
+	public <T> T priorityReadOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		return readOnly(defaultValue, work);
+	}
+	
+	@Override
+	public boolean priorityReadOnly(Void<XtextResource> work) {
 		return readOnly(work);
 	}
 

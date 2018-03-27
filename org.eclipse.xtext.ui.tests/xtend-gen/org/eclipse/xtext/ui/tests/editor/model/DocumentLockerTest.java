@@ -58,21 +58,30 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
     XtextResource _doubleArrow = ObjectExtensions.<XtextResource>operator_doubleArrow(_xtextResource, _function);
     document.setInput(_doubleArrow);
     Assert.assertEquals(0, s.size());
-    final IUnitOfWork<Object, XtextResource> _function_1 = (XtextResource it) -> {
-      Assert.assertEquals(1, s.size());
-      final IUnitOfWork<Object, XtextResource> _function_2 = (XtextResource it_1) -> {
+    final IUnitOfWork.Void<XtextResource> _function_1 = new IUnitOfWork.Void<XtextResource>() {
+      @Override
+      public void process(final XtextResource it) throws Exception {
         Assert.assertEquals(1, s.size());
-        final IUnitOfWork<Object, XtextResource> _function_3 = (XtextResource it_2) -> {
-          Assert.assertEquals(1, s.size());
-          return null;
+        final IUnitOfWork.Void<XtextResource> _function = new IUnitOfWork.Void<XtextResource>() {
+          @Override
+          public void process(final XtextResource it) throws Exception {
+            Assert.assertEquals(1, s.size());
+            final IUnitOfWork.Void<XtextResource> _function = new IUnitOfWork.Void<XtextResource>() {
+              @Override
+              public void process(final XtextResource it) throws Exception {
+                Assert.assertEquals(1, s.size());
+              }
+            };
+            final boolean size3 = document.readOnly(_function);
+            Assert.assertTrue("Assert was not executed due to null resource in readOnly", size3);
+          }
         };
-        document.<Object>readOnly(_function_3);
-        return null;
-      };
-      document.<Object>readOnly(_function_2);
-      return null;
+        final boolean size2 = document.readOnly(_function);
+        Assert.assertTrue("Assert was not executed due to null resource in readOnly", size2);
+      }
     };
-    document.<Object>readOnly(_function_1);
+    final boolean size1 = document.readOnly(_function_1);
+    Assert.assertTrue("Assert was not executed due to null resource in readOnly", size1);
     Assert.assertEquals(1, s.size());
   }
   
@@ -88,28 +97,30 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
     };
     final XtextResource resource = ObjectExtensions.<XtextResource>operator_doubleArrow(_xtextResource, _function);
     document.setInput(resource);
-    final IUnitOfWork<Object, XtextResource> _function_1 = (XtextResource it) -> {
+    final IUnitOfWork<Boolean, XtextResource> _function_1 = (XtextResource it) -> {
       Object _xblockexpression = null;
       {
         Assert.assertFalse(document.getCancelIndicator().isCanceled());
         _xblockexpression = null;
       }
-      return _xblockexpression;
+      return ((Boolean)_xblockexpression);
     };
-    document.<Object>internalModify(_function_1);
+    final Boolean modify1 = document.<Boolean>internalModify(Boolean.FALSE, _function_1);
+    Assert.assertNull("Failed to modify resource due to null resource in readOnly", modify1);
     final CancelIndicator indicator = document.getCancelIndicator();
     Assert.assertFalse(indicator.isCanceled());
     document.set("fupp");
     Assert.assertTrue(indicator.isCanceled());
-    final IUnitOfWork<Object, XtextResource> _function_2 = (XtextResource it) -> {
+    final IUnitOfWork<Boolean, XtextResource> _function_2 = (XtextResource it) -> {
       Object _xblockexpression = null;
       {
         Assert.assertFalse(document.getCancelIndicator().isCanceled());
         _xblockexpression = null;
       }
-      return _xblockexpression;
+      return ((Boolean)_xblockexpression);
     };
-    document.<Object>internalModify(_function_2);
+    final Boolean modify2 = document.<Boolean>internalModify(Boolean.FALSE, _function_2);
+    Assert.assertNull("Failed to modify resource due to null resource in readOnly", modify2);
   }
   
   @Test
@@ -126,7 +137,7 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
       document.setInput(_doubleArrow);
       final boolean[] check = new boolean[1];
       final Runnable _function_1 = () -> {
-        document.<Object>readOnly(new CancelableUnitOfWork<Object, XtextResource>() {
+        final Object success = document.<Object>readOnly(Boolean.FALSE, new CancelableUnitOfWork<Object, XtextResource>() {
           @Override
           public Object exec(final XtextResource state, final CancelIndicator cancelIndicator) throws Exception {
             check[0] = true;
@@ -144,16 +155,18 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
             return null;
           }
         });
+        Assert.assertNull("Failed to read resource due to null resource in readOnly", success);
       };
       final Thread thread = new Thread(_function_1);
       thread.start();
       while ((!check[0])) {
         Thread.sleep(1);
       }
-      final IUnitOfWork<Object, XtextResource> _function_2 = (XtextResource it) -> {
+      final IUnitOfWork<Boolean, XtextResource> _function_2 = (XtextResource it) -> {
         return null;
       };
-      document.<Object>priorityReadOnly(_function_2);
+      final Boolean success = document.<Boolean>priorityReadOnly(Boolean.FALSE, _function_2);
+      Assert.assertNull("Failed to read resource due to null resource in priorityReadOnly", success);
       Assert.assertFalse(thread.isInterrupted());
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
@@ -174,15 +187,17 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
     final ArrayList<CancelIndicator> cancelIndicators = CollectionLiterals.<CancelIndicator>newArrayList();
     this.addReaderCancelationListener(document, cancelIndicators);
     Assert.assertTrue(cancelIndicators.isEmpty());
-    final IUnitOfWork<Object, XtextResource> _function_1 = (XtextResource it) -> {
+    final IUnitOfWork<Boolean, XtextResource> _function_1 = (XtextResource it) -> {
       return null;
     };
-    document.<Object>readOnly(_function_1);
+    final Boolean success1 = document.<Boolean>readOnly(Boolean.FALSE, _function_1);
+    Assert.assertNull("Failed to read resource due to null resource in readOnly", success1);
     Assert.assertTrue(cancelIndicators.isEmpty());
-    final IUnitOfWork<Object, XtextResource> _function_2 = (XtextResource it) -> {
+    final IUnitOfWork<Boolean, XtextResource> _function_2 = (XtextResource it) -> {
       return null;
     };
-    document.<Object>readOnly(_function_2);
+    final Boolean success2 = document.<Boolean>readOnly(Boolean.FALSE, _function_2);
+    Assert.assertNull("Failed to read resource due to null resource in readOnly", success2);
     Assert.assertTrue(cancelIndicators.isEmpty());
   }
   
@@ -233,7 +248,8 @@ public class DocumentLockerTest extends AbstractXtextDocumentTest {
         }
       };
       final CancelableUnitOfWork<Boolean, XtextResource> work = _function_1;
-      document.<Boolean>readOnly(work);
+      final Boolean workResult = document.<Boolean>readOnly(null, work);
+      Assert.assertNotNull("Failed to read resource due to null resource in readOnly", workResult);
     };
     document.addModelListener(_function);
   }
