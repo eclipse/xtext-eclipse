@@ -201,7 +201,14 @@ public class XtextDocument extends Document implements IXtextDocument {
 		IUnitOfWork<T, XtextResource> reconcilingUnitOfWork = reconcilingUnitOfWorkProvider.<T>get(work, this, composer);
 		return internalModify(defaultValue, reconcilingUnitOfWork);
 	}
-
+	
+	@Override
+	public boolean modify(Void<XtextResource> work) {
+		Object success = modify(Boolean.FALSE, work);
+		// Void.exec() always returns null
+		return success == null;
+	}
+	
 	/**
 	 * @deprecated use {@link #modify(Object, IUnitOfWork)} instead
 	 */
@@ -486,6 +493,13 @@ public class XtextDocument extends Document implements IXtextDocument {
 			if (state == null) return defaultValue;
 
 			return internalGetReadOnlyLockAndModify(work, state);
+		}
+		
+		@Override
+		public boolean modify(IUnitOfWork.Void<XtextResource> work) {
+			Object success = modify(Boolean.FALSE, work);
+			// Void.exec() always returns null
+			return success == null;
 		}
 		
 		/**
