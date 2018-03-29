@@ -22,6 +22,7 @@ import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode;
 import org.eclipse.xtext.util.ITextRegion;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork.Void;
 
 import com.google.common.collect.Lists;
 
@@ -201,24 +202,27 @@ public abstract class AbstractOutlineNode implements IOutlineNode, IOutlineNode.
 		return null;
 	}
 
+	@Deprecated
 	@Override
 	public <T> T readOnly(final IUnitOfWork<T, EObject> work) {
+		return internalReadOnly(work, false, null);
+	}
+	
+	protected <T> T internalReadOnly(final IUnitOfWork<T, EObject> work, final boolean returnDefault, final T defaultValue) {
 		if (getEObjectURI() != null) {
 			try {
-				return getDocument().readOnly(new IUnitOfWork<T, XtextResource>() {
+				return getDocument().readOnly(null, new IUnitOfWork<T, XtextResource>() {
 					@Override
 					public T exec(XtextResource state) throws Exception {
-						if (state != null) {
-							EObject eObject;
-							if (state.getResourceSet() != null)
-								eObject = state.getResourceSet().getEObject(getEObjectURI(), true);
-							else
-								eObject = state.getEObject(getEObjectURI().fragment());
-							return work.exec(eObject);
-						}
-						return null;
+						EObject eObject;
+						if (state.getResourceSet() != null)
+							eObject = state.getResourceSet().getEObject(getEObjectURI(), true);
+						else
+							eObject = state.getEObject(getEObjectURI().fragment());
+						if(returnDefault && eObject == null) return defaultValue;
+						
+						return work.exec(eObject);
 					}
-	
 				});
 			} catch (RuntimeException e) {
 				LOG.warn(e.getMessage(), e);
@@ -228,5 +232,16 @@ public abstract class AbstractOutlineNode implements IOutlineNode, IOutlineNode.
 			return null;
 		}
 	}
-
+	
+	@Override
+	public boolean readOnly(Void<EObject> work) {
+		Object success = internalReadOnly(work, true, Boolean.FALSE);
+		// Void always returns null
+		return success == null;
+	}
+	
+	@Override
+	public <T> T readOnly(T defaultValue, IUnitOfWork<T, EObject> work) {
+		return internalReadOnly(work, true, defaultValue);
+	}
 }

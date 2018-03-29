@@ -149,6 +149,15 @@ public class XtextDocumentModifyTest extends AbstractXtextTests {
 			}});
 		
 		final XtextDocument document = new XtextDocument(tokenSource, get(ITextEditComposer.class), new OutdatedStateManager(), new OperationCanceledManager()) {
+			
+			@Override
+			public <T> T internalModify(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+				if (resource == null) return defaultValue;
+				
+				return internalModify(work);
+			}
+			
+			@Deprecated
 			@Override
 			public <T> T internalModify(IUnitOfWork<T, XtextResource> work) {
 				try {

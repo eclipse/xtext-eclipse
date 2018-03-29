@@ -51,7 +51,10 @@ import org.eclipse.xtext.ui.editor.model.edit.ReconcilingUnitOfWork.ReconcilingU
 import org.eclipse.xtext.ui.util.DisplayRunnable;
 import org.eclipse.xtext.util.CancelIndicator;
 import org.eclipse.xtext.util.concurrent.CancelableUnitOfWork;
+import org.eclipse.xtext.util.concurrent.IReadAccess;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
+import org.eclipse.xtext.util.concurrent.IUnitOfWork.Void;
+import org.eclipse.xtext.util.concurrent.IWriteAccess;
 
 import com.google.inject.Inject;
 
@@ -107,7 +110,7 @@ public class XtextDocument extends Document implements IXtextDocument {
 		if (validationJob != null) {
 			validationJob.cancel();
 		}
-		internalModify(new IUnitOfWork.Void<XtextResource>() {
+		internalModify(null, new IUnitOfWork.Void<XtextResource>() {
 			@Override
 			public void process(XtextResource state) throws Exception {
 				// the resource may already be null if the document was opened for a bogus
@@ -130,17 +133,59 @@ public class XtextDocument extends Document implements IXtextDocument {
 		return new XtextDocumentLocker();
 	}
 
+	/**
+	 * Warning: The XtextResource passed to {@code work} is nullable!
+	 * 
+	 * @deprecated use {@link #readOnly(Object, IUnitOfWork) instead}
+	 */
+	@Deprecated
 	@Override
 	public <T> T readOnly(IUnitOfWork<T, XtextResource> work) {
 		T readOnly = stateAccess.readOnly(work);
 		return readOnly;
 	}
-	
+
 	/**
-	 * @since 2.7
+	 * @since 2.14
 	 */
 	@Override
+	public <T> T readOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		return stateAccess.readOnly(defaultValue, work);
+	}
+	
+	/**
+	 * @since 2.14
+	 */
+	@Override
+	public boolean readOnly(Void<XtextResource> work) {
+		return stateAccess.readOnly(work);
+	}
+	
+	/**
+	 * Warning: The XtextResource passed to {@code work} is nullable!
+	 * 
+	 * @deprecated use {@link #priorityReadOnly(Object, IUnitOfWork) instead}
+	 * @since 2.7
+	 */
+	@Deprecated
+	@Override
 	public <T> T priorityReadOnly(IUnitOfWork<T, XtextResource> work) {
+		return stateAccess.priorityReadOnly(work);
+	}
+
+	/**
+	 * @since 2.14
+	 */
+	@Override
+	public <T> T priorityReadOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		return stateAccess.priorityReadOnly(defaultValue, work);
+	}
+
+	/**
+	 * @since 2.14
+	 */
+	@Override
+	public boolean priorityReadOnly(Void<XtextResource> work) {
 		return stateAccess.priorityReadOnly(work);
 	}
 	
@@ -149,6 +194,25 @@ public class XtextDocument extends Document implements IXtextDocument {
 		public void process(XtextResource state) throws Exception {}
 	};
 
+	@Override
+	public <T> T modify(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		// do a dummy read only, to make sure any scheduled changes get applied.
+		readOnly(noWork);
+		IUnitOfWork<T, XtextResource> reconcilingUnitOfWork = reconcilingUnitOfWorkProvider.<T>get(work, this, composer);
+		return internalModify(defaultValue, reconcilingUnitOfWork);
+	}
+	
+	@Override
+	public boolean modify(Void<XtextResource> work) {
+		Object success = modify(Boolean.FALSE, work);
+		// Void.exec() always returns null
+		return success == null;
+	}
+	
+	/**
+	 * @deprecated use {@link #modify(Object, IUnitOfWork)} instead
+	 */
+	@Deprecated
 	@Override
 	public <T> T modify(IUnitOfWork<T, XtextResource> work) {
 		// do a dummy read only, to make sure any scheduled changes get applied.
@@ -159,9 +223,18 @@ public class XtextDocument extends Document implements IXtextDocument {
 
 	/**
 	 * Modifies the document's semantic model without reconciling the text nor the node model. For internal use only.
+	 * @deprecated use {@link #internalModify(Object, IUnitOfWork)} instead
 	 */
+	@Deprecated
 	public <T> T internalModify(IUnitOfWork<T, XtextResource> work) {
 		return stateAccess.modify(work);
+	}
+	
+	/**
+	 * Modifies the document's semantic model without reconciling the text nor the node model. For internal use only.
+	 */
+	public <T> T internalModify(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+		return stateAccess.modify(defaultValue, work);
 	}
 
 	protected void ensureThatStateIsNotReturned(Object exec, IUnitOfWork<?, XtextResource> uow) {
@@ -295,7 +368,7 @@ public class XtextDocument extends Document implements IXtextDocument {
 	 * @author Sven Efftinge - Initial contribution and API
 	 * 
 	 */
-	protected class XtextDocumentLocker implements Processor {
+	protected class XtextDocumentLocker implements Processor, IReadAccess<XtextResource>, IWriteAccess<XtextResource>, Priority<XtextResource> {
 		
 		private AtomicInteger potentialUpdaterCount = new AtomicInteger(0);
 		
@@ -336,7 +409,7 @@ public class XtextDocument extends Document implements IXtextDocument {
 			try {
 				if (log.isTraceEnabled())
 					log.trace("process - " + Thread.currentThread().getName());
-				return this.modify(transaction);
+				return this.modify(null, transaction);
 			} finally {
 				if (log.isTraceEnabled())
 					log.trace("Downgrading from write lock to read lock...");
@@ -414,10 +487,35 @@ public class XtextDocument extends Document implements IXtextDocument {
 			return resource;
 		}
 
+		@Override
+		public <T> T modify(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+			XtextResource state = getState();
+			if (state == null) return defaultValue;
+
+			return internalGetReadOnlyLockAndModify(work, state);
+		}
+		
+		@Override
+		public boolean modify(IUnitOfWork.Void<XtextResource> work) {
+			Object success = modify(Boolean.FALSE, work);
+			// Void.exec() always returns null
+			return success == null;
+		}
+		
+		/**
+		 * Warning: The XtextResource passed to {@code work} is nullable!
+		 * 
+		 * @deprecated use {@link #modify(Object, IUnitOfWork)} instead
+		 */
+		@Deprecated
+		@Override
 		public <T> T modify(IUnitOfWork<T, XtextResource> work) {
+			return internalGetReadOnlyLockAndModify(work, getState());
+		}
+
+		protected <T> T internalGetReadOnlyLockAndModify(IUnitOfWork<T, XtextResource> work, XtextResource state) {
 			boolean isCancelable = work instanceof CancelableUnitOfWork;
 			try {
-				XtextResource state = getState();
 				try {
 					synchronized (getResourceLock()) {
 						acquireWriteLock();
@@ -480,25 +578,66 @@ public class XtextDocument extends Document implements IXtextDocument {
 		}
 		
 		/**
+		 * Warning: The XtextResource passed to {@code work} is nullable!
 		 * 
+		 * @deprecated use {@link #priorityReadOnly(Object, IUnitOfWork) instead}
 		 * @since 2.7
 		 */
+		@Deprecated
+		@Override
 		public <T> T priorityReadOnly(IUnitOfWork<T, XtextResource> work) {
 			return internalReadOnly(work, true);
 		}
 		
+		@Override
+		public boolean priorityReadOnly(Void<XtextResource> work) {
+			Object success = priorityReadOnly(Boolean.FALSE, work);
+			// Void.exec() always returns null
+			return success == null;
+		}
+		
 		/**
+		 * @since 2.14
+		 */
+		@Override
+		public <T> T priorityReadOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+			return internalReadOnly(work, true, defaultValue);
+		}
+		
+		/**
+		 * Warning: The XtextResource passed to {@code work} is nullable!
+		 * 
+		 * @deprecated use {@link #readOnly(Object, IUnitOfWork) instead}
 		 * @since 2.4
 		 */
+		@Deprecated
+		@Override
 		public <T> T readOnly(IUnitOfWork<T, XtextResource> work) {
 			return internalReadOnly(work, false);
 		}
 
 		/**
-		 * @since 2.7
+		 * @since 2.14
 		 */
-		protected <T> T internalReadOnly(IUnitOfWork<T, XtextResource> work, boolean isCancelReaders) {
-			boolean isCancelable = work instanceof CancelableUnitOfWork;
+		@Override
+		public boolean readOnly(Void<XtextResource> work) {
+			Object success = readOnly(Boolean.FALSE, work);
+			// Void.exec() always returns null
+			return success == null;
+		}
+		
+		/**
+		 * @since 2.14
+		 */
+		@Override
+		public <T> T readOnly(T defaultValue, IUnitOfWork<T, XtextResource> work) {
+			return internalReadOnly(work, false, defaultValue);
+		}
+
+		/**
+		 * @since 2.14
+		 */
+		protected <T> T internalReadOnly(IUnitOfWork<T, XtextResource> work, boolean isCancelReaders, T defaultValue) {
 			if(isCancelReaders) {
 				if (Display.getCurrent() == null) {
 					log.error("Priority read only called from non UI-thread.", new IllegalStateException());
@@ -506,6 +645,22 @@ public class XtextDocument extends Document implements IXtextDocument {
 				cancelReaders(resource);
 			}
 			XtextResource state = getState();
+			if (state == null) return defaultValue;
+
+			return internalGetReadOnlyLockAndExecute(work, isCancelReaders, state);
+		}
+		
+		/**
+		 * @deprecated use {@link #internalReadOnly(IUnitOfWork, boolean, Object)} instead
+		 * @since 2.7
+		 */
+		@Deprecated
+		protected <T> T internalReadOnly(IUnitOfWork<T, XtextResource> work, boolean isCancelReaders) {
+			return internalGetReadOnlyLockAndExecute(work, isCancelReaders, getState());
+		}
+		
+		protected <T> T internalGetReadOnlyLockAndExecute(IUnitOfWork<T, XtextResource> work, boolean isCancelReaders, XtextResource state) {
+			boolean isCancelable = work instanceof CancelableUnitOfWork;
 			synchronized (getResourceLock()) {
 				acquireReadLock();
 				if(isCancelReaders) 

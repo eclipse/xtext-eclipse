@@ -39,18 +39,18 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 			new XtextResourceSet().resources += it
 		]
 		assertEquals(0, s.size)
-		document.readOnly [
+		val size1 = document.readOnly [
 			assertEquals(1, s.size)
-			document.readOnly [
+			val size2 = document.readOnly [
 				assertEquals(1, s.size)
-				document.readOnly [
+				val size3 = document.readOnly [
 					assertEquals(1, s.size)
-					return null
 				]
-				return null
+				assertTrue("Assert was not executed due to null resource in readOnly", size3)
 			]
-			return null
+			assertTrue("Assert was not executed due to null resource in readOnly", size2)
 		]
+		assertTrue("Assert was not executed due to null resource in readOnly", size1)
 		assertEquals(1, s.size)
 	}
 
@@ -60,18 +60,20 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 			new XtextResourceSet().resources += it
 		]
 		document.input = resource
-		document.internalModify [
+		val modify1 = document.internalModify(Boolean.FALSE) [
 			assertFalse(document.cancelIndicator.isCanceled())
 			null
 		]
+		assertNull("Failed to modify resource due to null resource in readOnly", modify1)
 		val indicator = document.cancelIndicator
 		assertFalse(indicator.isCanceled())
 		document.set("fupp");
 		assertTrue(indicator.isCanceled())
-		document.internalModify [
+		val modify2 = document.internalModify(Boolean.FALSE) [
 			assertFalse(document.cancelIndicator.isCanceled())
 			null
 		]
+		assertNull("Failed to modify resource due to null resource in readOnly", modify2)
 	}
 	
 	@Test def void testPriorityReadOnlyCancelsReaders() {
@@ -81,7 +83,7 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 		]
 		val boolean[] check = newBooleanArrayOfSize(1) 
 		val thread = new Thread([
-			document.readOnly(new CancelableUnitOfWork<Object, XtextResource>() {
+			val success = document.readOnly(Boolean.FALSE, new CancelableUnitOfWork<Object, XtextResource>() {
 				override Object exec(XtextResource state, CancelIndicator cancelIndicator) throws Exception {
 					check.set(0,true)
 					val wait = 4000;
@@ -94,16 +96,17 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 					}
 					return null;
 				}
-				
 			})
+			assertNull("Failed to read resource due to null resource in readOnly", success)
 		])
 		thread.start
 		while (!check.get(0)) {
 			Thread.sleep(1)
 		}
-		document.priorityReadOnly[
+		val success = document.priorityReadOnly(Boolean.FALSE)[
 			null
 		]
+		assertNull("Failed to read resource due to null resource in priorityReadOnly", success)
 		assertFalse(thread.interrupted)
 	}
 	
@@ -115,9 +118,11 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 		val cancelIndicators = newArrayList
 		document.addReaderCancelationListener(cancelIndicators)
 		assertTrue(cancelIndicators.empty)
-		document.readOnly[]
+		val success1 = document.readOnly(Boolean.FALSE)[null]
+		assertNull("Failed to read resource due to null resource in readOnly", success1)
 		assertTrue(cancelIndicators.empty)
-		document.readOnly[]
+		val success2 = document.readOnly(Boolean.FALSE)[null]
+		assertNull("Failed to read resource due to null resource in readOnly", success2)
 		assertTrue(cancelIndicators.empty)
 	}
 	
@@ -153,7 +158,8 @@ class DocumentLockerTest extends AbstractXtextDocumentTest {
 				assertFalse(cancelIndicator.isCanceled)
 				cancelIndicators += cancelIndicator
 			]
-			document.readOnly(work)
+			val workResult = document.readOnly(null, work)
+			assertNotNull("Failed to read resource due to null resource in readOnly", workResult)
 		]
 	} 
 }
