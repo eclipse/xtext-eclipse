@@ -6,7 +6,7 @@ Bundle-Version: 2.14.0.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.xtext.ui.shared.internal.Activator
 Bundle-Vendor: Eclipse Xtext
-Require-Bundle: org.eclipse.xtext.ui;resolution:=optional;x-installation:=greedy,
+Require-Bundle: org.eclipse.xtext.ui;bundle-version="[0.0.0,2.14.0)";resolution:=optional;x-installation:=greedy,
  org.eclipse.xtext.builder;resolution:=optional;x-installation:=greedy,
  org.eclipse.jdt.core;bundle-version="3.6.0";resolution:=optional;x-installation:=greedy,
  org.eclipse.jdt.ui;bundle-version="3.6.0";resolution:=optional;x-installation:=greedy,
