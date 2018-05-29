@@ -21,10 +21,11 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.xtext.builder.builderState.IBuilderState;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.shared.Access;
+import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
+import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.ProjectDescriptor;
 import org.eclipse.xtext.util.StringInputStream;
 import org.junit.After;
 import org.junit.Assert;
@@ -167,11 +168,11 @@ public class RebuildDependentResourcesTest extends Assert {
 		assertEquals(printMarkers(file), 2, countMarkers(file));
 	}
 	
-	private IJavaProject createJavaProjectWithRootSrc(String string) throws CoreException {
-		IJavaProject project = createJavaProject(string);
-		addSourceFolder(project, "src-gen");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		return project;
+	private IJavaProject createJavaProjectWithRootSrc(String projectName) throws CoreException {
+		ProjectDescriptor pd = new ProjectDescriptor(projectName);
+		pd.addSourceFolders("src-gen");
+		pd.addNatures(XtextProjectHelper.NATURE_ID);
+		return pd.createProject();
 	}
 	
 	public static IFile createFile(String projectRelative, String content) throws CoreException, InvocationTargetException,

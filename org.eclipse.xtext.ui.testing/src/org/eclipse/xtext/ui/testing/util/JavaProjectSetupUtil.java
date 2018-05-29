@@ -8,6 +8,7 @@
 package org.eclipse.xtext.ui.testing.util;
 
 import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
+import static org.junit.Assert.*;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -27,10 +28,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
@@ -48,8 +51,10 @@ import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
+import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.util.JREContainerProvider;
 import org.eclipse.xtext.util.RuntimeIOException;
+import org.eclipse.xtext.util.StringInputStream;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -68,12 +73,129 @@ public class JavaProjectSetupUtil {
 
 	public static class TextFile {
 		public TextFile(String path, String content) {
+			this (path, content, false);
+		}
+		public TextFile(String path, String content, boolean derived) {
 			this.path = path;
 			this.content = content;
+			this.derived = derived;
 		}
 
 		public String path;
 		public String content;
+		public boolean derived;
+	}
+	
+	/**
+	 * @since 2.15
+	 */
+	@FunctionalInterface
+	public static interface IProjectInitializer {
+		void init (IJavaProject project);
+	}
+	
+	
+	/**
+	 * @since 2.15
+	 */
+	public static class ProjectDescriptor {
+		private static final String [] EMPTY_STR = new String[0];
+		private String name;
+		private String[] sourceFolders = EMPTY_STR;
+		private List<String> natures = Lists.newArrayList();
+		private List<TextFile> files = Lists.newArrayList();
+		private List<IProjectInitializer> projectInitializers = Lists.newArrayList();
+		private IJavaProject javaProject;
+		
+		public ProjectDescriptor (String name) {
+			this.name = name;
+			addNatures(XtextProjectHelper.NATURE_ID);
+		}
+		
+		public void addSourceFolders (String... folders) {
+			this.sourceFolders = folders;
+		}
+		
+		public void addNatures (String... natures) {
+			for (String nature: natures) {
+				this.natures.add(nature);
+			}
+		}
+		
+		public ProjectDescriptor withSourceFolder (String folder) {
+			addSourceFolders(folder);
+			return this;
+		}
+		
+		public ProjectDescriptor withNature (String nature) {
+			addNatures(nature);
+			return this;
+		}
+		
+		public ProjectDescriptor withoutXtextNature () {
+			natures.remove(XtextProjectHelper.NATURE_ID);
+			return this;
+		}
+		
+		public ProjectDescriptor withTextFile (String path, CharSequence contents) {
+			return withTextFile(path, contents, false);
+		}
+		
+		public ProjectDescriptor withTextFile (String path, CharSequence contents, boolean derived) {
+			TextFile file = new TextFile (path, contents.toString(), derived);
+			files.add(file);
+			return this;
+		}
+		
+		public ProjectDescriptor withInitializer (IProjectInitializer runnable) {
+			projectInitializers.add(runnable);
+			return this;
+		}
+		
+		public IJavaProject createProject () throws CoreException {
+			final IJavaProject[] result = new IJavaProject[1];
+			final ProjectDescriptor descriptor = this;
+			IWorkspaceRunnable create = new IWorkspaceRunnable() {
+				@Override
+				public void run(IProgressMonitor monitor) throws CoreException {
+					IProject project = createSimpleProject(descriptor.name);
+					JavaCore.initializeAfterLoad(monitor());
+					IJavaProject javaProject = makeJavaProject(project);
+					for (String s: descriptor.sourceFolders) {
+						addSourceFolder(javaProject, s);
+					}
+					for (String s: descriptor.natures) {
+						addNature(project, s);
+					}
+					descriptor.projectInitializers.forEach(p -> p.init(javaProject));
+					for (TextFile textFile: descriptor.files) {
+						IPath path = new Path(textFile.path);
+						if (path.segmentCount()>1) {
+							IFolder folder = project.getFolder(path.removeLastSegments(1));
+							if (!folder.exists()) {
+								folder.create(true, true, monitor);
+							}
+							IFile file = folder.getFile(path.lastSegment());
+							file.create(new StringInputStream(textFile.content), true, monitor());
+						} else {
+							IFile file = project.getFile(path.lastSegment());
+							file.create(new StringInputStream(textFile.content), true, monitor());
+						}
+					}
+					result[0] = javaProject;
+				}
+			};
+			ResourcesPlugin.getWorkspace().run(create, null);
+			reallyWaitForAutoBuild();
+			javaProject = result[0];
+			return javaProject;
+		}
+		
+		public IFile getFile (int index) {
+			assertNotNull(javaProject);
+			assertTrue(index < files.size());
+			return javaProject.getProject().getFile(files.get(index).path);
+		}
 	}
 
 	/**
@@ -112,11 +234,12 @@ public class JavaProjectSetupUtil {
 		}
 	}
 
+	/**
+	 * @deprecated Use {@link ProjectDescriptor#createProject()} for better performance
+	 */
+	@Deprecated
 	public static IJavaProject createJavaProject(String projectName) throws CoreException {
-		IProject project = createSimpleProject(projectName);
-		JavaCore.initializeAfterLoad(monitor());
-		IJavaProject javaProject = makeJavaProject(project);
-		return javaProject;
+		return new ProjectDescriptor(projectName).createProject();
 	}
 	
 	public static IJavaProject findJavaProject(String projectName) {
@@ -273,7 +396,6 @@ public class JavaProjectSetupUtil {
 		System.arraycopy(classPath, 0, newClassPath, 1, classPath.length);
 		newClassPath[0] = newClassPathEntry;
 		javaProject.setRawClasspath(newClassPath, null);
-		reallyWaitForAutoBuild();
 	}
 
 	public static IFolder createSubFolder(IProject project, String folderName) throws CoreException {

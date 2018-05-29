@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -370,21 +371,18 @@ public class IResourcesSetupUtil {
 
 	public static void cleanWorkspace() throws CoreException {
 		try {
-			new WorkspaceModifyOperation() {
-	
+			IWorkspaceRunnable action = new IWorkspaceRunnable() {
+				
 				@Override
-				protected void execute(IProgressMonitor monitor)
-						throws CoreException, InvocationTargetException,
-						InterruptedException {
+				public void run(IProgressMonitor monitor) throws CoreException {
 					IProject[] visibleProjects = root().getProjects();
 					deleteProjects(visibleProjects);
 					IProject[] hiddenProjects = root().getProjects(IContainer.INCLUDE_HIDDEN);
 					deleteProjects(hiddenProjects);
 				}
-			}.run(monitor());
-		} catch(InvocationTargetException e) {
-			Exceptions.sneakyThrow(e.getCause());
-		} catch(Exception e) {
+			};
+			ResourcesPlugin.getWorkspace().run(action, monitor());
+		} catch(CoreException e) {
 			throw new RuntimeException();
 		}
 	}
