@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 TypeFox GmbH (http://www.typefox.io) and others.
+ * Copyright (c) 2018 Sigasi NV (http://www.sigasi.com) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 package org.eclipse.xtext.ui.editor.occurrences;
 
 import com.google.inject.Inject;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -49,11 +49,11 @@ public class DefaultDocumentHighlightingAdapter extends DefaultOccurrenceCompute
   @Override
   public Map<Annotation, Position> createAnnotationMap(final XtextEditor editor, final ITextSelection selection, final SubMonitor monitor) {
     final IUnitOfWork<Map<Annotation, Position>, XtextResource> _function = (XtextResource resource) -> {
-      final String contents = this.getContents(resource);
-      if ((contents == null)) {
+      final String text = this.getText(resource);
+      if ((text == null)) {
         return null;
       }
-      final Document document = new Document(Integer.valueOf(0), contents);
+      final Document document = new Document(Integer.valueOf(0), text);
       String _string = resource.getURI().toString();
       final TextDocumentIdentifier textDocumentIdentifier = new TextDocumentIdentifier(_string);
       try {
@@ -93,7 +93,7 @@ public class DefaultDocumentHighlightingAdapter extends DefaultOccurrenceCompute
     return _elvis;
   }
   
-  protected String getContents(final XtextResource r) {
+  protected String getText(final XtextResource r) {
     IParseResult _parseResult = r.getParseResult();
     ICompositeNode _rootNode = null;
     if (_parseResult!=null) {
@@ -107,7 +107,7 @@ public class DefaultDocumentHighlightingAdapter extends DefaultOccurrenceCompute
   }
   
   protected Map<Annotation, Position> createAnnotationMap(final Document document, final List<? extends DocumentHighlight> highlights) {
-    final HashMap<Annotation, Position> annotationMap = new HashMap<Annotation, Position>();
+    final LinkedHashMap<Annotation, Position> annotationMap = new LinkedHashMap<Annotation, Position>();
     for (final DocumentHighlight highlight : highlights) {
       {
         final int start = document.getOffSet(highlight.getRange().getStart());

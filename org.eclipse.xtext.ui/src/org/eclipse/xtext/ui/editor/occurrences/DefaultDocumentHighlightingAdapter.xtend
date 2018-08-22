@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 TypeFox GmbH (http://www.typefox.io) and others.
+ * Copyright (c) 2018 Sigasi NV (http://www.sigasi.com) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
 package org.eclipse.xtext.ui.editor.occurrences
 
 import com.google.inject.Inject
-import java.util.HashMap
+import java.util.LinkedHashMap
 import java.util.List
 import java.util.Map
 import org.eclipse.core.runtime.SubMonitor
@@ -40,10 +40,10 @@ class DefaultDocumentHighlightingAdapter extends DefaultOccurrenceComputer {
 	override createAnnotationMap(XtextEditor editor, ITextSelection selection, SubMonitor monitor) {
 		val annotationMap = editor.document.tryReadOnly(
 			[ resource |
-				val contents = getContents(resource)
-				if(contents === null) return null
+				val text = getText(resource)
+				if(text === null) return null
 
-				val document = new Document(0, contents)
+				val document = new Document(0, text)
 				val textDocumentIdentifier = new TextDocumentIdentifier(resource.URI.toString)
 				try {
 					val position = document.getPosition(selection.offset)
@@ -62,13 +62,13 @@ class DefaultDocumentHighlightingAdapter extends DefaultOccurrenceComputer {
 		return annotationMap ?: super.createAnnotationMap(editor, selection, monitor)
 	}
 
-	protected def String getContents(XtextResource r) {
+	protected def String getText(XtextResource r) {
 		r.parseResult?.rootNode?.text
 	}
 
 	protected def Map<Annotation, Position> createAnnotationMap(Document document,
 		List<? extends DocumentHighlight> highlights) {
-		val annotationMap = new HashMap
+		val annotationMap = new LinkedHashMap
 		for (highlight : highlights) {
 			val start = document.getOffSet(highlight.range.start)
 			val end = document.getOffSet(highlight.range.end)
