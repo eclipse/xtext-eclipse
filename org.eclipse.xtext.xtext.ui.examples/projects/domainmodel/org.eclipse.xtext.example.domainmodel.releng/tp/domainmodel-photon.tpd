@@ -11,7 +11,7 @@
 
 target "Xtext Domainmodel Example - Eclipse Photon"
 
-with source allEnvironments
+with source requirements
 
 location "http://download.eclipse.org/releases/2018-09" {
 	org.eclipse.jdt.feature.group lazy
