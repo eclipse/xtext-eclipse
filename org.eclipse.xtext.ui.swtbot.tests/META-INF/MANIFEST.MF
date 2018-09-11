@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xtext UI SWTBot Tests
+Bundle-SymbolicName: org.eclipse.xtext.ui.swtbot.tests
+Bundle-Version: 2.16.0.qualifier
+Automatic-Module-Name: org.eclipse.xtext.ui.swtbot.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.junit;version="4.12.0",
+ org.junit.rules;version="4.12.0",
+ org.junit.runner;version="4.12.0",
+ org.junit.runner.notification;version="4.12.0",
+ org.junit.runners;version="4.12.0",
+ org.apache.log4j
+Require-Bundle: org.eclipse.xtext.ui.swtbot.testing,
+ org.eclipse.swtbot.junit4_x;bundle-version="2.1.1"
