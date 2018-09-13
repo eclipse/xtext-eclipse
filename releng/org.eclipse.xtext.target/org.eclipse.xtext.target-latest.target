@@ -65,6 +65,23 @@
 		<repository location="http://services.typefox.io/open-source/jenkins/job/xtext-extras/job/master/lastStableBuild/artifact/build/p2-repository/"/>
 	</location>
 	
+	<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.xtend.core" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.core.source" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.doc" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.ide" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.ide.source" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.ide.common" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.ide.common.source" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.examples" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.doc" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.m2e" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.m2e.source" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.standalone" version="0.0.0"/>
+		<unit id="org.eclipse.xtend.standalone.source" version="0.0.0"/>
+		<repository location="http://services.typefox.io/open-source/jenkins/job/xtext-xtend/job/master/lastStableBuild/artifact/build/p2-repository/"/>
+	</location>
+	
 	<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 		<unit id="org.eclipse.jdt.feature.group" version="0.0.0"/>
 		<unit id="org.eclipse.platform.feature.group" version="0.0.0"/>

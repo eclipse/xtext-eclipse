@@ -47,4 +47,9 @@ public class PackageExplorerAPI {
 		return this;
 	}
 
+	public XtextEditorAPI openXtextFile(String... path) {
+		view.bot().tree().expandNode(path).select().contextMenu("Open").click();
+		return new XtextEditorAPI(new XtextSWTWorkbenchBot().editorByTitle(path[path.length - 1]));
+	}
+
 }
