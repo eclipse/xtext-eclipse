@@ -19,27 +19,87 @@ public class NewProjectWizardAPI {
 		this.shell = shell;
 	}
 
-	public NewXtextDomainModelExampleWizardAPI selectXtextExample(String exampleLabel) {
-		shell.bot().tree().expandNode("Xtext Examples").select(exampleLabel);
+	public NewXtextProjectWizardMainPageAPI selectXtextProject() {
+		shell.bot().tree().expandNode("Xtext").select("Xtext Project");
 		shell.bot().button("Next >").click();
-		return new NewXtextDomainModelExampleWizardAPI(shell);
+		return new NewXtextProjectWizardMainPageAPI(shell);
 	}
 
-	public NewXtextDomainModelExampleWizardAPI selectXtendExample(String exampleLabel) {
-		shell.bot().tree().expandNode("Xtend Examples").select(exampleLabel);
+	public NewXtextExampleSecondPageWizardAPI selectXtextExample(String exampleLabel) {
+		shell.bot().tree().expandNode("Examples").select(); // Workaround ... a bug leads to collapse of example on first try, also reproducible with vanilla eclipse
+		shell.bot().tree().expandNode("Examples", "Xtext Examples", exampleLabel).select();
 		shell.bot().button("Next >").click();
-		return new NewXtextDomainModelExampleWizardAPI(shell);
+		return new NewXtextExampleSecondPageWizardAPI(shell);
 	}
-	
-	/**
-	 * Xtext Domain Model Example selected.
-	 */
-	public static class NewXtextDomainModelExampleWizardAPI {
+
+	public NewXtextExampleSecondPageWizardAPI selectXtendExample(String exampleLabel) {
+		shell.bot().tree().expandNode("Examples").select(); // Workaround ... a bug leads to collapse of example on first try, also reproducible with vanilla eclipse
+		shell.bot().tree().expandNode("Examples", "Xtend Examples", exampleLabel).select();
+		shell.bot().button("Next >").click();
+		return new NewXtextExampleSecondPageWizardAPI(shell);
+	}
+
+	public static class NewXtextExampleSecondPageWizardAPI {
 
 		private final XtextSWTBotShell shell;
 
-		NewXtextDomainModelExampleWizardAPI(XtextSWTBotShell shell) {
+		NewXtextExampleSecondPageWizardAPI(XtextSWTBotShell shell) {
 			this.shell = shell;
+		}
+
+		public void finish() {
+			shell.bot().button("Finish").click();
+			shell.bot().waitUntil(shellCloses(shell), 1000 * 60 * 2, 1000);
+		}
+
+	}
+
+	public static class NewXtextProjectWizardMainPageAPI {
+
+		private final XtextSWTBotShell shell;
+
+		NewXtextProjectWizardMainPageAPI(XtextSWTBotShell shell) {
+			this.shell = shell;
+		}
+
+		public NewXtextProjectWizardConfigurationPageAPI next() {
+			shell.bot().button("Next >").click();
+			return new NewXtextProjectWizardConfigurationPageAPI(shell);
+		}
+
+		public void finish() {
+			shell.bot().button("Finish").click();
+			shell.bot().waitUntil(shellCloses(shell), 1000 * 60 * 2, 1000);
+		}
+
+	}
+
+	public static class NewXtextProjectWizardConfigurationPageAPI {
+
+		private final XtextSWTBotShell shell;
+
+		NewXtextProjectWizardConfigurationPageAPI(XtextSWTBotShell shell) {
+			this.shell = shell;
+		}
+
+		public NewXtextProjectWizardConfigurationPageAPI toggleEclipsePlugin() {
+			shell.bot().checkBox("Eclipse plug-in").click();
+			return this;
+		}
+
+		public NewXtextProjectWizardConfigurationPageAPI toggleGenericIdeSupport() {
+			shell.bot().checkBox("Generic IDE Support").click();
+			return this;
+		}
+
+		public NewXtextProjectWizardConfigurationPageAPI toggleTestingSupport() {
+			shell.bot().checkBox("Testing Support").click();
+			return this;
+		}
+
+		public NewXtextProjectWizardConfigurationPageAPI setMavenBuildType() {
+			shell.bot().comboBox(0).setSelection("Maven");
+			return this;
 		}
 
 		public void finish() {

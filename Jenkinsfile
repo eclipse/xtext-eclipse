@@ -69,5 +69,5 @@ node {
 		step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
 	}
 	
-	archive 'build/**, **/target/work/data/.metadata/.log, **/hs_err_pid*.log'
+	archive 'build/**, **/target/work/data/.metadata/.log, **/hs_err_pid*.log **/screenshots/*.jpeg'
 }

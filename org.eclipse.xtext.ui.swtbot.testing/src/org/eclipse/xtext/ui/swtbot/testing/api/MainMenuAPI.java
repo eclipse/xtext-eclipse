@@ -12,6 +12,7 @@ import java.util.*;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.ui.*;
 import org.eclipse.xtext.ui.swtbot.testing.lowlevel.*;
 
@@ -65,8 +66,8 @@ public class MainMenuAPI {
 	}
 
 	public NewProjectWizardAPI openNewProjectWizard() {
-		bot.menu("File").menu("New").menu("Example...").click();
-		return new NewProjectWizardAPI(bot.shell("New Example"));
+		bot.menu("File").menu("New").menu("Project...").click();
+		return new NewProjectWizardAPI(bot.shell("New Project"));
 	}
 
 	public void openJavaPerspective() {
@@ -74,6 +75,9 @@ public class MainMenuAPI {
 	}
 
 	private void openPerspective(String name) {
+		if (name.equals(bot.activePerspective().getLabel())) {
+			return;
+		}
 		bot.menu("Window").menu("Perspective").menu("Open Perspective").menu("Other...").click();
 		XtextSWTBotShell dialog = bot.shell("Open Perspective");
 		dialog.bot().table().select(name);
@@ -98,6 +102,12 @@ public class MainMenuAPI {
 	}
 
 	private XtextSWTBotView openAndActivateView(String category, String viewName, String viewId) {
+		for (SWTBotView view : bot.views()) {
+			if (viewId.equals(view.getReference().getId())) {
+				view.setFocus();
+				return (XtextSWTBotView) view;
+			}
+		}
 		bot.menu("Window").menu("Show View").menu("Other...").click();
 		XtextSWTBotShell shell = bot.shell("Show View");
 		shell.bot().tree().expandNode(new String[] { category, viewName }).select();

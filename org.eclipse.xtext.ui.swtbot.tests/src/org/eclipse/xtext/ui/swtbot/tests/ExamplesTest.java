@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Tests for the formatter preference page.
+ * Tests that create the Xtext examples using SWTBot.
  * 
  * @author Arne Deutsch - Initial contribution and API
  */
@@ -55,7 +55,7 @@ public class ExamplesTest extends AbstractSwtBotTest {
 
 	@Test
 	public void domainModelExample() throws Exception {
-		standartXtextExample("Xtext Domain-Model Example", "org.eclipse.xtext.example.domainmodel", "GenerateDomainmodel.mwe2");
+		standardXtextExample("Xtext Domain-Model Example", "org.eclipse.xtext.example.domainmodel", "GenerateDomainmodel.mwe2");
 
 		// run the maven build and wait for successful termination
 		packageExplorer().runMavenInstall("org.eclipse.xtext.example.domainmodel.releng", "pom.xml");
@@ -63,51 +63,21 @@ public class ExamplesTest extends AbstractSwtBotTest {
 	}
 
 	@Test
-	public void xtextHomeAutomationExample() throws Exception {
-		standartXtextExample("Xtext Home Automation Example", "org.eclipse.xtext.example.homeautomation", "GenerateRuleEngine.mwe2");
+	public void homeAutomationExample() throws Exception {
+		standardXtextExample("Xtext Home Automation Example", "org.eclipse.xtext.example.homeautomation", "GenerateRuleEngine.mwe2");
 	}
 
 	@Test
-	public void xtextSimpleArithmeticsExample() throws Exception {
-		standartXtextExample("Xtext Simple Arithmetics Example", "org.eclipse.xtext.example.arithmetics", "GenerateArithmetics.mwe2");
+	public void simpleArithmeticsExample() throws Exception {
+		standardXtextExample("Xtext Simple Arithmetics Example", "org.eclipse.xtext.example.arithmetics", "GenerateArithmetics.mwe2");
 	}
 
 	@Test
-	public void xtextStateMachineExample() throws Exception {
-		standartXtextExample("Xtext State-Machine Example", "org.eclipse.xtext.example.fowlerdsl", "GenerateStatemachine.mwe2");
+	public void stateMachineExample() throws Exception {
+		standardXtextExample("Xtext State-Machine Example", "org.eclipse.xtext.example.fowlerdsl", "GenerateStatemachine.mwe2");
 	}
 
-	@Test
-	public void xtendActiveAnnotationExamples() throws Exception {
-		// create example projects
-		mainMenu().openNewProjectWizard().selectXtendExample("Xtend Active Annotation Examples").finish();
-		waitForBuild();
-
-		// check example projects are created
-		assertTrue(packageExplorer().projectExist("xtend-annotation-examples"));
-		assertTrue(packageExplorer().projectExist("xtend-annotation-examples-client"));
-
-		// check example projects are error free
-		assertEquals(0, problemsView().errorCount());
-
-		// run all unit tests and check there are no test failures
-		packageExplorer().runJUnitTests("xtend-annotation-examples", "xtend-gen");
-		junitView().waitForTestrunToFinish();
-		assertTrue(junitView().isTestrunErrorFree());
-
-	}
-
-	@Test
-	public void xtendIntroductoryExamples() throws Exception {
-		standartXtendExample("Xtend Introductory Examples", "xtend-examples");
-	}
-
-	@Test
-	public void xtendSolutionsForEuler() throws Exception {
-		standartXtendExample("Xtend Solutions for Euler", "xtend-euler");
-	}
-
-	private void standartXtextExample(String exampleLabel, String projectName, String mweFileName) throws Exception {
+	private void standardXtextExample(String exampleLabel, String projectName, String mweFileName) throws Exception {
 		// create example projects
 		mainMenu().openNewProjectWizard().selectXtextExample(exampleLabel).finish();
 		waitForBuild();
@@ -143,24 +113,13 @@ public class ExamplesTest extends AbstractSwtBotTest {
 		oldBytes += calculateFolderSize(projectName + ".ui.tests/src");
 		packageExplorer().runMWE2(projectName, "src", projectName, mweFileName);
 		consoleView().waitForMWE2ToFinish();
+		waitForBuild();
 		long newBytes = calculateFolderSize(projectName + "/src");
 		newBytes += calculateFolderSize(projectName + ".ide/src");
 		newBytes += calculateFolderSize(projectName + ".tests/src");
 		newBytes += calculateFolderSize(projectName + ".ui/src");
 		newBytes += calculateFolderSize(projectName + ".ui.tests/src");
 		assertEquals(oldBytes, newBytes);
-	}
-
-	private void standartXtendExample(String exampleLabel, String projectName) throws Exception {
-		// create example projects
-		mainMenu().openNewProjectWizard().selectXtendExample(exampleLabel).finish();
-		waitForBuild();
-
-		// check example projects are created
-		assertTrue(packageExplorer().projectExist(projectName));
-
-		// check example projects are error free
-		assertEquals(0, problemsView().errorCount());
 	}
 
 }
