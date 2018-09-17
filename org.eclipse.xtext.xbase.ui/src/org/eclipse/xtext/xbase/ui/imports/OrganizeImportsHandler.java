@@ -51,7 +51,7 @@ public class OrganizeImportsHandler extends AbstractHandler {
 	}
 	
 	public void doOrganizeImports(final IXtextDocument document) {
-		List<ReplaceRegion> result = document.priorityReadOnly(new IUnitOfWork<List<ReplaceRegion>, XtextResource>() {
+		List<ReplaceRegion> result = document.tryPriorityReadOnly(new IUnitOfWork<List<ReplaceRegion>, XtextResource>() {
 			@Override
 			public List<ReplaceRegion> exec(XtextResource state) throws Exception {
 				return importOrganizer.getOrganizedImportChanges(state);

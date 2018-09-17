@@ -100,7 +100,7 @@ public class ContentFormatter implements IContentFormatter {
 	@Override
 	public void format(IDocument document, IRegion region) {
 		IXtextDocument doc = (IXtextDocument) document;
-		TextEdit r = doc.priorityReadOnly(new FormattingUnitOfWork(doc, region));
+		TextEdit r = doc.tryPriorityReadOnly(new FormattingUnitOfWork(doc, region));
 		try {
 			if (r != null)
 				r.apply(document);

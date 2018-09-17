@@ -32,7 +32,7 @@ public class ContentFormatterFactory implements IContentFormatterFactory {
 		@Override
 		public void format(IDocument document, IRegion region) {
 			IXtextDocument doc = (IXtextDocument) document;
-			ReplaceRegion r = doc.priorityReadOnly(new FormattingUnitOfWork(region));
+			ReplaceRegion r = doc.tryPriorityReadOnly(new FormattingUnitOfWork(region));
 			try {
 				if (r != null) {
 					TextEdit edit = createTextEdit(doc, r);

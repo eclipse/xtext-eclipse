@@ -8,6 +8,7 @@
 package org.eclipse.xtext.xbase.ui.templates;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -114,7 +115,7 @@ public class XbaseTemplateContext extends XtextTemplateContext {
 	}
 
 	private List<ReplaceRegion> createImports(final List<String> types, XtextDocument document) {
-		return document.priorityReadOnly(new IUnitOfWork<List<ReplaceRegion>, XtextResource>() {
+		return document.tryPriorityReadOnly(new IUnitOfWork<List<ReplaceRegion>, XtextResource>() {
 			@Override
 			public List<ReplaceRegion> exec(XtextResource state) throws Exception {
 				RewritableImportSection impSection = importSectionFactory.parse(state);
@@ -126,11 +127,11 @@ public class XbaseTemplateContext extends XtextTemplateContext {
 				}
 				return impSection.rewrite();
 			}
-		});
+		}, ()->Collections.emptyList());
 	}
 
 	private boolean checkImports(final List<String> types, XtextDocument document) {
-		return document.priorityReadOnly(new IUnitOfWork<Boolean, XtextResource>() {
+		return document.tryPriorityReadOnly(new IUnitOfWork<Boolean, XtextResource>() {
 			@Override
 			public Boolean exec(XtextResource state) throws Exception {
 				for (String fqName : types) {
@@ -141,7 +142,7 @@ public class XbaseTemplateContext extends XtextTemplateContext {
 				}
 				return true;
 			}
-		});
+		}, ()->false);
 	}
 
 	private JvmDeclaredType findJvmDeclaredType(String fqName, ResourceSet resourceSet) {

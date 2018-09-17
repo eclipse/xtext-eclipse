@@ -113,24 +113,22 @@ public class GlobalURIEditorOpener implements IURIEditorOpener {
 		final XtextEditor xtextEditor = EditorUtils.getXtextEditor(openEditor);
 		if (xtextEditor != null) {
 			if (uri.fragment() != null) {
-				xtextEditor.getDocument().priorityReadOnly(new IUnitOfWork.Void<XtextResource>() {
+				xtextEditor.getDocument().tryPriorityReadOnly(new IUnitOfWork.Void<XtextResource>() {
 					@Override
 					public void process(XtextResource resource) throws Exception {
-						if (resource != null) {
-							EObject object = resource.getEObject(uri.fragment());
-							ITextRegion location;
-							if (object == null) {
-								location = new TextRegion(0, 0);
-							} else {
-								ILocationInFileProvider locationProvider = resource.getResourceServiceProvider().get(ILocationInFileProvider.class);
-								location = (crossReference != null) ? locationProvider.getSignificantTextRegion(object,
-									crossReference, indexInList) : locationProvider.getSignificantTextRegion(object);
-							}
-							if (select) {
-								xtextEditor.selectAndReveal(location.getOffset(), location.getLength());
-							} else {
-								xtextEditor.reveal(location.getOffset(), location.getLength());								
-							}
+						EObject object = resource.getEObject(uri.fragment());
+						ITextRegion location;
+						if (object == null) {
+							location = new TextRegion(0, 0);
+						} else {
+							ILocationInFileProvider locationProvider = resource.getResourceServiceProvider().get(ILocationInFileProvider.class);
+							location = (crossReference != null) ? locationProvider.getSignificantTextRegion(object,
+								crossReference, indexInList) : locationProvider.getSignificantTextRegion(object);
+						}
+						if (select) {
+							xtextEditor.selectAndReveal(location.getOffset(), location.getLength());
+						} else {
+							xtextEditor.reveal(location.getOffset(), location.getLength());
 						}
 					}
 				});

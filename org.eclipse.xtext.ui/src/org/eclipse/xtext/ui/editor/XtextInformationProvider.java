@@ -75,7 +75,7 @@ public class XtextInformationProvider  implements IInformationProvider, IInforma
 		if(textViewer instanceof XtextSourceViewer){
 			IDocument document = ((XtextSourceViewer) textViewer).getDocument();
 			if(document instanceof IXtextDocument){
-				Object resolvedObject = ((IXtextDocument) document).priorityReadOnly(new IUnitOfWork<Object, XtextResource>() {
+				Object resolvedObject = ((IXtextDocument) document).tryPriorityReadOnly(new IUnitOfWork<Object, XtextResource>() {
 					@Override
 					public Object exec(XtextResource state) throws Exception {
 						return eObjectAtOffsetHelper.resolveElementAt(state, offset);

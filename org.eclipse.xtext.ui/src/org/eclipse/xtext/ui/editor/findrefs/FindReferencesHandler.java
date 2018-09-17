@@ -46,7 +46,7 @@ public class FindReferencesHandler extends AbstractHandler {
 			XtextEditor editor = EditorUtils.getActiveXtextEditor(event);
 			if (editor != null) {
 				final ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
-				editor.getDocument().priorityReadOnly(new IUnitOfWork.Void<XtextResource>() {
+				editor.getDocument().tryPriorityReadOnly(new IUnitOfWork.Void<XtextResource>() {
 					@Override
 					public void process(XtextResource state) throws Exception {
 						EObject target = eObjectAtOffsetHelper.resolveElementAt(state, selection.getOffset());

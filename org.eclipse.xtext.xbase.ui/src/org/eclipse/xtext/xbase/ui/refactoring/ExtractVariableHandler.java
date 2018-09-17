@@ -58,12 +58,14 @@ public class ExtractVariableHandler extends AbstractHandler {
 			if (editor != null) {
 				final ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 				final IXtextDocument document = editor.getDocument();
-				XtextResource resource = document.priorityReadOnly(new IUnitOfWork<XtextResource, XtextResource>() {
+				XtextResource resource = document.tryPriorityReadOnly(new IUnitOfWork<XtextResource, XtextResource>() {
 					@Override
 					public XtextResource exec(XtextResource state) throws Exception {
 						return resourceCopier.loadIntoNewResourceSet(state);
 					}
 				});
+				if (resource == null) return null;
+
 				XExpression expression = expressionUtil.findSelectedExpression(resource, selection);
 				if(expression != null) {
 					ExtractVariableRefactoring introduceVariableRefactoring = refactoringProvider.get();

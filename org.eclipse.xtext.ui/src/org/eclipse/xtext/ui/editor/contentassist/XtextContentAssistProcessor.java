@@ -66,7 +66,7 @@ public class XtextContentAssistProcessor implements IContentAssistProcessor, Com
 			return null;
 		
 		IXtextDocument document = (IXtextDocument) viewer.getDocument();
-		ICompletionProposal[] result = document.priorityReadOnly(createCompletionProposalComputer(viewer, offset));
+		ICompletionProposal[] result = document.tryPriorityReadOnly(createCompletionProposalComputer(viewer, offset), ()->new ICompletionProposal[0]);
 		Arrays.sort(result, completionProposalComparator);
 		result = completionProposalPostProcessor.postProcess(result);
 		return result;
@@ -82,7 +82,7 @@ public class XtextContentAssistProcessor implements IContentAssistProcessor, Com
 			return null;
 		
 		IXtextDocument document = (IXtextDocument) viewer.getDocument();
-		return document.priorityReadOnly(createContextInformationComputer(viewer, offset));
+		return document.tryPriorityReadOnly(createContextInformationComputer(viewer, offset), ()-> new IContextInformation[0]);
 	}
 
 	protected ContextInformationComputer createContextInformationComputer(final ITextViewer viewer, final int offset) {
