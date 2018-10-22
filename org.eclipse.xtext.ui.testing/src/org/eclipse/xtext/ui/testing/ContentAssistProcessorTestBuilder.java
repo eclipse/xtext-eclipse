@@ -229,7 +229,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 	}
 
 	public ContentAssistProcessorTestBuilder expectContent(String expectation){
-		Assert.assertEquals(expectation, getModel());
+		Assert.assertEquals(Strings.toUnixLineSeparator(expectation), Strings.toUnixLineSeparator(getModel()));
 		return this;
 	}
 

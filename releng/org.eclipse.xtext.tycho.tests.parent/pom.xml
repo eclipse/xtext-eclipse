@@ -113,11 +113,6 @@
 							</requirement>
 							<requirement>
 								<type>eclipse-plugin</type>
-								<id>org.eclipse.xtext.ui.swtbot.testing</id>
-								<versionRange>0.0.0</versionRange>
-							</requirement>
-							<requirement>
-								<type>eclipse-plugin</type>
 								<id>org.eclipse.xtext.ui</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>
