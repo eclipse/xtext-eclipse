@@ -9,6 +9,7 @@ package org.eclipse.xtext.builder.impl;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,8 +27,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.ProgressMonitorWrapper;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -81,6 +85,9 @@ public class XtextBuilder extends IncrementalProjectBuilder {
 	
 	@Inject 
 	private OperationCanceledManager operationCanceledManager;
+	
+	@Inject
+	private IWorkspace workspace;
 	
 	public IResourceSetProvider getResourceSetProvider() {
 		return resourceSetProvider;
@@ -374,4 +381,11 @@ public class XtextBuilder extends IncrementalProjectBuilder {
 		}
 	}
 	
+	@Override
+	public ISchedulingRule getRule(int kind, Map<String, String> args) {
+		return new MultiRule(Arrays.stream(
+			workspace.getRoot().getProjects())
+				.filter(XtextProjectHelper::hasNature)
+				.toArray(ISchedulingRule[]::new));
+	}
 }
