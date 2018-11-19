@@ -29,7 +29,7 @@ import org.eclipse.xtext.util.internal.Log
 /**
  * An adapter to compute IDE document highlighting to Eclipse occurrence computing
  * 
- * @since 2.15
+ * @since 2.16
  * @author Titouan Vervack - Initial contribution and API
  */
 @Log
