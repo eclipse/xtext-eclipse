@@ -69,7 +69,7 @@ public class TracePackageImpl extends EPackageImpl implements TracePackage {
 
 	/**
 	 * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
-	 * 
+	 *
 	 * <p>This method is used to initialize {@link TracePackage#eINSTANCE} when that field is accessed.
 	 * Clients should not invoke it directly. Instead, they should simply access that field to obtain the package.
 	 * <!-- begin-user-doc -->
@@ -83,7 +83,8 @@ public class TracePackageImpl extends EPackageImpl implements TracePackage {
 		if (isInited) return (TracePackage)EPackage.Registry.INSTANCE.getEPackage(TracePackage.eNS_URI);
 
 		// Obtain or create and register package
-		TracePackageImpl theTracePackage = (TracePackageImpl)(EPackage.Registry.INSTANCE.get(eNS_URI) instanceof TracePackageImpl ? EPackage.Registry.INSTANCE.get(eNS_URI) : new TracePackageImpl());
+		Object registeredTracePackage = EPackage.Registry.INSTANCE.get(eNS_URI);
+		TracePackageImpl theTracePackage = registeredTracePackage instanceof TracePackageImpl ? (TracePackageImpl)registeredTracePackage : new TracePackageImpl();
 
 		isInited = true;
 
@@ -96,7 +97,6 @@ public class TracePackageImpl extends EPackageImpl implements TracePackage {
 		// Mark meta-data to indicate it can't be changed
 		theTracePackage.freeze();
 
-  
 		// Update the registry and return the package
 		EPackage.Registry.INSTANCE.put(TracePackage.eNS_URI, theTracePackage);
 		return theTracePackage;

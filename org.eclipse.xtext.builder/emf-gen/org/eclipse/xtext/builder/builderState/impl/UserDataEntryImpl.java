@@ -19,7 +19,6 @@ import org.eclipse.xtext.builder.builderState.BuilderStatePackage;
  * An implementation of the model object '<em><b>User Data Entry</b></em>'.
  * <!-- end-user-doc -->
  * <p>
- * <p>
  * The following features are implemented:
  * </p>
  * <ul>
@@ -208,7 +207,7 @@ public class UserDataEntryImpl extends org.eclipse.emf.ecore.impl.MinimalEObject
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 
-		StringBuffer result = new StringBuffer(super.toString());
+		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (key: ");
 		result.append(key);
 		result.append(", value: ");

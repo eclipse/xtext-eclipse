@@ -29,7 +29,6 @@ import org.eclipse.xtext.resource.IResourceDescription;
  * An implementation of the model object '<em><b>EObject Description</b></em>'.
  * <!-- end-user-doc -->
  * <p>
- * <p>
  * The following features are implemented:
  * </p>
  * <ul>
@@ -414,7 +413,7 @@ public class EObjectDescriptionImpl extends org.eclipse.emf.ecore.impl.MinimalEO
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 
-		StringBuffer result = new StringBuffer(super.toString());
+		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (name: ");
 		result.append(name);
 		result.append(", fragment: ");

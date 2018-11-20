@@ -20,7 +20,6 @@ import org.eclipse.xtext.builder.builderState.ReferenceDescription;
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>Reference Description</b></em>'. <!--
  * end-user-doc -->
  * <p>
- * <p>
  * The following features are implemented:
  * </p>
  * <ul>
@@ -364,7 +363,7 @@ public class ReferenceDescriptionImpl extends org.eclipse.emf.ecore.impl.Minimal
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 
-		StringBuffer result = new StringBuffer(super.toString());
+		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (sourceEObjectUri: ");
 		result.append(sourceEObjectUri);
 		result.append(", targetEObjectUri: ");

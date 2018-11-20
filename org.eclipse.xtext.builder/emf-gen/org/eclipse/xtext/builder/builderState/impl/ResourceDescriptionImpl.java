@@ -31,7 +31,6 @@ import org.eclipse.xtext.resource.impl.EObjectDescriptionLookUp;
  * An implementation of the model object '<em><b>Resource Description</b></em>'.
  * <!-- end-user-doc -->
  * <p>
- * <p>
  * The following features are implemented:
  * </p>
  * <ul>
@@ -345,7 +344,7 @@ public class ResourceDescriptionImpl extends org.eclipse.emf.ecore.impl.MinimalE
 	public String toString() {
 		if (eIsProxy()) return super.toString();
 
-		StringBuffer result = new StringBuffer(super.toString());
+		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (URI: ");
 		result.append(uri);
 		result.append(", importedNames: ");
