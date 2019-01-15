@@ -4,6 +4,12 @@ node {
 		parameters([
 			choice(choices: 'oxygen\nphoton\nr201809\nr201812\nlatest', description: 'Which Target Platform should be used?', name: 'target_platform')
 		])
+		, pipelineTriggers([
+			upstream(
+				threshold: 'SUCCESS',
+				upstreamProjects: 'xtext-extras/' + URLEncoder.encode("$BRANCH_NAME", "UTF-8")
+			)
+		])
 	])
 	
 	stage('Checkout') {
