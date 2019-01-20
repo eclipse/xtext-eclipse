@@ -374,11 +374,11 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       IResourcesSetupUtil.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
       IResourcesSetupUtil.reallyWaitForAutoBuild();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
-      Thread.sleep(1000);
       final boolean oldAutobuild = IResourcesSetupUtil.setAutobuild(false);
       try {
         Path _path = new Path("Foo.txt");
         final IFile file = output.getFile(_path);
+        file.setLocalTimeStamp(1L);
         File _file = file.getLocation().toFile();
         this.setContent(_file, "Lalala");
         Assert.assertFalse(this.isSynchronized(file));
@@ -406,7 +406,6 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       IResourcesSetupUtil.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
       IResourcesSetupUtil.reallyWaitForAutoBuild();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
-      Thread.sleep(1000);
       final boolean oldAutobuild = IResourcesSetupUtil.setAutobuild(false);
       try {
         Path _path = new Path("Foo.txt");
@@ -453,9 +452,9 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       final IFile sourceFile = IResourcesSetupUtil.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
       IResourcesSetupUtil.reallyWaitForAutoBuild();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
-      Thread.sleep(1000);
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
+      file.setLocalTimeStamp(1L);
       File _file = file.getLocation().toFile();
       this.setContent(_file, "Lalala");
       Assert.assertFalse(this.isSynchronized(file));
@@ -497,9 +496,10 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       final IFile sourceFile = IResourcesSetupUtil.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
       IResourcesSetupUtil.reallyWaitForAutoBuild();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
-      Thread.sleep(1000);
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
+      file.refreshLocal(0, null);
+      Assert.assertTrue(this.isSynchronized(file));
       Assert.assertTrue(file.getLocation().toFile().delete());
       Assert.assertFalse(this.isSynchronized(file));
       sourceFile.delete(false, IResourcesSetupUtil.monitor());
@@ -539,11 +539,7 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   }
   
   protected boolean isSynchronized(final IFile file) {
-    boolean _xblockexpression = false;
-    {
-      final org.eclipse.core.internal.resources.File target = ((org.eclipse.core.internal.resources.File) file);
-      _xblockexpression = target.getLocalManager().fastIsSynchronized(target);
-    }
-    return _xblockexpression;
+    final org.eclipse.core.internal.resources.File target = ((org.eclipse.core.internal.resources.File) file);
+    return target.getLocalManager().fastIsSynchronized(target);
   }
 }

@@ -300,11 +300,10 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		reallyWaitForAutoBuild
 		assertNotEquals(expectedSize, outputDirectory.list.size)
 		
-		Thread.sleep(1000)
-
 		val oldAutobuild = setAutobuild(false)
 		try {
 			val file = output.getFile(new Path('Foo.txt'))
+			file.localTimeStamp = 1L
 			file.location.toFile.content = 'Lalala'
 			assertFalse(file.synchronized)
 	
@@ -323,8 +322,6 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		reallyWaitForAutoBuild
 		assertNotEquals(expectedSize, outputDirectory.list.size)
 		
-		Thread.sleep(1000)
-
 		val oldAutobuild = setAutobuild(false)
 		try {
 			val file = output.getFile(new Path('Foo.txt'))
@@ -360,9 +357,8 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		reallyWaitForAutoBuild
 		assertNotEquals(expectedSize, outputDirectory.list.size)
 		
-		Thread.sleep(1000)
-
 		val file = output.getFile(new Path('Foo.txt'))
+		file.localTimeStamp = 1L
 		file.location.toFile.content = 'Lalala'
 		assertFalse(file.synchronized)
 
@@ -393,9 +389,9 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		reallyWaitForAutoBuild
 		assertNotEquals(expectedSize, outputDirectory.list.size)
 		
-		Thread.sleep(1000)
-
 		val file = output.getFile(new Path('Foo.txt'))
+		file.refreshLocal(0, null)
+		assertTrue(file.synchronized)
 		assertTrue(file.location.toFile.delete)
 		assertFalse(file.synchronized)
 
@@ -423,10 +419,10 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		fos.flush
 		fos.close
 	}
-
+	
 	protected def isSynchronized(IFile file) {
 		val target = file as org.eclipse.core.internal.resources.File
-		target.localManager.fastIsSynchronized(target)
+		return target.localManager.fastIsSynchronized(target)
 	}
 
 }
