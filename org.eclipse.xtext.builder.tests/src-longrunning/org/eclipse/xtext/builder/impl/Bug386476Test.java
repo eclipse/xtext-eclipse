@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -17,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -25,19 +23,18 @@ import org.junit.Test;
 public class Bug386476Test extends AbstractParticipatingBuilderTest {
 	private IJavaProject javaProject;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		javaProject = createJavaProject("BuilderDisabled");
-		addNature(javaProject.getProject(), XtextProjectHelper.NATURE_ID);
-		waitForBuild();
+	@Before
+	public void createProject() throws Exception {
+		javaProject = workspace.createJavaProject("BuilderDisabled");
+		workspace.addNature(javaProject.getProject(), XtextProjectHelper.NATURE_ID);
+		workspace.build();
 	}
 
 	@Test
 	public void testBuildIsNotInvokedWhenBuilderIsDisabled() throws Exception {
 		IProject project = javaProject.getProject();
 		IFile file = createSomeBuilderRelatedFile(project);
-		waitForBuild();
+		workspace.build();
 		startLogging();
 
 		// With Xtext Builder activated builder is invoked
@@ -45,34 +42,28 @@ public class Bug386476Test extends AbstractParticipatingBuilderTest {
 		assertEquals("Xtext builder is triggered.", 1, getInvocationCount());
 
 		// Disable/remove Xtext builder
-		removeBuilder(project, XtextProjectHelper.BUILDER_ID);
+		workspace.removeBuilder(project, XtextProjectHelper.BUILDER_ID);
 		reset();
 
 		// With Xtext Builder activated builder is not invoked
 		stimulateBuildSchedulerTrigger(project);
 		assertEquals("Xtext builder is triggered but should not, cause was disabled", 0, getInvocationCount());
 		stopLogging();
-		file.delete(true, false, monitor());
+		file.delete(true, false, workspace.monitor());
 	}
 
 	private void stimulateBuildSchedulerTrigger(IProject project) throws CoreException {
-		project.close(monitor());
-		reallyWaitForAutoBuild();
-		project.open(monitor());
-		reallyWaitForAutoBuild();
+		project.close(workspace.monitor());
+		workspace.build();
+		project.open(workspace.monitor());
+		workspace.build();
 	}
 
 	private IFile createSomeBuilderRelatedFile(IProject project) throws CoreException {
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
-		waitForBuild();
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
+		workspace.build();
 		return file;
-	}
-
-	@Override
-	public void tearDown() throws Exception {
-		javaProject.getProject().delete(true, true, null);
-		super.tearDown();
 	}
 }

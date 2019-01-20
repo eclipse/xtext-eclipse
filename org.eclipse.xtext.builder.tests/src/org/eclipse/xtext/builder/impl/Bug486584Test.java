@@ -8,64 +8,48 @@
 package org.eclipse.xtext.builder.impl;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.xtext.resource.IResourceDescription.Delta;
+import org.eclipse.xtext.resource.IResourceDescription.Event;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Ignore;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 
 /**
  * @author Christian Dietrich - Initial contribution and API
  */
-// TODO https://github.com/eclipse/xtext-eclipse/issues/606
-@Ignore("https://github.com/eclipse/xtext-eclipse/issues/606")
 public class Bug486584Test extends AbstractBuilderTest {
 
 	private static final String PROJECT_NAME = "foo";
 	private static final String XTEND_EXAMPLE_JAR = "XtendExample.jar";
 	private static final String SRC_FOLDER = "src";
 	private static int projectCounter = 0;
-	private List<IResourceChangeListener> resourceChangeListeners = new ArrayList<>();
 
-	@Override
 	@Before
-	public void setUp() throws Exception {
-		super.setUp();
+	public void addListener() throws Exception {
 		getBuilderState().addListener(this);
 	}
 
-	@Override
 	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
-		for (IResourceChangeListener l : resourceChangeListeners) {
-			ResourcesPlugin.getWorkspace().removeResourceChangeListener(l);
-		}
-		resourceChangeListeners.clear();
+	public void removeListener() throws Exception {
+		getBuilderState().removeListener(this);
 	}
 
 	@Test
@@ -73,16 +57,13 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IJavaProject project = setupProject();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
-		BuildCheck check = createWaitForFullBuildLatch(project);
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		addToClasspath(project, libraryEntry);
-		// wait for FORGET_BUILD_STATE_ONLY
-		reallyWaitForAutoBuild();
-		assertEquals("no fullbuild sheduled", 0, check.getCount());
-		waitForBuild();
-		assertFalse(getEvents().isEmpty());
-
+		workspace.addToClasspath(project, libraryEntry);
+		assertEquals(1, getEvents().size());
+		Event singleEvent = getEvents().get(0);
+		ImmutableList<Delta> deltas = singleEvent.getDeltas();
+		assertEquals(1, deltas.size());
 	}
 
 	@Test
@@ -92,11 +73,13 @@ public class Bug486584Test extends AbstractBuilderTest {
 		getEvents().clear();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		addToClasspath(project, libraryEntry);
-		waitForBuild();
-		assertFalse(getEvents().isEmpty());
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
+		assertEquals(1, getEvents().size());
+		Event singleEvent = getEvents().get(0);
+		ImmutableList<Delta> deltas = singleEvent.getDeltas();
+		assertEquals(1, deltas.size());
 		getEvents().clear();
-		BuildCheck check = createWaitForFullBuildLatch(project);
 		IClasspathEntry[] classpath = project.getRawClasspath();
 		for (int i = 0; i < classpath.length; ++i) {
 			IPath entryPath = classpath[i].getPath();
@@ -109,11 +92,8 @@ public class Bug486584Test extends AbstractBuilderTest {
 
 			}
 		}
-		// wait for FORGET_BUILD_STATE_ONLY
-		reallyWaitForAutoBuild();
-		assertEquals("no fullbuild sheduled", 1, check.getCount());
-		waitForBuild();
-		assertTrue(getEvents().isEmpty());
+		workspace.build();
+		assertEquals(0, getEvents().size());
 	}
 
 	@Test
@@ -121,20 +101,18 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IJavaProject project = setupProject();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		addToClasspath(project, libraryEntry);
-		waitForBuild();
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 
-		BuildCheck check = createWaitForFullBuildLatch(project);
 		libaryFile.touch(null);
 		libaryFile.refreshLocal(IResource.DEPTH_INFINITE, null);
-		// wait for FORGET_BUILD_STATE_ONLY
-		reallyWaitForAutoBuild();
-		assertEquals("no fullbuild sheduled", 0, check.getCount());
-		waitForBuild();
-		assertFalse(getEvents().isEmpty());
-
+		workspace.build();
+		assertEquals(1, getEvents().size());
+		Event singleEvent = getEvents().get(0);
+		ImmutableList<Delta> deltas = singleEvent.getDeltas();
+		assertEquals(1, deltas.size());
 	}
 
 	@Test
@@ -143,23 +121,18 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IPath rawLocation = libaryFile.getRawLocation();
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
-		addToClasspath(project, libraryEntry);
-		waitForBuild();
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 
-		BuildCheck check = createWaitForFullBuildLatch(project);
 		File file = rawLocation.toFile();
 		Files.touch(file);
 		project.setRawClasspath(project.getRawClasspath(), null);
 		project.getProject().getFile("src/dummy.txt").create(new StringInputStream(""), false, null);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		// wait for FORGET_BUILD_STATE_ONLY
-		reallyWaitForAutoBuild();
-		assertEquals("no fullbuild sheduled", 0, check.getCount());
-		waitForBuild();
-		assertFalse(getEvents().isEmpty());
-
+		workspace.build();
+		assertEquals(0, getEvents().size());
 	}
 
 	private IFile copyAndGetXtendExampleJar(IJavaProject javaProject) throws CoreException {
@@ -170,53 +143,18 @@ public class Bug486584Test extends AbstractBuilderTest {
 	}
 
 	private IJavaProject setupProject() throws CoreException {
-		IJavaProject project = createJavaProject(PROJECT_NAME + projectCounter++);
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		addBuilder(project.getProject(), XtextProjectHelper.BUILDER_ID);
+		IJavaProject project = workspace.createJavaProject(PROJECT_NAME + projectCounter++);
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		workspace.addBuilder(project.getProject(), XtextProjectHelper.BUILDER_ID);
 		IFolder folder = project.getProject().getFolder(SRC_FOLDER);
 		addFile(folder, "source", "namespace bar { object B }");
-		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, monitor());
 		return project;
 	}
 
 	private void addFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.create(new StringInputStream(content), true, monitor());
-		waitForBuild();
-	}
-
-	private BuildCheck createWaitForFullBuildLatch(IJavaProject project) {
-		BuildCheck check = new BuildCheck(project);
-		addResourceChangeListener(check, IResourceChangeEvent.POST_BUILD);
-		return check;
-	}
-
-	private void addResourceChangeListener(IResourceChangeListener l, int eventMask) {
-		resourceChangeListeners.add(l);
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(l, eventMask);
-	}
-
-	class BuildCheck implements IResourceChangeListener {
-		private final IJavaProject project;
-
-		private volatile int count = 1;
-
-		public BuildCheck(IJavaProject project) {
-			this.project = project;
-		}
-
-		@Override
-		public void resourceChanged(IResourceChangeEvent event) {
-			if (event.getBuildKind() == IncrementalProjectBuilder.FULL_BUILD) {
-				if (project.getProject() == event.getSource()) {
-					count--;
-				}
-			}
-		}
-
-		public int getCount() {
-			return count;
-		}
+		file.create(new StringInputStream(content), true, workspace.monitor());
+		workspace.build();
 	}
 
 }

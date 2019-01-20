@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,13 +20,14 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.xtext.builder.nature.ToggleXtextNatureCommand;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.ui.util.JREContainerProvider;
 import org.eclipse.xtext.ui.util.PluginProjectFactory;
 import org.eclipse.xtext.util.internal.Stopwatches;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.inject.Inject;
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -105,25 +103,26 @@ Task 'build' took 7ms (6 measurements).
  */
 public class BuilderPerformanceTest extends AbstractBuilderTest {
 	
-	@Override
+	private boolean doPrint = false;
+	
+	@Inject
+	private PluginProjectFactory projectFactory;
+	
 	@Before
-	public void setUp() throws Exception {
+	public void enableStopwatches() throws Exception {
 		Stopwatches.setEnabled(true);
-		super.setUp();
 	}
 	
-	@Override
 	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
+	public void disableStopwatches() throws Exception {
 		printAndClearStopwatchData();
 		Stopwatches.setEnabled(false);
 	}
 	
 	@Test public void testSecondBuildRunIsMuchFaster() throws Exception {
 		final String project1name = "project1";
-		IJavaProject javaProject1 = createJavaProject(project1name);
-		addJarToClasspath(javaProject1, copyAndGetXtendExampleJar(javaProject1));
+		IJavaProject javaProject1 = workspace.createJavaProject(project1name);
+		workspace.addJarToClasspath(javaProject1, copyAndGetXtendExampleJar(javaProject1));
 		
 		System.out.println("Clean Java first - "+cleanBuildTakes());
 		System.out.println("Clean Java second - "+cleanBuildTakes());
@@ -162,7 +161,7 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 		
 		IFile file = copyAndGetXtendExampleJar(javaProject1);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null);
-		addToClasspath(javaProject1, libraryEntry);
+		workspace.addToClasspath(javaProject1, libraryEntry);
 		
 		System.out.println("Clean Java first - "+cleanBuildTakes());
 		System.out.println("Clean Java second - "+cleanBuildTakes());
@@ -237,7 +236,9 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	}
 	
 	private void printAndClearStopwatchData() {
-		System.out.println(Stopwatches.getPrintableStopwatchData());
+		if (doPrint) {
+			System.out.println(Stopwatches.getPrintableStopwatchData());			
+		}
 		Stopwatches.resetAll();
 	}
 	
@@ -258,15 +259,14 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	private String cleanBuildTakes() throws Exception {
 		waitForBuild();
 		long before = System.currentTimeMillis();
-		cleanBuild();
-		fullBuild();
+		workspace.cleanBuild();
+		workspace.fullBuild();
 		waitForBuild();
 		long after = System.currentTimeMillis();
 		return "Took " + (after -before) + "ms";
 	}
 	
 	private IProject createPluginProject(String name, String ... bundleDependencies) throws CoreException {
-		PluginProjectFactory projectFactory = getInstance(PluginProjectFactory.class);
 		projectFactory.setProjectName(name);
 		projectFactory.setBreeToUse(JREContainerProvider.PREFERRED_BREE);
 		projectFactory.addFolders(Collections.singletonList("src"));
@@ -281,7 +281,7 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	}
 	
 	protected void waitForBuild() {
-		IResourcesSetupUtil.reallyWaitForAutoBuild();
+		workspace.build();
 	}
 	
 }

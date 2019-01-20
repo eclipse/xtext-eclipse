@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
@@ -34,21 +31,27 @@ import org.eclipse.xtext.util.StringInputStream;
 import org.junit.After;
 import org.junit.Test;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+
 /**
  * @author Sven Efftinge - Initial contribution and API
  */
 public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 
+	@Inject
+	private Provider<DerivedResourceCleanerJob> derivedResourceCleanerJobProvider;
+	
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=345545
 	 */
 	@Test
 	public void deconfigureXtextNatureShouldDeleteMarkers() throws Exception {
-		final IJavaProject project = createJavaProject("removeXtextNatureShouldDeleteMarkers");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		final IJavaProject project = workspace.createJavaProject("removeXtextNatureShouldDeleteMarkers");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("ob ject Foo"), true, monitor());
+		file.create(new StringInputStream("ob ject Foo"), true, workspace.monitor());
 		waitForBuild();
 		IMarker[] markers = project.getProject()
 				.findMarkers(MarkerTypes.ANY_VALIDATION, true, IResource.DEPTH_INFINITE);
@@ -62,7 +65,7 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 				xtextNature.setProject(project.getProject());
 				xtextNature.deconfigure();
 			}
-		}.run(monitor());
+		}.run(workspace.monitor());
 		waitForBuild();
 		markers = project.getProject().findMarkers(MarkerTypes.ANY_VALIDATION, true, IResource.DEPTH_INFINITE);
 		assertEquals(0, markers.length);
@@ -70,20 +73,20 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 	
 	@Test
 	public void testGenerateIntoProjectOutputDirectory() throws Exception {
-		IJavaProject project = createJavaProject("testGenerateIntoProjectOutputDirectory");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("testGenerateIntoProjectOutputDirectory");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		preferenceStoreAccess.getWritablePreferenceStore(project.getProject()).setValue(getDefaultOutputDirectoryKey(),
 				"./");
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./Foo.txt");
 		assertTrue(generatedFile.exists());
 		preferenceStoreAccess.getWritablePreferenceStore(project.getProject()).setValue(getDefaultOutputDirectoryKey(),
 				".");
 		file = folder.getFile("Bar" + F_EXT);
-		file.create(new StringInputStream("object Bar"), true, monitor());
+		file.create(new StringInputStream("object Bar"), true, workspace.monitor());
 		waitForBuild();
 		generatedFile = project.getProject().getFile("./Bar.txt");
 		assertTrue(generatedFile.exists());
@@ -91,12 +94,12 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 
 	@Test
 	public void testCharsetIsHonored() throws Exception {
-		IJavaProject project = createJavaProject("testCharsetIsHonored");
+		IJavaProject project = workspace.createJavaProject("testCharsetIsHonored");
 		project.getProject().setDefaultCharset(getNonDefaultEncoding(), null);
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertEquals(getNonDefaultEncoding(), generatedFile.getCharset());
@@ -104,20 +107,20 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 
 	@Test
 	public void testGenerateIntoDifferentOutputFolders() throws Exception {
-		IJavaProject project = createJavaProject("testGenerateIntoDifferentOutputFolders");
-		addSourceFolder(project, "other-src");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("testGenerateIntoDifferentOutputFolders");
+		workspace.addSourceFolder(project, "other-src");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IPreferenceStore preferences = preferenceStoreAccess.getWritablePreferenceStore(project.getProject());
 		preferences.setValue(getUseOutputPerSourceFolderKey(), "true");
 		preferences.setValue(getOutputForSourceFolderKey("other-src"), "other-gen");
 
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 
 		folder = project.getProject().getFolder("other-src");
 		file = folder.getFile("Bar" + F_EXT);
-		file.create(new StringInputStream("object Bar"), true, monitor());
+		file.create(new StringInputStream("object Bar"), true, workspace.monitor());
 
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("src-gen/Foo.txt");
@@ -128,26 +131,25 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 
 	@Test
 	public void testCleanUpDerivedResources() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertTrue(generatedFile.exists());
 		preferenceStoreAccess.getWritablePreferenceStore(project.getProject()).setValue(getDefaultOutputDirectoryKey(),
 				"./src2-gen");
 
-		DerivedResourceCleanerJob derivedResourceCleanerJob = getInjector()
-				.getInstance(DerivedResourceCleanerJob.class);
+		DerivedResourceCleanerJob derivedResourceCleanerJob = derivedResourceCleanerJobProvider.get();
 		derivedResourceCleanerJob.setUser(true);
 		derivedResourceCleanerJob.initialize(project.getProject(), "src-gen");
 		derivedResourceCleanerJob.schedule();
-		waitForResourceCleanerJob();
+		derivedResourceCleanerJob.join();
 		generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertFalse(generatedFile.exists());
-		file.touch(monitor());
+		file.touch(workspace.monitor());
 		waitForBuild();
 		generatedFile = project.getProject().getFile("./src2-gen/Foo.txt");
 		assertTrue(generatedFile.exists());
@@ -155,45 +157,47 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 
 	@Test
 	public void testDefaultConfiguration() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertTrue(generatedFile.exists());
 		assertTrue(generatedFile.isDerived());
 		assertTrue(generatedFile.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
-		assertEquals("object Foo", fileToString(generatedFile).trim());
-		file.setContents(new StringInputStream("object Bar"), true, true, monitor());
+		assertEquals("object Foo", workspace.readFile(generatedFile).trim());
+		file.setContents(new StringInputStream("object Bar"), true, true, workspace.monitor());
 		waitForBuild();
 		assertFalse(generatedFile.exists());
 		generatedFile = project.getProject().getFile("./src-gen/Bar.txt");
 		assertTrue(generatedFile.exists());
 		assertTrue(generatedFile.isDerived());
 		assertTrue(generatedFile.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
-		assertEquals("object Bar", fileToString(generatedFile).trim());
-		file.delete(true, monitor());
+		assertEquals("object Bar", workspace.readFile(generatedFile).trim());
+		file.delete(true, workspace.monitor());
 		waitForBuild();
 		assertFalse(generatedFile.exists());
 	}
 
 	@Test
 	public void testClean() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertTrue(generatedFile.exists());
 		assertTrue(generatedFile.isDerived());
 		assertTrue(generatedFile.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
-		assertEquals("object Foo", fileToString(generatedFile).trim());
-		cleanBuild();
-		assertFalse(generatedFile.exists());
+		assertEquals("object Foo", workspace.readFile(generatedFile).trim());
+		workspace.disableAutobuild(()->{
+			workspace.cleanBuild();
+			assertFalse(generatedFile.exists());	
+		});
 	}
 
 	@Test
@@ -213,45 +217,47 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 		initializer.setOutputConfigurationProvider(outputConfigurationProvider);
 		initializer.initialize(preferenceStoreAccess);
 
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
-		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
-		assertTrue(generatedFile.exists());
-		assertFalse(generatedFile.isDerived());
-		assertTrue(generatedFile.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
-		assertEquals("object Foo", fileToString(generatedFile).trim());
-		file.setContents(new StringInputStream("object Bar"), true, true, monitor());
+		IFile generatedFileFoo = project.getProject().getFile("./src-gen/Foo.txt");
+		assertTrue(generatedFileFoo.exists());
+		assertFalse(generatedFileFoo.isDerived());
+		assertTrue(generatedFileFoo.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
+		assertEquals("object Foo", workspace.readFile(generatedFileFoo).trim());
+		file.setContents(new StringInputStream("object Bar"), true, true, workspace.monitor());
 		waitForBuild();
-		assertTrue(generatedFile.exists());
-		generatedFile = project.getProject().getFile("./src-gen/Bar.txt");
-		assertTrue(generatedFile.exists());
-		assertFalse(generatedFile.isDerived());
-		assertTrue(generatedFile.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
-		assertEquals("object Bar", fileToString(generatedFile).trim());
-		file.delete(true, monitor());
+		assertTrue(generatedFileFoo.exists());
+		IFile generatedFileBar = project.getProject().getFile("./src-gen/Bar.txt");
+		assertTrue(generatedFileBar.exists());
+		assertFalse(generatedFileBar.isDerived());
+		assertTrue(generatedFileBar.findMarkers(DerivedResourceMarkers.MARKER_ID, false, IResource.DEPTH_ZERO).length == 1);
+		assertEquals("object Bar", workspace.readFile(generatedFileBar).trim());
+		file.delete(true, workspace.monitor());
 		waitForBuild();
-		assertTrue(generatedFile.exists());
-		cleanBuild();
-		assertTrue(generatedFile.exists());
+		assertTrue(generatedFileBar.exists());
+		workspace.disableAutobuild(()->{
+			workspace.cleanBuild();
+			assertTrue(generatedFileBar.exists());	
+		});
 	}
 
 	@Test
 	public void testDisabled() throws Exception {
-		IJavaProject project = createJavaProject("foo");
+		IJavaProject project = workspace.createJavaProject("foo");
 		participant.getBuilderPreferenceAccess().setAutoBuildEnabled(project, false);
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertFalse(generatedFile.exists());
 		participant.getBuilderPreferenceAccess().setAutoBuildEnabled(project, true);
-		file.touch(monitor());
+		file.touch(workspace.monitor());
 		waitForBuild();
 		assertTrue(generatedFile.exists());
 	}
@@ -271,11 +277,11 @@ public class BuilderParticipantTest extends AbstractBuilderParticipantTest {
 		initializer.setOutputConfigurationProvider(outputConfigurationProvider);
 		initializer.initialize(preferenceStoreAccess);
 
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 		waitForBuild();
 		final IFile generatedFile = project.getProject().getFile("./src-gen/Foo.txt");
 		assertFalse(generatedFile.exists());

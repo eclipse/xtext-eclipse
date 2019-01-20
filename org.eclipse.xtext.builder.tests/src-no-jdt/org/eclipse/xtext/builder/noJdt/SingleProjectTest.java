@@ -8,13 +8,13 @@
 package org.eclipse.xtext.builder.noJdt;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourceAttributes;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -25,38 +25,35 @@ public class SingleProjectTest extends AbstractBuilderTest {
 
 	private IProject project;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void createProject() throws Exception {
 		project = createEmptyProject("sample");
 	}
 	
-	@Override
-	public void tearDown() throws Exception {
+	@After
+	public void forgetProject() throws Exception {
 		project = null;
-		super.tearDown();
 	}
 	
 	private void waitForBuild() throws Exception {
-		Thread.sleep(10);
-		IResourcesSetupUtil.waitForBuild();
+		workspace.build();
 	}
 	
 	@Test public void testValidSimpleModel() throws Exception {
-		IFile file = createFile("sample/file" + F_EXT, "Hello World (from World)!");
+		IFile file = workspace.createFile("sample/file" + F_EXT, "Hello World (from World)!");
 		waitForBuild();
 		assertEquals(0, countMarkers(file));
 	}
 
 	@Test public void testSimpleModelWithSyntaxError() throws Exception {
-		IFile file = createFile("sample/sample" + F_EXT, "Hello World");
+		IFile file = workspace.createFile("sample/sample" + F_EXT, "Hello World");
 		waitForBuild();
 		assertEquals(1, countMarkers(file));
 	}
 
 	@Test public void testTwoFilesInSameProject() throws Exception {
-		IFile file1 = createFile("sample/a" + F_EXT, "Hello A!");
-		IFile file2 = createFile("sample/b" + F_EXT, "Hello B (from A)!");
+		IFile file1 = workspace.createFile("sample/a" + F_EXT, "Hello A!");
+		IFile file2 = workspace.createFile("sample/b" + F_EXT, "Hello B (from A)!");
 		waitForBuild();
 		assertEquals(printMarkers(file1), 0, countMarkers(file1));
 		assertEquals(printMarkers(file2), 0, countMarkers(file2));
@@ -66,24 +63,24 @@ public class SingleProjectTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testTwoFilesInSameProjectRemoveNature() throws Exception {
-		createFile("sample/a" + F_EXT, "Hello A!");
-		createFile("sample/b" + F_EXT, "Hello B (from A)!");
+		workspace.createFile("sample/a" + F_EXT, "Hello A!");
+		workspace.createFile("sample/b" + F_EXT, "Hello B (from A)!");
 		waitForBuild();
 		assertEquals(2, countResourcesInIndex());
-		removeNature(project, XtextProjectHelper.NATURE_ID);
+		workspace.removeNature(project, XtextProjectHelper.NATURE_ID);
 		waitForBuild();
 		assertEquals(0, countResourcesInIndex());
 	}
 
 	@Test public void testTwoFilesInSameProjectWithLinkingError() throws Exception {
-		createFile("sample/a" + F_EXT, "Hello A!");
-		IFile file = createFile("sample/a" + F_EXT, "Hello B (from C)!");
+		workspace.createFile("sample/a" + F_EXT, "Hello A!");
+		IFile file = workspace.createFile("sample/a" + F_EXT, "Hello B (from C)!");
 		waitForBuild();
 		assertEquals(1, countMarkers(file));
 	}
 
 	@Test public void testBug342875() throws Exception {
-		IFile file = createFile("sample/first" + F_EXT, "Hello A");
+		IFile file = workspace.createFile("sample/first" + F_EXT, "Hello A");
 		ResourceAttributes resourceAttributes = file.getResourceAttributes();
 		resourceAttributes.setReadOnly(true);
 		file.setResourceAttributes(resourceAttributes);

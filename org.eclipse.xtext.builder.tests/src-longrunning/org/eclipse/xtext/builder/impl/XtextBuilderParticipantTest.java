@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
@@ -19,10 +16,10 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -34,9 +31,8 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 
 	private Collection<IBuildContext> contexts;
 	
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void createContextList() throws Exception {
 		contexts = Lists.newArrayList();
 	}
 
@@ -65,32 +61,32 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 	
 	@Test public void testParticipantInvoked() throws Exception {
 		startLogging();
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
-		waitForBuild();
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
+		build();
 		assertTrue(0 < getInvocationCount());
 		validateContexts();
 		reset();
 		
-		file.delete(true, monitor());
-		waitForBuild();
+		file.delete(true, workspace.monitor());
+		build();
 		assertEquals(1, getInvocationCount());
 		assertSame(BuildType.INCREMENTAL, getContext().getBuildType());
 		validateContexts();
 		reset();
 		
-		project.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, monitor());
+		project.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, workspace.monitor());
 		assertSame(BuildType.CLEAN, getContext().getBuildType());
-		waitForBuild();
+		build();
 		assertEquals(1, getInvocationCount());
 		assertSame(BuildType.CLEAN, getContext().getBuildType());
 		validateContexts();
 		reset();
 		
-		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, monitor());
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, workspace.monitor());
 		assertEquals(0, getInvocationCount());
 		validateContexts();
 		reset();
@@ -104,12 +100,12 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 
 	@Test public void testTwoFilesInTwoReferencedProjects() throws Exception {
 		createTwoReferencedProjects();
-		IFile firstFile = createFile("first/src/first"+F_EXT, "object First ");
-		createFile("second/src/second"+F_EXT, "object Second references First");
-		waitForBuild();
+		IFile firstFile = workspace.createFile("first/src/first"+F_EXT, "object First ");
+		workspace.createFile("second/src/second"+F_EXT, "object Second references First");
+		build();
 		startLogging();
-		firstFile.setContents(new StringInputStream("object Modified "), true, true, monitor());
-		waitForBuild();
+		firstFile.setContents(new StringInputStream("object Modified "), true, true, workspace.monitor());
+		build();
 		validateContexts();
 		assertEquals(2, getInvocationCount());
 	}
@@ -117,17 +113,17 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 	protected void createTwoReferencedProjects() throws CoreException {
 		IJavaProject firstProject = createJavaProjectWithRootSrc("first");
 		IJavaProject secondProject = createJavaProjectWithRootSrc("second");
-		addProjectReference(secondProject, firstProject);
+		workspace.addProjectReference(secondProject, firstProject);
 	}
 	
 	protected IJavaProject createJavaProjectWithRootSrc(String string) throws CoreException {
-		IJavaProject project = createJavaProject(string);
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject(string);
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		return project;
 	}
 	
-	protected void waitForBuild() {
-		IResourcesSetupUtil.reallyWaitForAutoBuild();
+	protected void build() {
+		workspace.build();
 	}
 	
 }

@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.resources.IFile;
@@ -24,6 +21,7 @@ import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.resource.IResourceDescription.Delta;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
@@ -41,9 +39,9 @@ public class ResourceDescriptionUpdaterTest extends AbstractParticipatingBuilder
 	private static final String REFERENCED_FILE_NAME = "source";
 
 	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		startLogging();
+	@Before
+	public void startLogging() {
+		super.startLogging();
 	}
 	
 	@Test public void testIndependentProjects() throws Exception {
@@ -81,19 +79,19 @@ public class ResourceDescriptionUpdaterTest extends AbstractParticipatingBuilder
 
 	private void addFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.create(new StringInputStream(content), true, monitor());
-		waitForBuild();
+		file.create(new StringInputStream(content), true, workspace.monitor());
+		workspace.build();
 	}
 
 	private void changeFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.setContents(new StringInputStream(content), IResource.FORCE, monitor());
-		waitForBuild();
+		file.setContents(new StringInputStream(content), IResource.FORCE, workspace.monitor());
+		workspace.build();
 	}
 
 	private IFolder createProject(String projectName) throws CoreException, JavaModelException {
-		IJavaProject project = createJavaProject(projectName);
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject(projectName);
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder(SRC_FOLDER);
 		return folder;
 	}

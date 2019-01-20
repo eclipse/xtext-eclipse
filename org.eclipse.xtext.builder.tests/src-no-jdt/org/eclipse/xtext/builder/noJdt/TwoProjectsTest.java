@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.noJdt;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
@@ -18,9 +16,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -35,16 +34,14 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 	private IProject second;
 	private IFile secondFile;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void createProjects() throws Exception {
 		first = createEmptyProject("first");
 		second = createEmptyProject("second");
 	}
 	
-	private void waitForBuild() throws Exception {
-		IResourcesSetupUtil.reallyWaitForAutoBuild();
-		IResourcesSetupUtil.waitForBuild();
+	private void build() throws Exception {
+		workspace.build();
 	}
 	
 	protected void addProjectReference(IProject from, IProject referencedProject) throws CoreException {
@@ -59,13 +56,12 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 		from.setDescription(description, null);
 	}
 	
-	@Override
-	public void tearDown() throws Exception {
+	@After
+	public void forgetProjects() throws Exception {
 		first = null;
 		firstFile = null;
 		second = null;
 		secondFile = null;
-		super.tearDown();
 	}
 	
 	@Test public void testTwoFilesInTwoReferencedProjects() throws Exception {
@@ -74,34 +70,34 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 
 	@Test public void testTwoFilesInTwoReferencedProjectsRemoveNature() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		removeNature(first, XtextProjectHelper.NATURE_ID);
-		waitForBuild();
+		workspace.removeNature(first, XtextProjectHelper.NATURE_ID);
+		build();
 		assertEquals(1, countMarkers(secondFile));
 	}
 
 	@Test public void testTwoFilesInTwoReferencedProjectsAddNature() throws Exception {
-		removeNature(first, XtextProjectHelper.NATURE_ID);
-		firstFile = createFile("first/first" + F_EXT, "Hello First!");
-		secondFile = createFile("second/second" + F_EXT, "Hello Second ( from First )!");
-		waitForBuild();
+		workspace.removeNature(first, XtextProjectHelper.NATURE_ID);
+		firstFile = workspace.createFile("first/first" + F_EXT, "Hello First!");
+		secondFile = workspace.createFile("second/second" + F_EXT, "Hello Second ( from First )!");
+		build();
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 		assertEquals(printMarkers(secondFile), 1, countMarkers(secondFile));
 		addProjectReference(second, first);
-		waitForBuild();
+		build();
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 		assertEquals(printMarkers(secondFile), 1, countMarkers(secondFile));
-		addNature(first.getProject(), XtextProjectHelper.NATURE_ID);
-		waitForBuild();
+		workspace.addNature(first.getProject(), XtextProjectHelper.NATURE_ID);
+		build();
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 	}
 
 	protected void createTwoFilesInTwoReferencedProjects() throws Exception {
-		firstFile = createFile("first/first" + F_EXT, "Hello First!");
-		secondFile = createFile("second/second" + F_EXT, "Hello Second ( from First )!");
-		waitForBuild();
+		firstFile = workspace.createFile("first/first" + F_EXT, "Hello First!");
+		secondFile = workspace.createFile("second/second" + F_EXT, "Hello Second ( from First )!");
+		build();
 		addProjectReference(second, first);
-		waitForBuild();
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(0, countMarkers(secondFile));
 	}
@@ -109,9 +105,9 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 	@Test public void testTwoFilesInTwoInversedReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
 		removeProjectReference(second);
-		waitForBuild();
+		build();
 		addProjectReference(first, second);
-		waitForBuild();
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(1, countMarkers(secondFile));
 	}
@@ -120,7 +116,7 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 		createTwoFilesInTwoReferencedProjects();
 		removeProjectReference(second);
 
-		waitForBuild();
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(1, countMarkers(secondFile));
 	}
@@ -128,11 +124,11 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 	@Test public void testChangeReferenceOfProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
 		removeProjectReference(second);
-		waitForBuild();
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(1, countMarkers(secondFile));
 		addProjectReference(second, first);
-		waitForBuild();
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(0, countMarkers(secondFile));
 	}
@@ -140,11 +136,11 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 	@Test public void testOpenAndCloseReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
 		// close project
-		first.getProject().close(monitor());
-		waitForBuild();
+		first.getProject().close(workspace.monitor());
+		build();
 		assertEquals(1, countMarkers(secondFile));
-		first.getProject().open(monitor());
-		waitForBuild();
+		first.getProject().open(workspace.monitor());
+		build();
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 	}
 
@@ -152,13 +148,13 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 		createTwoFilesInTwoReferencedProjects();
 
 		// change referenced file
-		firstFile.setContents(new StringInputStream("Hello Third!"), true, true, monitor());
-		waitForBuild();
+		firstFile.setContents(new StringInputStream("Hello Third!"), true, true, workspace.monitor());
+		build();
 		assertEquals(1, countMarkers(secondFile));
 
 		//change back to valid state
-		firstFile.setContents(new StringInputStream("Hello First!"), true, true, monitor());
-		waitForBuild();
+		firstFile.setContents(new StringInputStream("Hello First!"), true, true, workspace.monitor());
+		build();
 		assertEquals(0, countMarkers(secondFile));
 	}
 
@@ -167,12 +163,12 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 
 		// delete referenced file
 		firstFile.delete(true, new NullProgressMonitor());
-		waitForBuild();
+		build();
 		assertEquals(1, countMarkers(secondFile));
 
 		// create new
-		firstFile = createFile("first/first" + F_EXT, "Hello First!");
-		waitForBuild();
+		firstFile = workspace.createFile("first/first" + F_EXT, "Hello First!");
+		build();
 		assertEquals(0, countMarkers(firstFile));
 		assertEquals(0, countMarkers(secondFile));
 	}
@@ -384,7 +380,7 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 
 	@Test public void testOpenAndCloseReferencedProjectsTogether_01() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		waitForBuild();
+		build();
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 		new WorkspaceModifyOperation() {
@@ -394,8 +390,8 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 				first.getProject().close(monitor);
 				second.getProject().close(monitor);
 			}
-		}.run(monitor());
-		waitForBuild();
+		}.run(workspace.monitor());
+		build();
 		new WorkspaceModifyOperation() {
 			@Override
 			protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException,
@@ -403,23 +399,23 @@ public class TwoProjectsTest extends AbstractBuilderTest {
 				first.getProject().open(monitor);
 				second.getProject().open(monitor);
 			}
-		}.run(monitor());
-		waitForBuild();
+		}.run(workspace.monitor());
+		build();
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 	}
 
 	@Test public void testOpenAndCloseReferencedProjectsTogether_02() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		waitForBuild();
+		build();
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
-		first.getProject().close(monitor());
-		second.getProject().close(monitor());
-		waitForBuild();
-		first.getProject().open(monitor());
-		second.getProject().open(monitor());
-		waitForBuild();
+		first.getProject().close(workspace.monitor());
+		second.getProject().close(workspace.monitor());
+		build();
+		first.getProject().open(workspace.monitor());
+		second.getProject().open(workspace.monitor());
+		build();
 		assertEquals(printMarkers(secondFile), 0, countMarkers(secondFile));
 		assertEquals(printMarkers(firstFile), 0, countMarkers(firstFile));
 	}

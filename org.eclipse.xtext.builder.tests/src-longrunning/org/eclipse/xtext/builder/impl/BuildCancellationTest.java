@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import static org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil.*;
-import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
-
 import java.lang.reflect.Field;
 
 import org.eclipse.core.internal.events.BuildManager;
@@ -22,9 +19,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
@@ -37,24 +34,24 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 	private boolean isExternalInterrupt;
 	
 	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		startLogging();
+	@Before
+	public void startLogging() {
+		super.startLogging();
 	}
 
 	/** see https://bugs.eclipse.org/bugs/show_bug.cgi?id=325814 */
 	@Test 
 	public void testCancellationTriggersFullBuild() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, monitor());
-		waitForBuild();
+		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
+		workspace.build();
 		reset();
 		cancel(false);
 		try {
-			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, monitor());
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, workspace.monitor());
 			fail("Expected OperationCanceledException");
 		} catch (OperationCanceledException e) {
 			assertSame(cancelException, e);
@@ -63,16 +60,11 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 		}
 		reset();
 		ResourcesPlugin.getWorkspace().build(
-				IncrementalProjectBuilder.AUTO_BUILD, monitor());
-		waitForBuild();
+				IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
+		workspace.build();
 		assertEquals(1, getInvocationCount());
 		assertSame(BuildType.FULL, getContext().getBuildType());
 		reset();
-	}
-	
-	private void waitForBuild() throws Exception {
-		Thread.sleep(10);
-		IResourcesSetupUtil.waitForBuild();
 	}
 	
 	/**
@@ -80,24 +72,23 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 	 */
 	@Test
 	public void testInterruptionTriggersIncrementalBuild() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		waitForBuild();
+		IJavaProject project = workspace.createJavaProject("foo");
+		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		workspace.build();
 		cancel(true);
 		IFolder folder = project.getProject().getFolder("src");
 		try {
 			IFile file = folder.getFile("Foo" + F_EXT);
-			file.create(new StringInputStream("object Foo"), true, monitor());
+			file.create(new StringInputStream("object Foo"), true, workspace.monitor());
 			ResourcesPlugin.getWorkspace().build(
-					IncrementalProjectBuilder.AUTO_BUILD, monitor());
+					IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
 		} catch (OperationCanceledException e) {
 			// thrown by a different builder
 			assertNotSame(cancelException, e);
 		}
 		reset();
 		ResourcesPlugin.getWorkspace().build(
-				IncrementalProjectBuilder.AUTO_BUILD, monitor());
-		waitForBuild();
+				IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
 		assertEquals(1, getInvocationCount());
 		if (isCoreResources_3_7_orLater()) {
 			assertSame(BuildType.INCREMENTAL, getContext().getBuildType());
