@@ -432,31 +432,24 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		getBuilderState().addListener(this);
 		fullBuild();
 		assertEquals(1, countResourcesInIndex());
-//		System.out.println(print(getEvents().get(0).getDeltas()));
 		assertEquals(1,getEvents().size());
 	}
 
 	private int countMarkers(IFile file) throws CoreException {
 		return file.findMarkers(EValidator.MARKER, true, IResource.DEPTH_INFINITE).length;
 	}
-
 	
 	@Test
 	public void testEvents() throws Exception {
-		IJavaProject project = createJavaProject("foo");
-		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		IProject someProject = createProject("bar");
-		IFile file = someProject.getFile("foo.jar");
-		file.create(jarInputStream(new TextFile("foo/Bar"+F_EXT, "object Foo")), true, monitor());
-		addJarToClasspath(project, file);
+		IJavaProject xtextProject = createJavaProject("xtextProject");
+		addNature(xtextProject.getProject(), XtextProjectHelper.NATURE_ID);
+		IProject projectWithJarFile = createProject("projectWithJar");
+		IFile jarFile = projectWithJarFile.getFile("jarFile.jar");
+		jarFile.create(jarInputStream(new TextFile("inJar/Bar"+F_EXT, "object InJar")), true, monitor());
+		addJarToClasspath(xtextProject, jarFile);
+		System.out.println("waitForBuild");
 		waitForBuild();
-//		JavaCore.addElementChangedListener(new IElementChangedListener() {
-//			
-//			public void elementChanged(ElementChangedEvent event) {
-//				System.out.println(event);
-//			}
-//		});
-		someProject.delete(true, monitor());
+		projectWithJarFile.delete(true, monitor());
 	}
 	
 	protected void waitForBuild() {
