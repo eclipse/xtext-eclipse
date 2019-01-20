@@ -33,10 +33,12 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.xtext.builder.tests.builderTestLanguage.BuilderTestLanguagePackage;
 import org.eclipse.xtext.resource.IReferenceDescription;
+import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.resource.IResourceUIServiceProvider;
 import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.TextFile;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -46,6 +48,7 @@ import com.google.inject.Inject;
  * @author Sven Efftinge - Initial contribution and API
  * @author Sebastian Zarnekow
  */
+@RepeatedTest(times=10)
 public class IntegrationTest extends AbstractBuilderTest {
 
 	private IJavaProject foo_project;
@@ -61,6 +64,12 @@ public class IntegrationTest extends AbstractBuilderTest {
 		IFile file = createFile("foo/src/foo" + F_EXT, "object Foo ");
 		build();
 		assertEquals(0, countMarkers(file));
+	}
+	
+	@After
+	public void resetEvents() {
+		getEvents().clear();
+		getBuilderState().removeListener(this);
 	}
 
 	protected IFile createFile(String wsRelativePath, String content) {
@@ -514,10 +523,11 @@ public class IntegrationTest extends AbstractBuilderTest {
 		IProject someProject = createProject("bar");
 		IFile file = someProject.getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
+		file.setLocalTimeStamp(100L);
 		workspace.addJarToClasspath(project, file);
 		someProject.delete(true, monitor());
 		workspace.build();
-		// the assertions are in the tear down
+		workspace.assertEmptyIndex();
 	}
 
 	@Test public void testIgnoreFilesInOutputFolder() throws Exception {

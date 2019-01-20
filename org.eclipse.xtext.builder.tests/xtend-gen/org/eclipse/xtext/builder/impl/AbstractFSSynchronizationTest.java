@@ -299,6 +299,7 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   
   protected void testCleanUpDerivedResourcesWithCreateBetween(final IContainer output) {
     final File outputDirectory = output.getLocation().toFile();
+    Assert.assertFalse(outputDirectory.exists());
     int _xifexpression = (int) 0;
     boolean _exists = outputDirectory.exists();
     if (_exists) {
@@ -309,6 +310,7 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
     final int initialSize = _xifexpression;
     this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
     this.workspace.build();
+    Assert.assertTrue(outputDirectory.exists());
     Assert.assertNotEquals(initialSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     final Runnable _function = () -> {
       Path _path = new Path("Lalala.txt");

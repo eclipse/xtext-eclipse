@@ -23,11 +23,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.intro.IIntroManager;
 import org.eclipse.xtext.builder.impl.ProjectOpenedOrClosedListener;
 import org.eclipse.xtext.resource.IResourceDescription;
+import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
 import org.eclipse.xtext.util.Exceptions;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
@@ -45,23 +47,33 @@ public abstract class TestedWorkspace extends TestWatcher {
 	protected TestedWorkspace(ProjectOpenedOrClosedListener closedProjectTaskProcessor) {
 		this.closedProjectTaskProcessor = closedProjectTaskProcessor;
 	}
-
+	
+	@Override
+	public Statement apply(Statement statement, Description description) {
+		Statement result = super.apply(statement, description);
+		// Apparently there is no good solution to order TestRules
+		// that's why we do inline the (simple) logic for RepeatedTest here.
+		RepeatedTest repeat = description.getAnnotation(RepeatedTest.class);
+		if (repeat == null) {
+			repeat = description.getTestClass().getAnnotation(RepeatedTest.class);
+		}
+		if (repeat != null) {
+			result = new RepeatedTest.Rule.RepeatedTestStatement(repeat.times(), result, description, false);
+		}
+		return result;
+	}
+	
 	@Override
 	protected void starting(Description d) {
 		name = d.getMethodName();
-		Assert.assertEquals(0, countResourcesInIndex());
+		
+		assertEmptyIndex();
 		Assert.assertEquals(0, IResourcesSetupUtil.root().getProjects().length);
 
 		if (PlatformUI.isWorkbenchRunning()) {
 			final IIntroManager introManager = PlatformUI.getWorkbench().getIntroManager();
 			if (introManager.getIntro() != null) {
-				Display.getDefault().asyncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						introManager.closeIntro(introManager.getIntro());
-					}
-				});
+				Display.getDefault().asyncExec(()->introManager.closeIntro(introManager.getIntro()));
 			}
 		}
 	}

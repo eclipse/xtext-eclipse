@@ -7,11 +7,13 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import org.eclipse.xtext.testing.RepeatedTest;
 import org.junit.Test;
 
 /**
  * @author kosyakov - Initial contribution and API
  */
+@RepeatedTest(times=10)
 public class FSSynchronizationTest extends AbstractFSSynchronizationTest {
 	
 	@Override

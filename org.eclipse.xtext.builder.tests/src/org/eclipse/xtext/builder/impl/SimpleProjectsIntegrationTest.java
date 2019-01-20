@@ -27,10 +27,12 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.xtext.builder.tests.builderTestLanguage.BuilderTestLanguagePackage;
 import org.eclipse.xtext.resource.IReferenceDescription;
+import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil;
 import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.TextFile;
 import org.eclipse.xtext.util.StringInputStream;
+import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -38,6 +40,7 @@ import org.junit.Test;
  * @author Sven Efftinge - Initial contribution and API
  * @author Sebastian Zarnekow
  */
+@RepeatedTest(times=10)
 public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 
 	private IProject foo_project;
@@ -63,6 +66,12 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	
 	protected void build() {
 		workspace.build();
+	}
+	
+	@After
+	public void resetEvents() {
+		getEvents().clear();
+		getBuilderState().removeListener(this);
 	}
 	
 	@Test public void testValidSimpleModel() throws Exception {
@@ -310,7 +319,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		assertEquals(1, countResourcesInIndex());
 		
 		getBuilderState().addListener(this);
+		
 		project.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, monitor());
+		assertEquals(1, getEvents().size());
 		build();
 		// clean build should first remove the IResourceDescriptor and then add it again  
 		assertEquals(2, getEvents().size());
@@ -466,9 +477,11 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		IProject projectWithJarFile = workspace.createProject("projectWithJar");
 		IFile jarFile = projectWithJarFile.getFile("jarFile.jar");
 		jarFile.create(JavaProjectSetupUtil.jarInputStream(new TextFile("inJar/Bar"+F_EXT, "object InJar")), true, monitor());
+		jarFile.setLocalTimeStamp(100L);
 		workspace.addJarToClasspath(xtextProject, jarFile);
-		build();
 		projectWithJarFile.delete(true, monitor());
+		build();
+		workspace.assertEmptyIndex();
 	}
 	
 }

@@ -59,7 +59,6 @@ public abstract class AbstractBuilderParticipantTest extends AbstractBuilderTest
 	@After
 	public void resetBuilderParticipant() throws Exception {
 		((DelegatingBuilderParticipant) delegatingParticipant).setDelegate(oldDelegate);
-		participant = null;
 	}
 
 	protected void createTwoReferencedProjects() throws CoreException {
