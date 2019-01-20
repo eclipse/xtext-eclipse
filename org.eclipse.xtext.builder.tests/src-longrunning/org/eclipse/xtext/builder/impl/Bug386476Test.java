@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.StringInputStream;
@@ -32,11 +31,6 @@ public class Bug386476Test extends AbstractParticipatingBuilderTest {
 		javaProject = createJavaProject("BuilderDisabled");
 		addNature(javaProject.getProject(), XtextProjectHelper.NATURE_ID);
 		waitForBuild();
-	}
-
-	@Override
-	public void build(IBuildContext context, IProgressMonitor monitor) throws CoreException {
-		super.build(context, monitor);
 	}
 
 	@Test
