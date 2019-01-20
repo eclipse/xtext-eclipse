@@ -266,7 +266,6 @@ public class IntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testOpenAndCloseReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		// close project
 		foo_project.getProject().close(monitor());
 		waitForBuild();
 		assertEquals(1, countMarkers(bar_file));
@@ -417,7 +416,6 @@ public class IntegrationTest extends AbstractBuilderTest {
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		assertEquals(0, countResourcesInIndex());
 		addJarToClasspath(project, file);
-		waitForBuild();
 		assertEquals(1, countResourcesInIndex());
 	}
 
@@ -433,8 +431,6 @@ public class IntegrationTest extends AbstractBuilderTest {
 
 		addJarToClasspath(project, file);
 		addJarToClasspath(project, file2);
-
-		waitForBuild();
 		assertEquals(3, countResourcesInIndex());
 	}
 
@@ -474,13 +470,10 @@ public class IntegrationTest extends AbstractBuilderTest {
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		assertEquals(0, countResourcesInIndex());
 		addJarToClasspath(project, file);
-		waitForBuild();
 		assertEquals(1, countResourcesInIndex());
-
 		getBuilderState().addListener(this);
 		fullBuild();
 		assertEquals(1, countResourcesInIndex());
-		//		System.out.println(print(getEvents().get(0).getDeltas()));
 		assertEquals(1, getEvents().size());
 	}
 
@@ -495,13 +488,6 @@ public class IntegrationTest extends AbstractBuilderTest {
 		IFile file = someProject.getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		addJarToClasspath(project, file);
-		waitForBuild();
-		//		JavaCore.addElementChangedListener(new IElementChangedListener() {
-		//			
-		//			public void elementChanged(ElementChangedEvent event) {
-		//				System.out.println(event);
-		//			}
-		//		});
 		someProject.delete(true, monitor());
 	}
 
