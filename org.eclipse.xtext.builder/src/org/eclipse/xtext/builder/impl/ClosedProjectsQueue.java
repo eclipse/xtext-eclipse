@@ -18,6 +18,8 @@ import com.google.inject.Singleton;
 /**
  * A queue of resources that are supposed to be removed from the Xtext index.
  * The work is encapsulated by a ClosedProjectsQueue.Task.
+ * 
+ * @since 2.17
  */
 @Singleton
 public class ClosedProjectsQueue {

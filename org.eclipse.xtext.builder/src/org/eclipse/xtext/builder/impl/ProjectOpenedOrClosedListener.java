@@ -42,12 +42,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * @author Sven Efftinge - Initial contribution and API
  * @author Holger Schill
  * @author Sebastian Zarnekow - Rewrote approach to scheduled closed projects
  */
+@Singleton
 public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 
 	private final static Logger log = Logger.getLogger(ProjectOpenedOrClosedListener.class);
@@ -76,11 +78,17 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 	@Inject
 	private IWorkspace workspace;
 
-	private RemoveProjectJob removeProjectJob = new RemoveProjectJob();
+	/**
+	 * @since 2.17
+	 */
+	private RemoveProjectsJob removeProjectsJob = createRemoveProjectsJob();
 
-	protected class RemoveProjectJob extends WorkspaceJob {
+	/**
+	 * @since 2.17
+	 */
+	protected class RemoveProjectsJob extends WorkspaceJob {
 
-		public RemoveProjectJob() {
+		public RemoveProjectsJob() {
 			super("");
 			setRule(ResourcesPlugin.getWorkspace().getRoot());
 		}
@@ -96,7 +104,35 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 			return Status.OK_STATUS;
 		}
 	}
-
+	
+	/**
+	 * @since 2.17
+	 */
+	protected RemoveProjectsJob createRemoveProjectsJob() {
+		return new RemoveProjectsJob();
+	}
+	
+	/**
+	 * @since 2.17
+	 */
+	public ClosedProjectsQueue getClosedProjectsQueue() {
+		return closedProjectsQueue;
+	}
+	
+	/**
+	 * @since 2.17
+	 */
+	public IWorkspace getWorkspace() {
+		return workspace;
+	}
+	
+	/**
+	 * @since 2.17
+	 */
+	public QueuedBuildData getQueuedBuildData() {
+		return queuedBuildData;
+	}
+	
 	public IResourceSetProvider getResourceSetProvider() {
 		return resourceSetProvider;
 	}
@@ -202,9 +238,9 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 
 	protected void scheduleJob(String name, ToBeBuilt toBeBuilt) {
 		closedProjectsQueue.enqueue(ImmutableSet.of(name), toBeBuilt);
-		removeProjectJob
+		removeProjectsJob
 				.setName(Messages.ProjectOpenedOrClosedListener_RemovingProject + name + Messages.ProjectOpenedOrClosedListener_FromIndex);
-		removeProjectJob.schedule();
+		removeProjectsJob.schedule();
 	}
 
 	/**
@@ -265,7 +301,7 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 			synchronized (this) {
 				wait(1);
 			}
-			this.removeProjectJob.join();
+			this.removeProjectsJob.join();
 		} catch (InterruptedException e) {
 			// ignore
 			e.printStackTrace();
