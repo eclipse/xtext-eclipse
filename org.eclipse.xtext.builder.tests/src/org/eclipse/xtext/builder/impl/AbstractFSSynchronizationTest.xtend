@@ -18,6 +18,10 @@ import org.eclipse.xtext.ui.XtextProjectHelper
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.eclipse.core.resources.WorkspaceJob
+import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.CoreException
+import org.eclipse.core.runtime.Status
 
 /**
  * @author kosyakov - Initial contribution and API
@@ -296,9 +300,14 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		disableAutobuild [
 			val file = output.getFile(new Path('Foo.txt'))
 			file.localTimeStamp = 1L
-			file.location.toFile.content = 'Lalala'
-			assertFalse(file.synchronized)
-	
+			new WorkspaceJob('file.setContent') {
+				override runInWorkspace(IProgressMonitor monitor) throws CoreException {
+					file.location.toFile.content = 'Lalala'
+					assertFalse(file.synchronized)
+					return Status.OK_STATUS
+				}
+			}.run(monitor)
+			
 			cleanBuild
 			assertEquals(expectedSize, outputDirectory.list.size)
 		]
@@ -314,8 +323,13 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		
 		disableAutobuild [
 			val file = output.getFile(new Path('Foo.txt'))
-			assertTrue(file.location.toFile.delete)
-			assertFalse(file.synchronized)
+			new WorkspaceJob('file.delete') {
+				override runInWorkspace(IProgressMonitor monitor) throws CoreException {
+					assertTrue(file.location.toFile.delete)
+					assertFalse(file.synchronized)
+					return Status.OK_STATUS
+				}
+			}.run(monitor)
 	
 			cleanBuild
 			assertEquals(expectedSize, outputDirectory.list.size)
@@ -346,8 +360,13 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		
 		val file = output.getFile(new Path('Foo.txt'))
 		file.localTimeStamp = 1L
-		file.location.toFile.content = 'Lalala'
-		assertFalse(file.synchronized)
+		new WorkspaceJob('file.setContent') {
+			override runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				file.location.toFile.content = 'Lalala'
+				assertFalse(file.synchronized)
+				return Status.OK_STATUS
+			}
+		}.run(monitor)
 
 		sourceFile.delete(false, monitor)
 		build
@@ -379,9 +398,14 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 		val file = output.getFile(new Path('Foo.txt'))
 		file.refreshLocal(0, null)
 		assertTrue(file.synchronized)
-		assertTrue(file.location.toFile.delete)
-		assertFalse(file.synchronized)
-
+		new WorkspaceJob('file.delete') {
+			override runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				assertTrue(file.location.toFile.delete)
+				assertFalse(file.synchronized)
+				return Status.OK_STATUS
+			}
+		}.run(monitor)
+		
 		sourceFile.delete(false, monitor)
 		build
 		assertEquals(expectedSize, outputDirectory.list.size)

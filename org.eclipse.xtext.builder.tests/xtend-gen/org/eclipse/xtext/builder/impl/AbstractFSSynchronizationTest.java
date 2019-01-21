@@ -13,8 +13,13 @@ import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.xtext.builder.impl.AbstractBuilderParticipantTest;
 import org.eclipse.xtext.generator.OutputConfiguration;
 import org.eclipse.xtext.ui.XtextProjectHelper;
@@ -340,9 +345,15 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
         Path _path = new Path("Foo.txt");
         final IFile file = output.getFile(_path);
         file.setLocalTimeStamp(1L);
-        File _file = file.getLocation().toFile();
-        this.setContent(_file, "Lalala");
-        Assert.assertFalse(this.isSynchronized(file));
+        new WorkspaceJob("file.setContent") {
+          @Override
+          public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
+            File _file = file.getLocation().toFile();
+            AbstractFSSynchronizationTest.this.setContent(_file, "Lalala");
+            Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
+            return Status.OK_STATUS;
+          }
+        }.run(this.workspace.monitor());
         this.workspace.cleanBuild();
         Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
       } catch (Throwable _e) {
@@ -368,8 +379,14 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
     final Runnable _function = () -> {
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
-      Assert.assertTrue(file.getLocation().toFile().delete());
-      Assert.assertFalse(this.isSynchronized(file));
+      new WorkspaceJob("file.delete") {
+        @Override
+        public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
+          Assert.assertTrue(file.getLocation().toFile().delete());
+          Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
+          return Status.OK_STATUS;
+        }
+      }.run(this.workspace.monitor());
       this.workspace.cleanBuild();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     };
@@ -409,9 +426,15 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
       file.setLocalTimeStamp(1L);
-      File _file = file.getLocation().toFile();
-      this.setContent(_file, "Lalala");
-      Assert.assertFalse(this.isSynchronized(file));
+      new WorkspaceJob("file.setContent") {
+        @Override
+        public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
+          File _file = file.getLocation().toFile();
+          AbstractFSSynchronizationTest.this.setContent(_file, "Lalala");
+          Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
+          return Status.OK_STATUS;
+        }
+      }.run(this.workspace.monitor());
       sourceFile.delete(false, this.workspace.monitor());
       this.workspace.build();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
@@ -454,8 +477,14 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       final IFile file = output.getFile(_path);
       file.refreshLocal(0, null);
       Assert.assertTrue(this.isSynchronized(file));
-      Assert.assertTrue(file.getLocation().toFile().delete());
-      Assert.assertFalse(this.isSynchronized(file));
+      new WorkspaceJob("file.delete") {
+        @Override
+        public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
+          Assert.assertTrue(file.getLocation().toFile().delete());
+          Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
+          return Status.OK_STATUS;
+        }
+      }.run(this.workspace.monitor());
       sourceFile.delete(false, this.workspace.monitor());
       this.workspace.build();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
