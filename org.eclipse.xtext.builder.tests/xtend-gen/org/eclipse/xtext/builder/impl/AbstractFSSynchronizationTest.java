@@ -299,7 +299,6 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   
   protected void testCleanUpDerivedResourcesWithCreateBetween(final IContainer output) {
     final File outputDirectory = output.getLocation().toFile();
-    Assert.assertFalse(outputDirectory.exists());
     int _xifexpression = (int) 0;
     boolean _exists = outputDirectory.exists();
     if (_exists) {

@@ -269,7 +269,6 @@ abstract class AbstractFSSynchronizationTest extends AbstractBuilderParticipantT
 
 	protected def void testCleanUpDerivedResourcesWithCreateBetween(IContainer output) {
 		val outputDirectory = output.location.toFile
-		assertFalse(outputDirectory.exists)
 		val initialSize = if(outputDirectory.exists) outputDirectory.list.size else 0
 
 		project.getFile('src/Foo' + F_EXT).fullPath.createFile('object Foo')
