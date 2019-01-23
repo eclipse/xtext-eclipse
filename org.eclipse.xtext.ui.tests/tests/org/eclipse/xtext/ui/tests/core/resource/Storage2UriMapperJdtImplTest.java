@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.core.JarEntryFile;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NonJavaResource;
-import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.testing.logging.LoggingTester;
 import org.eclipse.xtext.ui.resource.JarEntryLocator;
 import org.eclipse.xtext.ui.resource.Storage2UriMapperJavaImpl;
@@ -40,7 +39,6 @@ import org.eclipse.xtext.util.StringInputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -48,12 +46,7 @@ import com.google.common.io.ByteStreams;
 /**
  * @author Sven Efftinge - Initial contribution and API
  */
-@RepeatedTest(times=50)
 public class Storage2UriMapperJdtImplTest extends Assert {
-	
-	// temporarily run the tests in a loop to check if they are stable on the server
-	@Rule
-	public RepeatedTest.Rule repeatRule = new RepeatedTest.Rule(false);
 	
 	@Before
 	@After

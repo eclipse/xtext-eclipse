@@ -48,7 +48,6 @@ import com.google.inject.Inject;
  * @author Sven Efftinge - Initial contribution and API
  * @author Sebastian Zarnekow
  */
-@RepeatedTest(times=10)
 public class IntegrationTest extends AbstractBuilderTest {
 
 	private IJavaProject foo_project;

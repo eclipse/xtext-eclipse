@@ -40,7 +40,6 @@ import org.junit.Test;
  * @author Sven Efftinge - Initial contribution and API
  * @author Sebastian Zarnekow
  */
-@RepeatedTest(times=10)
 public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 
 	private IProject foo_project;
