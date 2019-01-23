@@ -50,6 +50,7 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironmentsManager;
 import org.eclipse.xtext.ui.util.JREContainerProvider;
 import org.eclipse.xtext.util.RuntimeIOException;
+import org.eclipse.xtext.util.Wrapper;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -144,22 +145,28 @@ public class JavaProjectSetupUtil {
 	}
 
 	public static IFolder createExternalFolder(String folderName) throws CoreException {
-		IPath externalFolderPath = new Path(folderName);
-		IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
-		if (!externalFoldersProject.isAccessible()) {
-			if (!externalFoldersProject.exists())
-				externalFoldersProject.create(monitor());
-			externalFoldersProject.open(monitor());
-		}
-		IFolder result = externalFoldersProject.getFolder(externalFolderPath);
-		result.create(true, false, null);
-//		JavaModelManager.getExternalManager().addFolder(result.getFullPath());
-		return result;
+		final Wrapper<IFolder> wrapper = Wrapper.forType(IFolder.class);
+		ResourcesPlugin.getWorkspace().run((monitor)->{
+			IPath externalFolderPath = new Path(folderName);
+			IProject externalFoldersProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
+			if (!externalFoldersProject.isAccessible()) {
+				if (!externalFoldersProject.exists())
+					externalFoldersProject.create(monitor());
+				externalFoldersProject.open(monitor());
+			}
+			IFolder result = externalFoldersProject.getFolder(externalFolderPath);
+			result.create(true, false, null);
+//				JavaModelManager.getExternalManager().addFolder(result.getFullPath());
+			wrapper.set(result);
+		}, monitor());
+		return wrapper.get();
 	}
 	
 	public static void deleteExternalFolder(IFolder folder) throws CoreException {
-		JavaModelManager.getExternalManager().removeFolder(folder.getFullPath());
-		folder.delete(true, null);
+		ResourcesPlugin.getWorkspace().run((monitor)->{
+			JavaModelManager.getExternalManager().removeFolder(folder.getFullPath());
+			folder.delete(true, null);
+		}, monitor());
 	}
 	
 	public static IFolder deleteSourceFolder(IJavaProject project, String folderPath) throws JavaModelException,
