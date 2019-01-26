@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.xtext.resource.IResourceDescription.Delta;
 import org.eclipse.xtext.resource.IResourceDescription.Event;
-import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.util.Exceptions;
 import org.eclipse.xtext.util.StringInputStream;
@@ -37,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 /**
  * @author Christian Dietrich - Initial contribution and API
  */
-@RepeatedTest(times=250)
 public class Bug486584Test extends AbstractBuilderTest {
 
 	private static final String PROJECT_NAME = "foo";
