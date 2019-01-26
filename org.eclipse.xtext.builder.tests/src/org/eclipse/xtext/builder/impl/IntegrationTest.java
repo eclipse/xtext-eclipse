@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.xtext.builder.tests.builderTestLanguage.BuilderTestLanguagePackage;
 import org.eclipse.xtext.resource.IReferenceDescription;
-import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.resource.IResourceUIServiceProvider;
 import org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.TextFile;

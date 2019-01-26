@@ -23,18 +23,21 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.xtext.resource.IResourceDescription.Delta;
 import org.eclipse.xtext.resource.IResourceDescription.Event;
+import org.eclipse.xtext.testing.RepeatedTest;
 import org.eclipse.xtext.ui.XtextProjectHelper;
+import org.eclipse.xtext.util.Exceptions;
 import org.eclipse.xtext.util.StringInputStream;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 
 /**
  * @author Christian Dietrich - Initial contribution and API
  */
+@RepeatedTest(times=250)
 public class Bug486584Test extends AbstractBuilderTest {
 
 	private static final String PROJECT_NAME = "foo";
@@ -53,7 +56,7 @@ public class Bug486584Test extends AbstractBuilderTest {
 	}
 
 	@Test
-	public void testFullBuildWhenClasspathChanged() throws CoreException, InterruptedException {
+	public void testFullBuildWhenClasspathChanged_1() throws CoreException, InterruptedException {
 		IJavaProject project = setupProject();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
@@ -120,25 +123,79 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IJavaProject project = setupProject();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IPath rawLocation = libaryFile.getRawLocation();
+		File file = rawLocation.toFile();
+		Assert.assertTrue(file.setLastModified(10));
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
 		workspace.addToClasspath(project, libraryEntry);
 		workspace.build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
-
-		File file = rawLocation.toFile();
-		Files.touch(file);
+		Assert.assertTrue(file.setLastModified(System.currentTimeMillis()));
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		workspace.build();
+		assertEquals(1, getEvents().size());
+	}
+	
+	
+	@Test
+	public void testFullBuildWhenClasspathChanged_4() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = setupProject();
+		IFile libraryFile = copyAndGetXtendExampleJar(project);
+		IPath rawLocation = libraryFile.getRawLocation();
+		libraryFile.setLocalTimeStamp(10L);
+		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
+		assertFalse(getEvents().isEmpty());
+		getEvents().clear();
+		libraryFile.setLocalTimeStamp(System.currentTimeMillis());
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		// refresh -> full build
+		workspace.build();
+		assertEquals(1, getEvents().size());
+	}
+	
+	@Test
+	public void testNoFullBuildWhenClasspathNotReallyChanged_1() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = setupProject();
+		IFile libaryFile = copyAndGetXtendExampleJar(project);
+		IPath rawLocation = libaryFile.getRawLocation();
+		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
+		assertFalse(getEvents().isEmpty());
+		getEvents().clear();
 		project.setRawClasspath(project.getRawClasspath(), null);
 		project.getProject().getFile("src/dummy.txt").create(new StringInputStream(""), false, null);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		workspace.build();
 		assertEquals(0, getEvents().size());
 	}
-
+	
+	@Test
+	public void testNoFullBuildWhenClasspathNotReallyChanged_2() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = setupProject();
+		IFile libraryFile = copyAndGetXtendExampleJar(project);
+		IPath rawLocation = libraryFile.getRawLocation();
+		libraryFile.setLocalTimeStamp(10L);
+		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
+		workspace.addToClasspath(project, libraryEntry);
+		workspace.build();
+		assertFalse(getEvents().isEmpty());
+		getEvents().clear();
+		libraryFile.setLocalTimeStamp(System.currentTimeMillis());
+		// no refresh -> no full build
+		workspace.build();
+		assertEquals(0, getEvents().size());
+	}
+	
 	private IFile copyAndGetXtendExampleJar(IJavaProject javaProject) throws CoreException {
 		IFile file = javaProject.getProject().getFile(XTEND_EXAMPLE_JAR);
-		InputStream inputStream = Bug486584Test.class.getResourceAsStream(XTEND_EXAMPLE_JAR);
-		file.create(inputStream, IResource.FORCE, null);
+		try (InputStream inputStream = Bug486584Test.class.getResourceAsStream(XTEND_EXAMPLE_JAR)) {
+			file.create(inputStream, IResource.FORCE, null);	
+		} catch (IOException e) {
+			Exceptions.throwUncheckedException(e);
+		}
 		return file;
 	}
 

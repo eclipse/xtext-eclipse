@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
-import org.eclipse.xtext.testing.RepeatedTest;
 import org.junit.Test;
 
 /**
