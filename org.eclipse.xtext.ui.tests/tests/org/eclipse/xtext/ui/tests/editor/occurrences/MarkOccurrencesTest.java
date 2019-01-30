@@ -50,7 +50,6 @@ import com.google.inject.Inject;
 /**
  * @author Jan Koehnlein - Initial contribution and API
  */
-@RepeatedTest(times=20)
 @RunWith(XtextRunner.class)
 @InjectWith(OutlineTestLanguageUiInjectorProvider.class)
 public class MarkOccurrencesTest extends AbstractEditorTest {

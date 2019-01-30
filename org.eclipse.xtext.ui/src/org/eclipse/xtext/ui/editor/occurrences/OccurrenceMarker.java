@@ -98,6 +98,11 @@ public class OccurrenceMarker {
 		};
 	}
 	
+	/**
+	 * Public for testing purpose.
+	 * 
+	 * @since 2.17
+	 */
 	public void joinMarkOccurrenceJob() {
 		try {
 			doMarkOccurrences(editor.getSelectionProvider().getSelection());
