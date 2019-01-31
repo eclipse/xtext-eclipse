@@ -17,9 +17,9 @@ import org.eclipse.core.resources.IProject;
  */
 public class BuilderStateDiscarder {
 
-	public boolean forgetLastBuildState(final Iterable<IProject> toUpdate, Map<String, String> builderArguments) {
-		if (isHandledBuildFlag(builderArguments)) {
-			for(IProject project: toUpdate) {
+	public boolean forgetLastBuildState(Iterable<IProject> toUpdate, Map<String, String> builderArguments) {
+		if (canHandleBuildFlag(builderArguments)) {
+			for (IProject project : toUpdate) {
 				XtextBuilder builder = BuildManagerAccess.findBuilder(project);
 				if (builder != null) {
 					builder.forgetLastBuiltState();
@@ -30,8 +30,9 @@ public class BuilderStateDiscarder {
 		return false;
 	}
 
-	protected boolean isHandledBuildFlag(Map<String, String> builderArguments) {
-		return IBuildFlag.FORGET_BUILD_STATE_ONLY.isSet(builderArguments) || IBuildFlag.RECOVERY_BUILD.isSet(builderArguments);
+	protected boolean canHandleBuildFlag(Map<String, String> builderArguments) {
+		return IBuildFlag.FORGET_BUILD_STATE_ONLY.isSet(builderArguments)
+				|| IBuildFlag.RECOVERY_BUILD.isSet(builderArguments);
 	}
-	
+
 }

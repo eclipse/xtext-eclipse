@@ -37,6 +37,7 @@ import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.xbase.lib.util.ReflectExtensions;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -81,7 +82,7 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 	/**
 	 * @since 2.17
 	 */
-	private RemoveProjectsJob removeProjectsJob = createRemoveProjectsJob();
+	private final RemoveProjectsJob removeProjectsJob = createRemoveProjectsJob();
 
 	/**
 	 * @since 2.17
@@ -89,7 +90,7 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 	protected class RemoveProjectsJob extends WorkspaceJob {
 
 		public RemoveProjectsJob() {
-			super("");
+			super(Messages.ProjectOpenedOrClosedListener_RemovingProject.trim() + Messages.ProjectOpenedOrClosedListener_FromIndex);
 			setRule(ResourcesPlugin.getWorkspace().getRoot());
 		}
 
@@ -186,6 +187,9 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 		};
 	}
 
+	/**
+	 * @since 2.17
+	 */
 	protected boolean visitResourceDelta(IResourceDelta delta, final Set<IProject> accumulator) {
 		if (delta.getResource() instanceof IWorkspaceRoot)
 			return true;
@@ -236,6 +240,9 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 		}
 	}
 
+	/**
+	 * @since 2.17
+	 */
 	protected void scheduleJob(String name, ToBeBuilt toBeBuilt) {
 		closedProjectsQueue.enqueue(ImmutableSet.of(name), toBeBuilt);
 		removeProjectsJob
@@ -248,6 +255,8 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 	 *
 	 * @param monitor
 	 *            the monitor.
+	 *            
+	 * @since 2.17
 	 */
 	protected void processClosedProjects(IProgressMonitor monitor) {
 		ClosedProjectsQueue.Task task = closedProjectsQueue.exhaust();
@@ -285,7 +294,10 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 	 * Wait for the removeProjectJob to finish.
 	 *
 	 * Public for testing purpose.
+	 * 
+	 * @since 2.17
 	 */
+	@VisibleForTesting
 	public void joinRemoveProjectJob() {
 		/*
 		 * szarnekow: Tests in tight loops revealed that join does not always wait for the job to really finish.
@@ -301,7 +313,7 @@ public class ProjectOpenedOrClosedListener implements IResourceChangeListener {
 			synchronized (this) {
 				wait(1);
 			}
-			this.removeProjectsJob.join();
+			removeProjectsJob.join();
 		} catch (InterruptedException e) {
 			// ignore
 			e.printStackTrace();

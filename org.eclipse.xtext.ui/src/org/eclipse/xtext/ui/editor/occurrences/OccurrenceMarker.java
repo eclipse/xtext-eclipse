@@ -34,6 +34,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Inject;
 
 /**
@@ -103,6 +104,7 @@ public class OccurrenceMarker {
 	 * 
 	 * @since 2.17
 	 */
+	@VisibleForTesting
 	public void joinMarkOccurrenceJob() {
 		try {
 			doMarkOccurrences(editor.getSelectionProvider().getSelection());

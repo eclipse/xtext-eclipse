@@ -35,6 +35,7 @@ public class BuildManagerAccess {
 	private static final Field autoBuildJob;
 	private static final Method forceBuild;
 	private static final Method getBuilder;
+
 	static {
 		try {
 			requestRebuild = BuildManager.class.getDeclaredMethod("requestRebuild");
@@ -44,8 +45,8 @@ public class BuildManagerAccess {
 			Class<?> autoBuildJobClass = autoBuildJob.getType();
 			forceBuild = autoBuildJobClass.getDeclaredMethod("forceBuild");
 			forceBuild.setAccessible(true);
-			
-			getBuilder = BuildManager.class.getDeclaredMethod("getBuilder", IBuildConfiguration.class, ICommand.class, int.class, MultiStatus.class);
+			getBuilder = BuildManager.class.getDeclaredMethod("getBuilder", IBuildConfiguration.class, ICommand.class, int.class,
+					MultiStatus.class);
 			getBuilder.setAccessible(true);
 		} catch (NoSuchMethodException | SecurityException | NoSuchFieldException e) {
 			throw new RuntimeException(e);
@@ -53,29 +54,29 @@ public class BuildManagerAccess {
 	}
 
 	/**
-	 * Obtain the configured Xtext builder for the given project, if any. 
+	 * Obtain the configured Xtext builder for the given project, if any.
 	 */
 	public static XtextBuilder findBuilder(IProject project) {
 		try {
 			Project casted = (Project) project;
 			IBuildConfiguration activeBuildConfig = casted.getActiveBuildConfig();
-			for(ICommand command: casted.internalGetDescription().getBuildSpec(false)) {
+			for (ICommand command : casted.internalGetDescription().getBuildSpec(false)) {
 				if (XtextBuilder.BUILDER_ID.equals(command.getBuilderName())) {
 					IWorkspace workspace = ResourcesPlugin.getWorkspace();
 					if (workspace instanceof Workspace) {
 						BuildManager buildManager = ((Workspace) workspace).getBuildManager();
-						XtextBuilder result = (XtextBuilder) getBuilder.invoke(buildManager, activeBuildConfig, command, -1, new MultiStatus(Activator.PLUGIN_ID, 0, null, null));
+						XtextBuilder result = (XtextBuilder) getBuilder.invoke(buildManager, activeBuildConfig, command, -1,
+								new MultiStatus(Activator.PLUGIN_ID, 0, null, null));
 						return result;
 					}
 				}
 			}
 			return null;
-		} catch (SecurityException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException | CoreException e) {
+		} catch (IllegalAccessException | InvocationTargetException | CoreException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Enforce a build.
 	 */
@@ -87,12 +88,12 @@ public class BuildManagerAccess {
 				requestRebuild.invoke(buildManager);
 				Object job = autoBuildJob.get(buildManager);
 				forceBuild.invoke(job);
-			} catch (SecurityException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException e) {
+			} catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new RuntimeException(e);
 			}
 		} else {
 			throw new RuntimeException("Unexpected workspace implementation");
 		}
 	}
+
 }

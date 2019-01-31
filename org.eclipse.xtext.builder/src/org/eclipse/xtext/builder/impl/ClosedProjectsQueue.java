@@ -12,6 +12,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import org.eclipse.emf.common.util.URI;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Singleton;
 
@@ -31,13 +33,13 @@ public class ClosedProjectsQueue {
 		/**
 		 * The names of the projects as encapsulated by this task.
 		 */
-		public final Set<String> projectNames;
+		public final ImmutableSet<String> projectNames;
 		/**
 		 * The built data for this task.
 		 */
 		public final ToBeBuilt toBeBuilt;
 
-		private Task(Set<String> projectNames, ToBeBuilt toBeBuilt) {
+		protected Task(ImmutableSet<String> projectNames, ToBeBuilt toBeBuilt) {
 			this.projectNames = projectNames;
 			this.toBeBuilt = toBeBuilt;
 		}
@@ -72,7 +74,7 @@ public class ClosedProjectsQueue {
 	 * @param toBeBuilt
 	 *            their contents.
 	 */
-	void enqueue(Set<String> projectNames, ToBeBuilt toBeBuilt) {
+	protected void enqueue(Set<String> projectNames, ToBeBuilt toBeBuilt) {
 		internalQueue.addLast(new Task(ImmutableSet.copyOf(projectNames), toBeBuilt));
 	}
 
@@ -84,7 +86,7 @@ public class ClosedProjectsQueue {
 	 * @param toBeBuilt
 	 *            their contents.
 	 */
-	void insert(Set<String> projectNames, ToBeBuilt toBeBuilt) {
+	protected void insert(Set<String> projectNames, ToBeBuilt toBeBuilt) {
 		internalQueue.addFirst(new Task(ImmutableSet.copyOf(projectNames), toBeBuilt));
 	}
 
@@ -93,13 +95,14 @@ public class ClosedProjectsQueue {
 	 *
 	 * @return the normalized task that has all the stuff that is to be done.
 	 */
-	Task exhaust() {
+	protected Task exhaust() {
 		Set<String> projectNames = new LinkedHashSet<>();
 		ToBeBuilt toBeBuilt = new ToBeBuilt();
+		Set<URI> toBeDeleted = toBeBuilt.getToBeDeleted();
 		Task next = internalQueue.poll();
 		while (next != null) {
 			projectNames.addAll(next.projectNames);
-			toBeBuilt.getToBeDeleted().addAll(next.toBeBuilt.getToBeDeleted());
+			toBeDeleted.addAll(next.toBeBuilt.getToBeDeleted());
 			next = internalQueue.poll();
 		}
 		return new Task(ImmutableSet.copyOf(projectNames), toBeBuilt);
