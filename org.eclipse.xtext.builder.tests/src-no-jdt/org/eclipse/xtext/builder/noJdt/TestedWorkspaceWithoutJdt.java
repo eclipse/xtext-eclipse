@@ -7,8 +7,10 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.noJdt;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.xtext.builder.TestedWorkspace;
 import org.eclipse.xtext.builder.impl.ProjectOpenedOrClosedListener;
+import org.eclipse.xtext.ui.XtextProjectHelper;
 import org.eclipse.xtext.ui.shared.contribution.ISharedStateContributionRegistry;
 
 import com.google.common.annotations.Beta;
@@ -27,5 +29,13 @@ public class TestedWorkspaceWithoutJdt extends TestedWorkspace {
 
 	public TestedWorkspaceWithoutJdt(ProjectOpenedOrClosedListener closedProjectTaskProcessor) {
 		super(closedProjectTaskProcessor);
+	}
+	
+	public IProject createEmptyXtextProject(String string) {
+		return run((monitory)-> {
+			IProject project = createProject(string);
+			addNature(project, XtextProjectHelper.NATURE_ID);
+			return project;
+		});
 	}
 }

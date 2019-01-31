@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import java.util.Collections;
 
 import org.eclipse.core.resources.IProject;

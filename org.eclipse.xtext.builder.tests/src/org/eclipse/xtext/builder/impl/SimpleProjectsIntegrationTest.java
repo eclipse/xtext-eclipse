@@ -8,6 +8,7 @@
 package org.eclipse.xtext.builder.impl;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
+import static org.junit.Assert.*;
 
 import java.util.Iterator;
 
@@ -18,7 +19,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EValidator;
@@ -46,26 +46,6 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	private IFile foo_file;
 	private IFile bar_file;
 
-	protected IFile createFile(String wsRelativePath, String content) {
-		return workspace.createFile(wsRelativePath, content);
-	}
-	
-	protected void addNature(IProject project, String natureId) {
-		workspace.addNature(project, natureId);
-	}
-	
-	protected void removeNature(IProject project, String natureId) {
-		workspace.removeNature(project, natureId);
-	}
-	
-	protected IProgressMonitor monitor() {
-		return workspace.monitor();
-	}
-	
-	protected void build() {
-		workspace.build();
-	}
-	
 	@After
 	public void resetEvents() {
 		getEvents().clear();
@@ -80,7 +60,7 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	}
 
 	private IProject createSimpleProjectWithXtextNature(String projectName) throws CoreException {
-		IProject project = workspace.createProject(projectName);
+		IProject project = createProject(projectName);
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		return project;
 	}
@@ -156,7 +136,7 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		build();
 		assertEquals(printMarkers(foo_file), 0, countMarkers(foo_file));
 		assertEquals(printMarkers(bar_file), 1, countMarkers(bar_file));
-		workspace.setReference(bar_project, foo_project);
+		setReference(bar_project, foo_project);
 		build();
 		assertEquals(printMarkers(foo_file), 0, countMarkers(foo_file));
 		assertEquals(printMarkers(bar_file), 1, countMarkers(bar_file));
@@ -172,7 +152,7 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		foo_file = createFile("foo/foo"+F_EXT, "object Foo ");
 		bar_file = createFile("bar/bar"+F_EXT, "object Bar references Foo");
 		build();
-		workspace.setReference(bar_project, foo_project);
+		setReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(0, countMarkers(bar_file));
@@ -180,9 +160,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testTwoFilesInTwoInversedReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		workspace.removeReference(bar_project, foo_project);
+		removeReference(bar_project, foo_project);
 		build();
-		workspace.setReference(foo_project, bar_project);
+		setReference(foo_project, bar_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(1, countMarkers(bar_file));
@@ -190,7 +170,7 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testTwoFilesInTwoNonReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		workspace.removeReference(bar_project, foo_project);
+		removeReference(bar_project, foo_project);
 
 		build();
 		assertEquals(0, countMarkers(foo_file));
@@ -200,12 +180,12 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	@Test public void testChangeReferenceOfProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
 		
-		workspace.removeReference(bar_project, foo_project);
+		removeReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(1, countMarkers(bar_file));
 		
-		workspace.setReference(bar_project, foo_project);
+		setReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(0, countMarkers(bar_file));
@@ -252,9 +232,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	}
 	
 	@Test public void testUpdateOfReferencedFile() throws Exception {
-		IProject project = workspace.createProject("foo");
+		IProject project = createProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		IFolder folder = workspace.createSubFolder(project, "subFolder");
+		IFolder folder = createSubFolder(project, "subFolder");
 		IFile file = folder.getFile("Foo" + F_EXT);
 		file.create(new StringInputStream("object Foo"), true, monitor());
 		IFile fileB = folder.getFile("Boo" + F_EXT);
@@ -289,9 +269,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	}
 	
 	@Test public void testDeleteFile() throws Exception {
-		IProject project = workspace.createProject("foo");
+		IProject project = createProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		IFolder folder = workspace.createSubFolder(project, "subFolder");
+		IFolder folder = createSubFolder(project, "subFolder");
 		IFile file = folder.getFile("Foo" + F_EXT);
 		file.create(new StringInputStream("object Foo"), true, monitor());
 		build();
@@ -307,9 +287,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	}
 	
 	@Test public void testCleanBuild() throws Exception {
-		IProject project = workspace.createProject("foo");
+		IProject project = createProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		IFolder folder = workspace.createSubFolder(project, "subFolder");
+		IFolder folder = createSubFolder(project, "subFolder");
 		IFile file = folder.getFile("Foo" + F_EXT);
 		file.create(new StringInputStream("object Foo"), true, monitor());
 		build();
@@ -340,19 +320,19 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	
 	@Test
 	public void testReexportedSource() throws Exception {
-		IJavaProject foo = workspace.createJavaProject("foo");
-		IJavaProject bar = workspace.createJavaProject("bar");
-		IJavaProject baz = workspace.createJavaProject("baz");
+		IJavaProject foo = createJavaProject("foo");
+		IJavaProject bar = createJavaProject("bar");
+		IJavaProject baz = createJavaProject("baz");
 		addNature(foo.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(bar.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(baz.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = foo.getProject().getFile("foo.jar");
 		file.create(JavaProjectSetupUtil.jarInputStream(new TextFile("foo/Foo"+F_EXT, "object Foo")), true, monitor());
 		IClasspathEntry newLibraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null,true);
-		workspace.addToClasspath(foo, newLibraryEntry);
-		workspace.addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
-		workspace.addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
-		workspace.addSourceFolder(baz, "src");
+		addToClasspath(foo, newLibraryEntry);
+		addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
+		addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
+		addSourceFolder(baz, "src");
 		IFile bazFile = createFile("baz/src/Baz"+F_EXT, "object Baz references Foo");
 		build();
 		assertEquals(0,countMarkers(bazFile));
@@ -370,22 +350,22 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	@Ignore("TODO fix https://github.com/eclipse/xtext-eclipse/issues/400")
 	@Test
 	public void testNewlyAddedReexportedSource() throws Exception {
-		IJavaProject foo = workspace.createJavaProject("foo");
-		IJavaProject bar = workspace.createJavaProject("bar");
-		IJavaProject baz = workspace.createJavaProject("baz");
+		IJavaProject foo = createJavaProject("foo");
+		IJavaProject bar = createJavaProject("bar");
+		IJavaProject baz = createJavaProject("baz");
 		addNature(foo.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(bar.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(baz.getProject(), XtextProjectHelper.NATURE_ID);
-		workspace.addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
-		workspace.addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
-		workspace.addSourceFolder(baz, "src");
+		addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
+		addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
+		addSourceFolder(baz, "src");
 		IFile bazFile = createFile("baz/src/Baz"+F_EXT, "object Baz references Foo");
 		build();
 		assertEquals(1,countMarkers(bazFile));
 		IFile file = foo.getProject().getFile("foo.jar");
 		file.create(JavaProjectSetupUtil.jarInputStream(new TextFile("foo/Foo"+F_EXT, "object Foo")), true, monitor());
 		IClasspathEntry newLibraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null,true);
-		workspace.addToClasspath(foo, newLibraryEntry);
+		addToClasspath(foo, newLibraryEntry);
 		build();
 		assertEquals(0,countMarkers(bazFile));
 	}
@@ -394,23 +374,23 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	@Ignore("TODO fix https://github.com/eclipse/xtext-eclipse/issues/400")
 	@Test
 	public void testReexportedJarRemoved() throws Exception {
-		IJavaProject foo = workspace.createJavaProject("foo");
-		IJavaProject bar = workspace.createJavaProject("bar");
-		IJavaProject baz = workspace.createJavaProject("baz");
+		IJavaProject foo = createJavaProject("foo");
+		IJavaProject bar = createJavaProject("bar");
+		IJavaProject baz = createJavaProject("baz");
 		addNature(foo.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(bar.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(baz.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = foo.getProject().getFile("foo.jar");
 		file.create(JavaProjectSetupUtil.jarInputStream(new TextFile("foo/Foo"+F_EXT, "object Foo")), true, monitor());
 		IClasspathEntry newLibraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null,true);
-		workspace.addToClasspath(foo, newLibraryEntry);
-		workspace.addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
-		workspace.addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
-		workspace.addSourceFolder(baz, "src");
+		addToClasspath(foo, newLibraryEntry);
+		addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
+		addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
+		addSourceFolder(baz, "src");
 		IFile bazFile = createFile("baz/src/Baz"+F_EXT, "object Baz references Foo");
 		build();
 		assertEquals(0,countMarkers(bazFile));
-		workspace.deleteClasspathEntry(foo, newLibraryEntry.getPath());
+		deleteClasspathEntry(foo, newLibraryEntry.getPath());
 		build();
 		assertEquals(1, countMarkers(bazFile));
 		assertEquals(1, countResourcesInIndex());
@@ -420,25 +400,25 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	
 	@Test
 	public void testJarOnTwoProjectsRemovedFromOne() throws Exception {
-		IJavaProject foo = workspace.createJavaProject("foo");
-		IJavaProject bar = workspace.createJavaProject("bar");
-		IJavaProject baz = workspace.createJavaProject("baz");
+		IJavaProject foo = createJavaProject("foo");
+		IJavaProject bar = createJavaProject("bar");
+		IJavaProject baz = createJavaProject("baz");
 		addNature(foo.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(bar.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(baz.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = foo.getProject().getFile("foo.jar");
 		file.create(JavaProjectSetupUtil.jarInputStream(new TextFile("foo/Foo"+F_EXT, "object Foo")), true, monitor());
 		IClasspathEntry newLibraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null,true);
-		workspace.addToClasspath(foo, newLibraryEntry);
-		workspace.addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
-		workspace.addToClasspath(bar, JavaCore.newLibraryEntry(file.getFullPath(), null, null,true));
-		workspace.addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
-		workspace.addSourceFolder(baz, "src");
+		addToClasspath(foo, newLibraryEntry);
+		addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
+		addToClasspath(bar, JavaCore.newLibraryEntry(file.getFullPath(), null, null,true));
+		addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
+		addSourceFolder(baz, "src");
 		IFile bazFile = createFile("baz/src/Baz"+F_EXT, "object Baz references Foo");
 		build();
 		assertEquals(0,countMarkers(bazFile));
 		assertEquals(2, countResourcesInIndex());
-		workspace.deleteClasspathEntry(foo, newLibraryEntry.getPath());
+		deleteClasspathEntry(foo, newLibraryEntry.getPath());
 		build();
 		assertEquals(0,countMarkers(bazFile));
 		assertEquals(2, countResourcesInIndex());
@@ -446,9 +426,9 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	
 	@Test
 	public void testFullBuild() throws Exception {
-		IProject project = workspace.createProject("foo");
+		IProject project = createProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		workspace.createProject("bar");
+		createProject("bar");
 		build();
 		assertEquals(0, countResourcesInIndex());
 		createFile("bar/bar"+F_EXT, "objekt Foo ");
@@ -459,7 +439,7 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 		assertEquals(1, countResourcesInIndex());
 
 		getBuilderState().addListener(this);
-		workspace.fullBuild();
+		fullBuild();
 		assertEquals(1, countResourcesInIndex());
 		assertEquals(1,getEvents().size());
 	}
@@ -470,16 +450,16 @@ public class SimpleProjectsIntegrationTest extends AbstractBuilderTest {
 	
 	@Test
 	public void testEvents() throws Exception {
-		IJavaProject xtextProject = workspace.createJavaProject("xtextProject");
+		IJavaProject xtextProject = createJavaProject("xtextProject");
 		addNature(xtextProject.getProject(), XtextProjectHelper.NATURE_ID);
-		IProject projectWithJarFile = workspace.createProject("projectWithJar");
+		IProject projectWithJarFile = createProject("projectWithJar");
 		IFile jarFile = projectWithJarFile.getFile("jarFile.jar");
 		jarFile.create(JavaProjectSetupUtil.jarInputStream(new TextFile("inJar/Bar"+F_EXT, "object InJar")), true, monitor());
 		jarFile.setLocalTimeStamp(100L);
-		workspace.addJarToClasspath(xtextProject, jarFile);
+		addJarToClasspath(xtextProject, jarFile);
 		projectWithJarFile.delete(true, monitor());
 		build();
-		workspace.assertEmptyIndex();
+		assertEmptyIndex();
 	}
 	
 }

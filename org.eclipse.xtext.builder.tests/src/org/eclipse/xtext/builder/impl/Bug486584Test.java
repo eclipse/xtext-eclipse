@@ -8,6 +8,7 @@
 package org.eclipse.xtext.builder.impl;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class Bug486584Test extends AbstractBuilderTest {
 		getEvents().clear();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		workspace.addToClasspath(project, libraryEntry);
+		addToClasspath(project, libraryEntry);
 		assertEquals(1, getEvents().size());
 		Event singleEvent = getEvents().get(0);
 		ImmutableList<Delta> deltas = singleEvent.getDeltas();
@@ -74,8 +75,8 @@ public class Bug486584Test extends AbstractBuilderTest {
 		getEvents().clear();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertEquals(1, getEvents().size());
 		Event singleEvent = getEvents().get(0);
 		ImmutableList<Delta> deltas = singleEvent.getDeltas();
@@ -93,7 +94,7 @@ public class Bug486584Test extends AbstractBuilderTest {
 
 			}
 		}
-		workspace.build();
+		build();
 		assertEquals(0, getEvents().size());
 	}
 
@@ -102,14 +103,14 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IJavaProject project = setupProject();
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(libaryFile.getFullPath(), null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 
 		libaryFile.touch(null);
 		libaryFile.refreshLocal(IResource.DEPTH_INFINITE, null);
-		workspace.build();
+		build();
 		assertEquals(1, getEvents().size());
 		Event singleEvent = getEvents().get(0);
 		ImmutableList<Delta> deltas = singleEvent.getDeltas();
@@ -124,13 +125,13 @@ public class Bug486584Test extends AbstractBuilderTest {
 		File file = rawLocation.toFile();
 		Assert.assertTrue(file.setLastModified(10));
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 		Assert.assertTrue(file.setLastModified(System.currentTimeMillis()));
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		workspace.build();
+		build();
 		assertEquals(1, getEvents().size());
 	}
 	
@@ -142,14 +143,14 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IPath rawLocation = libraryFile.getRawLocation();
 		libraryFile.setLocalTimeStamp(10L);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 		libraryFile.setLocalTimeStamp(System.currentTimeMillis());
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		// refresh -> full build
-		workspace.build();
+		build();
 		assertEquals(1, getEvents().size());
 	}
 	
@@ -159,14 +160,14 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IFile libaryFile = copyAndGetXtendExampleJar(project);
 		IPath rawLocation = libaryFile.getRawLocation();
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 		project.setRawClasspath(project.getRawClasspath(), null);
 		project.getProject().getFile("src/dummy.txt").create(new StringInputStream(""), false, null);
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		workspace.build();
+		build();
 		assertEquals(0, getEvents().size());
 	}
 	
@@ -177,13 +178,13 @@ public class Bug486584Test extends AbstractBuilderTest {
 		IPath rawLocation = libraryFile.getRawLocation();
 		libraryFile.setLocalTimeStamp(10L);
 		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(rawLocation, null, null);
-		workspace.addToClasspath(project, libraryEntry);
-		workspace.build();
+		addToClasspath(project, libraryEntry);
+		build();
 		assertFalse(getEvents().isEmpty());
 		getEvents().clear();
 		libraryFile.setLocalTimeStamp(System.currentTimeMillis());
 		// no refresh -> no full build
-		workspace.build();
+		build();
 		assertEquals(0, getEvents().size());
 	}
 	
@@ -198,9 +199,9 @@ public class Bug486584Test extends AbstractBuilderTest {
 	}
 
 	private IJavaProject setupProject() throws CoreException {
-		IJavaProject project = workspace.createJavaProject(PROJECT_NAME + projectCounter++);
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		workspace.addBuilder(project.getProject(), XtextProjectHelper.BUILDER_ID);
+		IJavaProject project = createJavaProject(PROJECT_NAME + projectCounter++);
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		addBuilder(project.getProject(), XtextProjectHelper.BUILDER_ID);
 		IFolder folder = project.getProject().getFolder(SRC_FOLDER);
 		addFile(folder, "source", "namespace bar { object B }");
 		return project;
@@ -208,8 +209,8 @@ public class Bug486584Test extends AbstractBuilderTest {
 
 	private void addFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.create(new StringInputStream(content), true, workspace.monitor());
-		workspace.build();
+		file.create(new StringInputStream(content), true, monitor());
+		build();
 	}
 
 }

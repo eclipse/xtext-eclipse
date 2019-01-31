@@ -64,12 +64,12 @@ public abstract class AbstractBuilderParticipantTest extends AbstractBuilderTest
 	protected void createTwoReferencedProjects() throws CoreException {
 		IJavaProject firstProject = createJavaProjectWithRootSrc("first");
 		IJavaProject secondProject = createJavaProjectWithRootSrc("second");
-		workspace.addProjectReference(secondProject, firstProject);
+		addProjectReference(secondProject, firstProject);
 	}
 
 	protected IJavaProject createJavaProjectWithRootSrc(String string) throws CoreException {
-		IJavaProject project = workspace.createJavaProject(string);
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = createJavaProject(string);
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		return project;
 	}
 
@@ -79,7 +79,7 @@ public abstract class AbstractBuilderParticipantTest extends AbstractBuilderTest
 	}
 
 	protected String getNonDefaultEncoding() throws CoreException {
-		String defaultCharset = workspace.root().getDefaultCharset();
+		String defaultCharset = root().getDefaultCharset();
 		if (equal(defaultCharset, "UTF-8")) {
 			return "ISO-8859-1";
 		} else {
@@ -119,10 +119,6 @@ public abstract class AbstractBuilderParticipantTest extends AbstractBuilderTest
 			initializer.setOutputConfigurationProvider(new OutputConfigurationProvider());
 			initializer.initialize(preferenceStoreAccess);
 		}
-	}
-	
-	protected void waitForBuild() {
-		workspace.build();
 	}
 
 }

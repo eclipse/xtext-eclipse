@@ -9,6 +9,7 @@ package org.eclipse.xtext.builder.impl;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
 import static org.eclipse.xtext.ui.testing.util.JavaProjectSetupUtil.*;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -70,28 +71,8 @@ public class IntegrationTest extends AbstractBuilderTest {
 		getBuilderState().removeListener(this);
 	}
 
-	protected IFile createFile(String wsRelativePath, String content) {
-		return workspace.createFile(wsRelativePath, content);
-	}
-	
-	protected void addNature(IProject project, String natureId) {
-		workspace.addNature(project, natureId);
-	}
-	
-	protected void removeNature(IProject project, String natureId) {
-		workspace.removeNature(project, natureId);
-	}
-	
-	protected IProgressMonitor monitor() {
-		return workspace.monitor();
-	}
-	
-	protected void build() {
-		workspace.build();
-	}
-
 	private IJavaProject createJavaProjectWithRootSrc(String string) throws CoreException {
-		IJavaProject project = workspace.createJavaProject(string);
+		IJavaProject project = createJavaProject(string);
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		return project;
 	}
@@ -239,7 +220,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 		build();
 		assertEquals(printMarkers(foo_file), 0, countMarkers(foo_file));
 		assertEquals(printMarkers(bar_file), 1, countMarkers(bar_file));
-		workspace.addProjectReference(bar_project, foo_project);
+		addProjectReference(bar_project, foo_project);
 		build();
 		assertEquals(printMarkers(foo_file), 0, countMarkers(foo_file));
 		assertEquals(printMarkers(bar_file), 1, countMarkers(bar_file));
@@ -255,7 +236,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 		foo_file = createFile("foo/src/foo" + F_EXT, "object Foo ");
 		bar_file = createFile("bar/src/bar" + F_EXT, "object Bar references Foo");
 		build();
-		workspace.addProjectReference(bar_project, foo_project);
+		addProjectReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(0, countMarkers(bar_file));
@@ -263,9 +244,9 @@ public class IntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testTwoFilesInTwoInversedReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		workspace.removeProjectReference(bar_project, foo_project);
+		removeProjectReference(bar_project, foo_project);
 		build();
-		workspace.addProjectReference(foo_project, bar_project);
+		addProjectReference(foo_project, bar_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(1, countMarkers(bar_file));
@@ -273,7 +254,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testTwoFilesInTwoNonReferencedProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
-		workspace.removeProjectReference(bar_project, foo_project);
+		removeProjectReference(bar_project, foo_project);
 
 		build();
 		assertEquals(0, countMarkers(foo_file));
@@ -283,12 +264,12 @@ public class IntegrationTest extends AbstractBuilderTest {
 	@Test public void testChangeReferenceOfProjects() throws Exception {
 		createTwoFilesInTwoReferencedProjects();
 
-		workspace.removeProjectReference(bar_project, foo_project);
+		removeProjectReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(1, countMarkers(bar_file));
 
-		workspace.addProjectReference(bar_project, foo_project);
+		addProjectReference(bar_project, foo_project);
 		build();
 		assertEquals(0, countMarkers(foo_file));
 		assertEquals(0, countMarkers(bar_file));
@@ -338,7 +319,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testUpdateOfReferencedFile() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
@@ -375,7 +356,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testDeleteFile() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
@@ -393,7 +374,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testCleanBuild() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
@@ -440,17 +421,17 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testFileInJar() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = project.getProject().getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		assertEquals(0, countResourcesInIndex());
-		workspace.addJarToClasspath(project, file);
+		addJarToClasspath(project, file);
 		assertEquals(1, countResourcesInIndex());
 	}
 
 	@Test public void testTwoJars() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = project.getProject().getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
@@ -459,24 +440,24 @@ public class IntegrationTest extends AbstractBuilderTest {
 				jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo"), new TextFile("foo/Bar2" + F_EXT,
 						"object Bar references Foo")), true, monitor());
 
-		workspace.addJarToClasspath(project, file);
-		workspace.addJarToClasspath(project, file2);
+		addJarToClasspath(project, file);
+		addJarToClasspath(project, file2);
 		assertEquals(3, countResourcesInIndex());
 	}
 
 	@Test public void testReexportedSource() throws Exception {
-		IJavaProject foo = workspace.createJavaProject("foo");
-		IJavaProject bar = workspace.createJavaProject("bar");
-		IJavaProject baz = workspace.createJavaProject("baz");
+		IJavaProject foo = createJavaProject("foo");
+		IJavaProject bar = createJavaProject("bar");
+		IJavaProject baz = createJavaProject("baz");
 		addNature(foo.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(bar.getProject(), XtextProjectHelper.NATURE_ID);
 		addNature(baz.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = foo.getProject().getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Foo" + F_EXT, "object Foo")), true, monitor());
 		IClasspathEntry newLibraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null, true);
-		workspace.addToClasspath(foo, newLibraryEntry);
-		workspace.addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
-		workspace.addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
+		addToClasspath(foo, newLibraryEntry);
+		addToClasspath(bar, JavaCore.newProjectEntry(foo.getPath(), true));
+		addToClasspath(baz, JavaCore.newProjectEntry(bar.getPath(), false));
 		IFile bazFile = createFile("baz/src/Baz" + F_EXT, "object Baz references Foo");
 		build();
 		assertEquals(0, countMarkers(bazFile));
@@ -493,22 +474,18 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testFullBuild() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IProject someProject = createProject("bar");
 		IFile file = someProject.getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		assertEquals(0, countResourcesInIndex());
-		workspace.addJarToClasspath(project, file);
+		addJarToClasspath(project, file);
 		assertEquals(1, countResourcesInIndex());
 		getBuilderState().addListener(this);
-		workspace.fullBuild();
+		fullBuild();
 		assertEquals(1, countResourcesInIndex());
 		assertEquals(1, getEvents().size());
-	}
-
-	private IProject createProject(String name) {
-		return workspace.createProject(name);
 	}
 
 	private int countMarkers(IFile file) throws CoreException {
@@ -516,16 +493,16 @@ public class IntegrationTest extends AbstractBuilderTest {
 	}
 
 	@Test public void testEvents() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IProject someProject = createProject("bar");
 		IFile file = someProject.getFile("foo.jar");
 		file.create(jarInputStream(new TextFile("foo/Bar" + F_EXT, "object Foo")), true, monitor());
 		file.setLocalTimeStamp(100L);
-		workspace.addJarToClasspath(project, file);
+		addJarToClasspath(project, file);
 		someProject.delete(true, monitor());
-		workspace.build();
-		workspace.assertEmptyIndex();
+		build();
+		assertEmptyIndex();
 	}
 
 	@Test public void testIgnoreFilesInOutputFolder() throws Exception {
@@ -626,7 +603,7 @@ public class IntegrationTest extends AbstractBuilderTest {
 
 	@Test public void testBug342875() throws Exception {
 
-		IJavaProject project = workspace.createJavaProject("foo");
+		IJavaProject project = createJavaProject("foo");
 		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFile file = createFile("foo/src/foo" + F_EXT, "objekt Foo ");
 		ResourceAttributes resourceAttributes = file.getResourceAttributes();

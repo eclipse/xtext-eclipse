@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Field;
 
 import org.eclipse.core.internal.events.BuildManager;
@@ -42,16 +44,16 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 	/** see https://bugs.eclipse.org/bugs/show_bug.cgi?id=325814 */
 	@Test 
 	public void testCancellationTriggersFullBuild() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = createJavaProject("foo");
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
-		workspace.build();
+		file.create(new StringInputStream("object Foo"), true, monitor());
+		build();
 		reset();
 		cancel(false);
 		try {
-			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, workspace.monitor());
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, monitor());
 			fail("Expected OperationCanceledException");
 		} catch (OperationCanceledException e) {
 			assertSame(cancelException, e);
@@ -60,8 +62,8 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 		}
 		reset();
 		ResourcesPlugin.getWorkspace().build(
-				IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
-		workspace.build();
+				IncrementalProjectBuilder.AUTO_BUILD, monitor());
+		build();
 		assertEquals(1, getInvocationCount());
 		assertSame(BuildType.FULL, getContext().getBuildType());
 		reset();
@@ -72,23 +74,23 @@ public class BuildCancellationTest extends AbstractParticipatingBuilderTest {
 	 */
 	@Test
 	public void testInterruptionTriggersIncrementalBuild() throws Exception {
-		IJavaProject project = workspace.createJavaProject("foo");
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
-		workspace.build();
+		IJavaProject project = createJavaProject("foo");
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		build();
 		cancel(true);
 		IFolder folder = project.getProject().getFolder("src");
 		try {
 			IFile file = folder.getFile("Foo" + F_EXT);
-			file.create(new StringInputStream("object Foo"), true, workspace.monitor());
+			file.create(new StringInputStream("object Foo"), true, monitor());
 			ResourcesPlugin.getWorkspace().build(
-					IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
+					IncrementalProjectBuilder.AUTO_BUILD, monitor());
 		} catch (OperationCanceledException e) {
 			// thrown by a different builder
 			assertNotSame(cancelException, e);
 		}
 		reset();
 		ResourcesPlugin.getWorkspace().build(
-				IncrementalProjectBuilder.AUTO_BUILD, workspace.monitor());
+				IncrementalProjectBuilder.AUTO_BUILD, monitor());
 		assertEquals(1, getInvocationCount());
 		if (isCoreResources_3_7_orLater()) {
 			assertSame(BuildType.INCREMENTAL, getContext().getBuildType());

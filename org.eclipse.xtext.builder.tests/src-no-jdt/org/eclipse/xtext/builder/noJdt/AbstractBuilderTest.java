@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.xtext.builder.tests.SharedInjectorProvider;
 import org.eclipse.xtext.resource.IResourceDescription;
@@ -78,9 +79,36 @@ public abstract class AbstractBuilderTest extends Assert implements IResourceDes
 		return buff.toString();
 	}
 	
-	protected IProject createEmptyProject(String string) {
-		IProject project = workspace.createProject(string);
-		workspace.addNature(project, XtextProjectHelper.NATURE_ID);
-		return project;
+	protected IProject createEmptyXtextProject(String string) {
+		return workspace.createEmptyXtextProject(string);
 	}
+	
+	protected void build() {
+		workspace.build();
+	}
+
+	protected IFile createFile(String wsRelativePath, String content) {
+		return workspace.createFile(wsRelativePath, content);
+	}
+
+	protected void removeNature(IProject project, String natureId) {
+		workspace.removeNature(project, natureId);
+	}
+	
+	protected void removeXtextNature(IProject project) {
+		removeNature(project, XtextProjectHelper.NATURE_ID);
+	}
+
+	protected void addNature(IProject project, String natureId) {
+		workspace.addNature(project, natureId);
+	}
+	
+	protected void addXtextNature(IProject project) {
+		addNature(project, XtextProjectHelper.NATURE_ID);
+	}
+
+	protected IProgressMonitor monitor() {
+		return workspace.monitor();
+	}
+	
 }

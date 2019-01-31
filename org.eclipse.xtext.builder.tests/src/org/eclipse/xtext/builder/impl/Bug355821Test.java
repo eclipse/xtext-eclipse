@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
@@ -33,7 +35,7 @@ public class Bug355821Test extends AbstractParticipatingBuilderTest {
 	
 	@Test public void testBuildIsInvokedOnlyOnceWhenManifestChanges() throws Exception {
 		IProject fooProject = createPluginProject("Foo");
-		workspace.build();
+		build();
 		
 		IFile manifestFile = fooProject.getFile("META-INF/MANIFEST.MF");
 		String manifestContent = "Manifest-Version: 1.0\n";
@@ -49,8 +51,8 @@ public class Bug355821Test extends AbstractParticipatingBuilderTest {
 		// Remove this one implies a change of build.properties
 //		manifestContent += "Bundle-RequiredExecutionEnvironment: JavaSE-1.8\n";
 		reset();
-		manifestFile.setContents(new StringInputStream(manifestContent), true, true, workspace.monitor());
-		workspace.build();
+		manifestFile.setContents(new StringInputStream(manifestContent), true, true, monitor());
+		build();
 		assertEquals(1, getInvocationCount());
 	}
 	

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
@@ -61,24 +63,24 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 	
 	@Test public void testParticipantInvoked() throws Exception {
 		startLogging();
-		IJavaProject project = workspace.createJavaProject("foo");
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = createJavaProject("foo");
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
+		file.create(new StringInputStream("object Foo"), true, monitor());
 		build();
 		assertTrue(0 < getInvocationCount());
 		validateContexts();
 		reset();
 		
-		file.delete(true, workspace.monitor());
+		file.delete(true, monitor());
 		build();
 		assertEquals(1, getInvocationCount());
 		assertSame(BuildType.INCREMENTAL, getContext().getBuildType());
 		validateContexts();
 		reset();
 		
-		project.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, workspace.monitor());
+		project.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, monitor());
 		assertSame(BuildType.CLEAN, getContext().getBuildType());
 		build();
 		assertEquals(1, getInvocationCount());
@@ -86,7 +88,7 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 		validateContexts();
 		reset();
 		
-		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, workspace.monitor());
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, monitor());
 		assertEquals(0, getInvocationCount());
 		validateContexts();
 		reset();
@@ -100,11 +102,11 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 
 	@Test public void testTwoFilesInTwoReferencedProjects() throws Exception {
 		createTwoReferencedProjects();
-		IFile firstFile = workspace.createFile("first/src/first"+F_EXT, "object First ");
-		workspace.createFile("second/src/second"+F_EXT, "object Second references First");
+		IFile firstFile = createFile("first/src/first"+F_EXT, "object First ");
+		createFile("second/src/second"+F_EXT, "object Second references First");
 		build();
 		startLogging();
-		firstFile.setContents(new StringInputStream("object Modified "), true, true, workspace.monitor());
+		firstFile.setContents(new StringInputStream("object Modified "), true, true, monitor());
 		build();
 		validateContexts();
 		assertEquals(2, getInvocationCount());
@@ -113,17 +115,13 @@ public class XtextBuilderParticipantTest extends AbstractParticipatingBuilderTes
 	protected void createTwoReferencedProjects() throws CoreException {
 		IJavaProject firstProject = createJavaProjectWithRootSrc("first");
 		IJavaProject secondProject = createJavaProjectWithRootSrc("second");
-		workspace.addProjectReference(secondProject, firstProject);
+		addProjectReference(secondProject, firstProject);
 	}
 	
 	protected IJavaProject createJavaProjectWithRootSrc(String string) throws CoreException {
-		IJavaProject project = workspace.createJavaProject(string);
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+		IJavaProject project = createJavaProject(string);
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		return project;
-	}
-	
-	protected void build() {
-		workspace.build();
 	}
 	
 }

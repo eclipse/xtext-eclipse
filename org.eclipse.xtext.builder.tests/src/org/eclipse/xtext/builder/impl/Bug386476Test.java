@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,17 +26,17 @@ public class Bug386476Test extends AbstractParticipatingBuilderTest {
 	private IJavaProject javaProject;
 
 	@Before
-	public void createProject() throws Exception {
-		javaProject = workspace.createJavaProject("BuilderDisabled");
-		workspace.addNature(javaProject.getProject(), XtextProjectHelper.NATURE_ID);
-		workspace.build();
+	public void createProjectUnderTest() throws Exception {
+		javaProject = createJavaProject("BuilderDisabled");
+		addNature(javaProject.getProject(), XtextProjectHelper.NATURE_ID);
+		build();
 	}
 
 	@Test
 	public void testBuildIsNotInvokedWhenBuilderIsDisabled() throws Exception {
 		IProject project = javaProject.getProject();
 		IFile file = createSomeBuilderRelatedFile(project);
-		workspace.build();
+		build();
 		startLogging();
 
 		// With Xtext Builder activated builder is invoked
@@ -42,28 +44,28 @@ public class Bug386476Test extends AbstractParticipatingBuilderTest {
 		assertEquals("Xtext builder is triggered.", 1, getInvocationCount());
 
 		// Disable/remove Xtext builder
-		workspace.removeBuilder(project, XtextProjectHelper.BUILDER_ID);
+		removeBuilder(project, XtextProjectHelper.BUILDER_ID);
 		reset();
 
 		// With Xtext Builder activated builder is not invoked
 		stimulateBuildSchedulerTrigger(project);
 		assertEquals("Xtext builder is triggered but should not, cause was disabled", 0, getInvocationCount());
 		stopLogging();
-		file.delete(true, false, workspace.monitor());
+		file.delete(true, false, monitor());
 	}
 
 	private void stimulateBuildSchedulerTrigger(IProject project) throws CoreException {
-		project.close(workspace.monitor());
-		workspace.build();
-		project.open(workspace.monitor());
-		workspace.build();
+		project.close(monitor());
+		build();
+		project.open(monitor());
+		build();
 	}
 
 	private IFile createSomeBuilderRelatedFile(IProject project) throws CoreException {
 		IFolder folder = project.getProject().getFolder("src");
 		IFile file = folder.getFile("Foo" + F_EXT);
-		file.create(new StringInputStream("object Foo"), true, workspace.monitor());
-		workspace.build();
+		file.create(new StringInputStream("object Foo"), true, monitor());
+		build();
 		return file;
 	}
 }

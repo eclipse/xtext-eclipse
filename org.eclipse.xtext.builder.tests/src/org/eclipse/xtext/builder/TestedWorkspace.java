@@ -9,17 +9,23 @@ package org.eclipse.xtext.builder;
 
 import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.function.Function;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.intro.IIntroManager;
 import org.eclipse.xtext.builder.impl.ProjectOpenedOrClosedListener;
 import org.eclipse.xtext.resource.IResourceDescription;
@@ -163,6 +169,46 @@ public abstract class TestedWorkspace extends TestWatcher {
 
 	public IProject createProject() {
 		return createProject(getTestName());
+	}
+	
+	@FunctionalInterface
+	public interface IWorkspaceModifyOperation<T> {
+		void accept(T t) throws CoreException, InvocationTargetException, InterruptedException;
+		
+		default ISchedulingRule getRule() {
+			return IDEWorkbenchPlugin.getPluginWorkspace().getRoot();
+		}
+	}
+	
+	public void run(IWorkspaceModifyOperation<? super IProgressMonitor> op) {
+		try {
+			new WorkspaceModifyOperation(op.getRule()) {
+				@Override
+				protected void execute(IProgressMonitor monitor) throws InvocationTargetException, CoreException, InterruptedException {
+					op.accept(monitor);
+				}
+			}.run(monitor());
+		} catch (InvocationTargetException | InterruptedException e) {
+			Exceptions.throwUncheckedException(e);
+		}
+	}
+	
+	public <Result> Result run(Function<? super IProgressMonitor, ? extends Result> computation) {
+		try {
+			return new WorkspaceModifyOperation() {
+				Result result;
+				@Override
+				protected void execute(IProgressMonitor monitor) {
+					this.result = computation.apply(monitor);
+				}
+				protected Result getResult() throws InvocationTargetException, InterruptedException {
+					run(monitor());
+					return result;
+				}
+			}.getResult();
+		} catch (InvocationTargetException | InterruptedException e) {
+			return Exceptions.throwUncheckedException(e);
+		}
 	}
 
 	public IProject createProject(String name) {

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.xtext.builder.impl;
 
+import static org.junit.Assert.*;
+
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.resources.IFile;
@@ -45,11 +47,11 @@ public class ResourceDescriptionUpdaterTest extends AbstractParticipatingBuilder
 	}
 	
 	@Test public void testIndependentProjects() throws Exception {
-		IFolder folder = createProject(PROJECT1);
+		IFolder folder = createProjectWithXtextNature(PROJECT1);
 		addFile(folder, REFERENCED_FILE_NAME, "namespace bar { object B }");
 		addFile(folder, REFERENCING_FILE_NAME, "namespace foo { object A references bar.B}");
 
-		IFolder folder2 = createProject(PROJECT2);
+		IFolder folder2 = createProjectWithXtextNature(PROJECT2);
 		addFile(folder2, REFERENCED_FILE_NAME, "namespace bar { object B }");
 		addFile(folder2, REFERENCING_FILE_NAME, "namespace foo { object A references bar.B}");
 
@@ -79,19 +81,19 @@ public class ResourceDescriptionUpdaterTest extends AbstractParticipatingBuilder
 
 	private void addFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.create(new StringInputStream(content), true, workspace.monitor());
-		workspace.build();
+		file.create(new StringInputStream(content), true, monitor());
+		build();
 	}
 
 	private void changeFile(IFolder folder, String fileName, String content) throws CoreException {
 		IFile file = folder.getFile(fileName + F_EXT);
-		file.setContents(new StringInputStream(content), IResource.FORCE, workspace.monitor());
-		workspace.build();
+		file.setContents(new StringInputStream(content), IResource.FORCE, monitor());
+		build();
 	}
 
-	private IFolder createProject(String projectName) throws CoreException, JavaModelException {
-		IJavaProject project = workspace.createJavaProject(projectName);
-		workspace.addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
+	private IFolder createProjectWithXtextNature(String projectName) throws CoreException, JavaModelException {
+		IJavaProject project = createJavaProject(projectName);
+		addNature(project.getProject(), XtextProjectHelper.NATURE_ID);
 		IFolder folder = project.getProject().getFolder(SRC_FOLDER);
 		return folder;
 	}

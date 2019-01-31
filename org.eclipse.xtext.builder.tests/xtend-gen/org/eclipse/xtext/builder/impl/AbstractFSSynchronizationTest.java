@@ -43,8 +43,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   
   @Before
   public void createJavaProject() throws Exception {
-    this.project = this.workspace.createJavaProject(AbstractFSSynchronizationTest.PROJECT_NAME).getProject();
-    this.workspace.addNature(this.project, XtextProjectHelper.NATURE_ID);
+    this.project = this.createJavaProject(AbstractFSSynchronizationTest.PROJECT_NAME).getProject();
+    this.addNature(this.project, XtextProjectHelper.NATURE_ID);
   }
   
   @After
@@ -71,10 +71,10 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   protected void testUpdateFileContent(final IContainer output) {
     Path _path = new Path("Foo.txt");
     this.createJavaIoFile(output.getFile(_path).getLocation(), "object Bar");
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Path _path_1 = new Path("Foo.txt");
-    Assert.assertEquals("object Foo", this.workspace.readFile(output.getFile(_path_1)));
+    Assert.assertEquals("object Foo", this.readFile(output.getFile(_path_1)));
   }
   
   @Test
@@ -96,10 +96,10 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   protected void testTouchFile(final IContainer output) {
     Path _path = new Path("Foo.txt");
     this.createJavaIoFile(output.getFile(_path).getLocation(), "object Foo");
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Path _path_1 = new Path("Foo.txt");
-    Assert.assertEquals("object Foo", this.workspace.readFile(output.getFile(_path_1)));
+    Assert.assertEquals("object Foo", this.readFile(output.getFile(_path_1)));
   }
   
   @Test
@@ -120,18 +120,18 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   
   protected void testCreateFile(final IContainer output) {
     try {
-      final IFile file = this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      final IFile file = this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       Path _path = new Path("Foo.txt");
-      Assert.assertEquals("object Foo", this.workspace.readFile(output.getFile(_path)));
+      Assert.assertEquals("object Foo", this.readFile(output.getFile(_path)));
       Path _path_1 = new Path("Foo.txt");
       final File javaIoFile = output.getFile(_path_1).getLocation().toFile();
       javaIoFile.delete();
       javaIoFile.getParentFile().delete();
-      file.touch(this.workspace.monitor());
-      this.workspace.build();
+      file.touch(this.monitor());
+      this.build();
       Path _path_2 = new Path("Foo.txt");
-      Assert.assertEquals("object Foo", this.workspace.readFile(output.getFile(_path_2)));
+      Assert.assertEquals("object Foo", this.readFile(output.getFile(_path_2)));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -156,8 +156,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
   protected void testDeleteTraceFile(final IContainer output) {
     Path _path = new Path(".Foo.txt._trace");
     final File javaIoFile = this.createJavaIoFile(output.getFile(_path).getLocation());
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Assert.assertFalse(javaIoFile.exists());
     Path _path_1 = new Path(".Foo.txt._trace");
     Assert.assertFalse(output.getFile(_path_1).exists());
@@ -172,10 +172,10 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
     final Procedure0 _function_1 = () -> {
       final File srcGenDirectory = this.createJavaIoFile(this.project.getFile("src-gen/Lalala.txt").getLocation()).getParentFile();
       Assert.assertFalse(((List<File>)Conversions.doWrapArray(srcGenDirectory.listFiles())).isEmpty());
-      this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       Assert.assertFalse(((List<File>)Conversions.doWrapArray(srcGenDirectory.listFiles())).isEmpty());
-      this.workspace.cleanBuild();
+      this.cleanBuild();
       Assert.assertTrue(((List<File>)Conversions.doWrapArray(srcGenDirectory.listFiles())).isEmpty());
     };
     this.withOutputConfiguration(_function, _function_1);
@@ -190,12 +190,12 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
     final Procedure0 _function_1 = () -> {
       final File srcGenDirectory = this.project.getFolder("src-gen").getLocation().toFile();
       Assert.assertFalse(srcGenDirectory.exists());
-      this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       Assert.assertTrue(srcGenDirectory.exists());
       Assert.assertFalse(((List<File>)Conversions.doWrapArray(srcGenDirectory.listFiles())).isEmpty());
       this.createJavaIoFile(this.project.getFile("src-gen/Lalala.txt").getLocation());
-      this.workspace.cleanBuild();
+      this.cleanBuild();
       Assert.assertTrue(srcGenDirectory.exists());
       Assert.assertTrue(((List<File>)Conversions.doWrapArray(srcGenDirectory.listFiles())).isEmpty());
     };
@@ -213,11 +213,11 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       final File projectDirectory = this.project.getLocation().toFile();
       final int initialSize = ((List<File>)Conversions.doWrapArray(projectDirectory.listFiles())).size();
       Assert.assertNotEquals(0, initialSize);
-      this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       final int expectedSize = ((List<File>)Conversions.doWrapArray(projectDirectory.listFiles())).size();
       Assert.assertNotEquals(initialSize, expectedSize);
-      this.workspace.cleanBuild();
+      this.cleanBuild();
       Assert.assertEquals(expectedSize, ((List<File>)Conversions.doWrapArray(projectDirectory.listFiles())).size());
     };
     this.withOutputConfiguration(_function, _function_1);
@@ -291,15 +291,15 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
     Path _path = new Path("Lalala.txt");
     final File ouputDirectory = this.createJavaIoFile(output.getFile(_path).getLocation()).getParentFile();
     final int expectedSize = ((List<String>)Conversions.doWrapArray(ouputDirectory.list())).size();
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(ouputDirectory.list())).size());
     final Runnable _function = () -> {
-      this.workspace.cleanBuild();
+      this.cleanBuild();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(ouputDirectory.list())).size());
       Assert.assertTrue(((List<String>)Conversions.doWrapArray(ouputDirectory.list())).contains("Lalala.txt"));
     };
-    this.workspace.disableAutobuild(_function);
+    this.disableAutobuild(_function);
   }
   
   protected void testCleanUpDerivedResourcesWithCreateBetween(final IContainer output) {
@@ -312,19 +312,19 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       _xifexpression = 0;
     }
     final int initialSize = _xifexpression;
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Assert.assertTrue(outputDirectory.exists());
     Assert.assertNotEquals(initialSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     final Runnable _function = () -> {
       Path _path = new Path("Lalala.txt");
       this.createJavaIoFile(output.getFile(_path).getLocation());
       final int expectedSize = (initialSize + 1);
-      this.workspace.cleanBuild();
+      this.cleanBuild();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
       Assert.assertTrue(((List<String>)Conversions.doWrapArray(outputDirectory.list())).contains("Lalala.txt"));
     };
-    this.workspace.disableAutobuild(_function);
+    this.disableAutobuild(_function);
   }
   
   protected void testCleanUpDerivedResourcesWithUpdateDerived(final IContainer output) {
@@ -337,8 +337,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       _xifexpression = 0;
     }
     final int expectedSize = _xifexpression;
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     final Runnable _function = () -> {
       try {
@@ -353,14 +353,14 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
             Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
             return Status.OK_STATUS;
           }
-        }.run(this.workspace.monitor());
-        this.workspace.cleanBuild();
+        }.run(this.monitor());
+        this.cleanBuild();
         Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
       } catch (Throwable _e) {
         throw Exceptions.sneakyThrow(_e);
       }
     };
-    this.workspace.disableAutobuild(_function);
+    this.disableAutobuild(_function);
   }
   
   protected void testCleanUpDerivedResourcesWithDeleteDerived(final IContainer output) {
@@ -373,8 +373,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
       _xifexpression = 0;
     }
     final int expectedSize = _xifexpression;
-    this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-    this.workspace.build();
+    this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+    this.build();
     Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     final Runnable _function = () -> {
       Path _path = new Path("Foo.txt");
@@ -386,11 +386,11 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
           Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
           return Status.OK_STATUS;
         }
-      }.run(this.workspace.monitor());
-      this.workspace.cleanBuild();
+      }.run(this.monitor());
+      this.cleanBuild();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     };
-    this.workspace.disableAutobuild(_function);
+    this.disableAutobuild(_function);
   }
   
   @Test
@@ -420,8 +420,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
         _xifexpression = 0;
       }
       final int expectedSize = _xifexpression;
-      final IFile sourceFile = this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      final IFile sourceFile = this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
@@ -434,9 +434,9 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
           Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
           return Status.OK_STATUS;
         }
-      }.run(this.workspace.monitor());
-      sourceFile.delete(false, this.workspace.monitor());
-      this.workspace.build();
+      }.run(this.monitor());
+      sourceFile.delete(false, this.monitor());
+      this.build();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
@@ -470,8 +470,8 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
         _xifexpression = 0;
       }
       final int expectedSize = _xifexpression;
-      final IFile sourceFile = this.workspace.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
-      this.workspace.build();
+      final IFile sourceFile = this.createFile(this.project.getFile(("src/Foo" + this.F_EXT)).getFullPath(), "object Foo");
+      this.build();
       Assert.assertNotEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
       Path _path = new Path("Foo.txt");
       final IFile file = output.getFile(_path);
@@ -484,9 +484,9 @@ public abstract class AbstractFSSynchronizationTest extends AbstractBuilderParti
           Assert.assertFalse(AbstractFSSynchronizationTest.this.isSynchronized(file));
           return Status.OK_STATUS;
         }
-      }.run(this.workspace.monitor());
-      sourceFile.delete(false, this.workspace.monitor());
-      this.workspace.build();
+      }.run(this.monitor());
+      sourceFile.delete(false, this.monitor());
+      this.build();
       Assert.assertEquals(expectedSize, ((List<String>)Conversions.doWrapArray(outputDirectory.list())).size());
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
