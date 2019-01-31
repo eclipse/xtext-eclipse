@@ -18,6 +18,8 @@ import com.google.inject.Inject;
 
 /**
  * @author Sebastian Zarnekow - Initial contribution and API
+ * 
+ * @since 2.17
  */
 @Beta
 public class TestedWorkspaceWithoutJdt extends TestedWorkspace {

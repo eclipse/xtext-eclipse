@@ -42,6 +42,8 @@ import com.google.common.collect.Lists;
 
 /**
  * @author Sebastian Zarnekow - Initial contribution and API
+ * 
+ * @since 2.17
  */
 @Beta
 public abstract class TestedWorkspace extends TestWatcher {
