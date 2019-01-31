@@ -11,7 +11,6 @@ import static org.eclipse.xtext.builder.impl.BuilderUtil.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.function.Function;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -174,15 +173,15 @@ public abstract class TestedWorkspace extends TestWatcher {
 	}
 	
 	@FunctionalInterface
-	public interface IWorkspaceModifyOperation<T> {
-		void accept(T t) throws CoreException, InvocationTargetException, InterruptedException;
+	public interface IWorkspaceModifyOperation {
+		void accept(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException;
 		
 		default ISchedulingRule getRule() {
 			return IDEWorkbenchPlugin.getPluginWorkspace().getRoot();
 		}
 	}
 	
-	public void run(IWorkspaceModifyOperation<? super IProgressMonitor> op) {
+	public void run(IWorkspaceModifyOperation op) {
 		try {
 			new WorkspaceModifyOperation(op.getRule()) {
 				@Override
@@ -195,13 +194,22 @@ public abstract class TestedWorkspace extends TestWatcher {
 		}
 	}
 	
-	public <Result> Result run(Function<? super IProgressMonitor, ? extends Result> computation) {
+	@FunctionalInterface
+	public interface IWorkspaceModifyOperationWithResult<Result> {
+		Result compute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException;
+		
+		default ISchedulingRule getRule() {
+			return IDEWorkbenchPlugin.getPluginWorkspace().getRoot();
+		}
+	}
+	
+	public <Result> Result run(IWorkspaceModifyOperationWithResult<? extends Result> op) {
 		try {
-			return new WorkspaceModifyOperation() {
+			return new WorkspaceModifyOperation(op.getRule()) {
 				Result result;
 				@Override
-				protected void execute(IProgressMonitor monitor) {
-					this.result = computation.apply(monitor);
+				protected void execute(IProgressMonitor monitor) throws InvocationTargetException, CoreException, InterruptedException {
+					this.result = op.compute(monitor);
 				}
 				protected Result getResult() throws InvocationTargetException, InterruptedException {
 					run(monitor());

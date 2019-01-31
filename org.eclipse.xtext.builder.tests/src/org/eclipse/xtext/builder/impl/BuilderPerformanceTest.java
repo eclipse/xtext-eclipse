@@ -125,18 +125,20 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 		IJavaProject javaProject1 = createJavaProject(project1name);
 		addJarToClasspath(javaProject1, copyAndGetXtendExampleJar(javaProject1));
 
-		System.out.println("Clean Java first - " + cleanBuildTakes());
-		System.out.println("Clean Java second - " + cleanBuildTakes());
-
+		if (doPrint) {
+			System.out.println("Clean Java first - " + cleanBuildTakes());
+			System.out.println("Clean Java second - " + cleanBuildTakes());
+		}
 		toggleNature(javaProject1);
-
-		System.out.println("Clean Xtext first - " + cleanBuildTakes());
-		//		final Controller controller = new Controller();
-		//		controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
-		System.out.println("Clean Xtext second - " + cleanBuildTakes());
-		System.out.println("Clean Xtext third - " + cleanBuildTakes());
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.stopCPUProfiling();
+		if (doPrint) {
+			System.out.println("Clean Xtext first - " + cleanBuildTakes());
+//			final Controller controller = new Controller();
+//			controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
+			System.out.println("Clean Xtext second - " + cleanBuildTakes());
+			System.out.println("Clean Xtext third - " + cleanBuildTakes());
+//			controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//			controller.stopCPUProfiling();
+		}
 	}
 
 	@Test
@@ -158,36 +160,36 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 			System.out.println("Clean Java second - " + cleanBuildTakes());
 		}
 
-		//		final Controller controller = new Controller();
-		//		controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
+//		final Controller controller = new Controller();
+//		controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
 
 		toggleNature(javaProject1);
 		printAndClearStopwatchData();
 
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.clearCPUData();
+//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//		controller.clearCPUData();
 		//		
 		if (doPrint) {
 			System.out.println("Clean Xtext first - " + cleanBuildTakes());
 		}
 		printAndClearStopwatchData();
 
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.clearCPUData();
+//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//		controller.clearCPUData();
 
 		if (doPrint) {
 			System.out.println("Clean Xtext second - " + cleanBuildTakes());
 		}
 
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.clearCPUData();
+//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//		controller.clearCPUData();
 		if (doPrint) {
 			System.out.println("Clean Xtext third - " + cleanBuildTakes());
 			System.out.println("Clean Xtext fourth - " + cleanBuildTakes());
 			System.out.println("Clean Xtext fifth - " + cleanBuildTakes());
 		}
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.stopCPUProfiling();
+//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//		controller.stopCPUProfiling();
 	}
 
 	@Test
@@ -196,36 +198,39 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 		// create a project with a bunch of jars
 		IProject project1 = createPluginProject(project1name, "org.eclipse.core.runtime", "org.eclipse.core.jobs",
 				"org.eclipse.core.variables", "org.eclipse.debug.core", "org.eclipse.debug.ui",
-				//				"org.eclipse.emf.edit", 
-				//				"org.eclipse.emf.ecore", 
-				//				"org.eclipse.emf.common", 
-				//				"org.eclipse.emf.ecore.xmi", 
+//				"org.eclipse.emf.edit", 
+//				"org.eclipse.emf.ecore", 
+//				"org.eclipse.emf.common", 
+//				"org.eclipse.emf.ecore.xmi", 
 				"org.antlr.generator", "org.eclipse.jdt.ui",
-				//				"org.eclipse.emf.mwe.core", 
+//				"org.eclipse.emf.mwe.core", 
 				"org.eclipse.jdt.core", "org.eclipse.xtext.xbase.lib", "org.eclipse.xtend.lib");
 		IJavaProject javaProject1 = JavaCore.create(project1);
 
-		//		IFile file = javaProject1.getProject().getFile("XtendExample.jar");
-		//		
-		//		InputStream inputStream = CachedJarInfoTest.class.getResourceAsStream("XtendExample.jar");
-		//		file.create(inputStream, IResource.FORCE, null);
-		//		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null);
-		//		addToClasspath(javaProject1, libraryEntry);
+//		IFile file = javaProject1.getProject().getFile("XtendExample.jar");
+//		
+//		InputStream inputStream = CachedJarInfoTest.class.getResourceAsStream("XtendExample.jar");
+//		file.create(inputStream, IResource.FORCE, null);
+//		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null);
+//		addToClasspath(javaProject1, libraryEntry);
 
-		System.out.println("Clean Java first - " + cleanBuildTakes());
-		System.out.println("Clean Java second - " + cleanBuildTakes());
-
+		if (doPrint) {
+			System.out.println("Clean Java first - " + cleanBuildTakes());
+			System.out.println("Clean Java second - " + cleanBuildTakes());
+		}
 		toggleNature(javaProject1);
 
-		System.out.println("Clean Xtext first - " + cleanBuildTakes());
-		//		final Controller controller = new Controller();
-		//		controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
-		System.out.println("Clean Xtext second - " + cleanBuildTakes());
-		System.out.println("Clean Xtext third - " + cleanBuildTakes());
-		System.out.println("Clean Xtext fourth - " + cleanBuildTakes());
-		System.out.println("Clean Xtext fifth - " + cleanBuildTakes());
-		//		controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
-		//		controller.stopCPUProfiling();
+		if (doPrint) {
+			System.out.println("Clean Xtext first - " + cleanBuildTakes());
+//			final Controller controller = new Controller();
+//			controller.startCPUProfiling(ProfilingModes.CPU_TRACING, null, "");
+			System.out.println("Clean Xtext second - " + cleanBuildTakes());
+			System.out.println("Clean Xtext third - " + cleanBuildTakes());
+			System.out.println("Clean Xtext fourth - " + cleanBuildTakes());
+			System.out.println("Clean Xtext fifth - " + cleanBuildTakes());
+//			controller.captureSnapshot(ProfilingModes.SNAPSHOT_WITHOUT_HEAP);
+//			controller.stopCPUProfiling();
+		}
 	}
 
 	private void printAndClearStopwatchData() {
@@ -245,16 +250,18 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	private void toggleNature(IJavaProject javaProject1) {
 		long before = System.currentTimeMillis();
 		new ToggleXtextNatureCommand().toggleNature(javaProject1.getProject());
-		waitForBuild();
-		System.out.println("Toggle Nature - Took " + (System.currentTimeMillis() - before) + "ms");
+		build();
+		if (doPrint) {
+			System.out.println("Toggle Nature - Took " + (System.currentTimeMillis() - before) + "ms");
+		}
 	}
 
 	private String cleanBuildTakes() throws Exception {
-		waitForBuild();
+		build();
 		long before = System.currentTimeMillis();
 		cleanBuild();
 		fullBuild();
-		waitForBuild();
+		build();
 		long after = System.currentTimeMillis();
 		return "Took " + (after - before) + "ms";
 	}
@@ -268,10 +275,6 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 		projectFactory.addRequiredBundles(Arrays.asList(bundleDependencies));
 		IProject result = projectFactory.createProject(new NullProgressMonitor(), null);
 		return result;
-	}
-
-	protected void waitForBuild() {
-		build();
 	}
 
 }
