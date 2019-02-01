@@ -12,6 +12,11 @@ import org.eclipse.xtext.testing.IInjectorProvider;
 import com.google.inject.Injector;
 
 /**
+ * An injector provider that allows to inject values from the Xtext shared
+ * injector into unit tests (e.g. if the test does not depend on a specific language).
+ * 
+ * Use along with <code>@InjectWith</code>.
+ * 
  * @author Sebastian Zarnekow - Initial contribution and API
  */
 public class SharedInjectorProvider implements IInjectorProvider {
