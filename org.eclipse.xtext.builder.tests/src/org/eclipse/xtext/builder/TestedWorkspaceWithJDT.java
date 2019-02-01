@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.pde.internal.core.PluginModelManager;
 import org.eclipse.xtext.builder.impl.ProjectOpenedOrClosedListener;
 import org.eclipse.xtext.ui.shared.contribution.ISharedStateContributionRegistry;
 import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
@@ -36,9 +37,13 @@ import com.google.inject.Inject;
 public class TestedWorkspaceWithJDT extends TestedWorkspace {
 
 	private volatile Job updateClasspathJob;
-	private final UpdateClasspathJobListener listener = new UpdateClasspathJobListener();
+	private final IJobChangeListener listener = createJobListener();
 
-	class UpdateClasspathJobListener implements IJobChangeListener {
+	protected UpdateClasspathJobListener createJobListener() {
+		return new UpdateClasspathJobListener();
+	}
+
+	public class UpdateClasspathJobListener implements IJobChangeListener {
 
 		@Override
 		public void aboutToRun(IJobChangeEvent event) {
@@ -64,7 +69,7 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		public void scheduled(IJobChangeEvent event) {
 			if (updateClasspathJob == null) {
 				Class<? extends Job> jobType = event.getJob().getClass();
-				if (org.eclipse.pde.internal.core.PluginModelManager.class.equals(jobType.getEnclosingClass())) {
+				if (PluginModelManager.class.equals(jobType.getEnclosingClass())) {
 					updateClasspathJob = event.getJob();
 				}
 			}
@@ -95,6 +100,14 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		IJobManager jobManager = Job.getJobManager();
 		jobManager.addJobChangeListener(listener);
 	}
+	
+	protected IJobChangeListener getJobListener() {
+		return listener;
+	}
+	
+	protected Job getUpdateClasspathJob() {
+		return updateClasspathJob;
+	}
 
 	private void removeJobListener() {
 		IJobManager jobManager = Job.getJobManager();
@@ -115,7 +128,7 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 				wait(1);
 			}
 			Job joinMe = updateClasspathJob;
-			if (updateClasspathJob != null) {
+			if (joinMe != null) {
 				joinMe.join();
 			}
 		} catch (Exception e) {
