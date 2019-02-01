@@ -93,6 +93,10 @@ public abstract class TestedWorkspace extends TestWatcher {
 		}
 	}
 
+	/**
+	 * Join on the job that processes removed projects. The calling thread will effectively wait
+	 * for the job to finish.
+	 */
 	private void joinRemovedProjectsJob() {
 		closedProjectTaskProcessor.joinRemoveProjectJob();
 	}
@@ -119,6 +123,15 @@ public abstract class TestedWorkspace extends TestWatcher {
 		IResourcesSetupUtil.waitForBuild();
 	}
 
+	/**
+	 * Some events in the workspace are processed asynchronously. These async operations
+	 * must be finished before a build can yield meaningful results. This method is used
+	 * to sync on all these processes.
+	 * 
+	 * Implementation note: Specializations of this method are not supposed to do some
+	 * busy waiting or sleepting but it is strongly encouraged to join on the concrete
+	 * async operations.  
+	 */
 	public void joinJobsBeforeBuild() {
 		joinRemovedProjectsJob();
 	}

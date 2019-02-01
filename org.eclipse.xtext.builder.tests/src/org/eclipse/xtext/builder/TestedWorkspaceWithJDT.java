@@ -36,6 +36,9 @@ import com.google.inject.Inject;
 @Beta
 public class TestedWorkspaceWithJDT extends TestedWorkspace {
 
+	/**
+	 * PDEs update classpath job. 
+	 */
 	private volatile Job updateClasspathJob;
 	private final IJobChangeListener listener = createJobListener();
 
@@ -43,6 +46,12 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		return new UpdateClasspathJobListener();
 	}
 
+	/**
+	 * A listener that detects the PDE update classpath job. It'll keep
+	 * a reference to that job and allows join on it.
+	 * 
+	 * @see TestedWorkspaceWithJDT#updateClasspathJob
+	 */
 	public class UpdateClasspathJobListener implements IJobChangeListener {
 
 		@Override
@@ -96,7 +105,7 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		addJobListener();
 	}
 	
-	private void addJobListener() {
+	protected void addJobListener() {
 		IJobManager jobManager = Job.getJobManager();
 		jobManager.addJobChangeListener(listener);
 	}
@@ -109,7 +118,7 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		return updateClasspathJob;
 	}
 
-	private void removeJobListener() {
+	protected void removeJobListener() {
 		IJobManager jobManager = Job.getJobManager();
 		jobManager.removeJobChangeListener(listener);
 		this.updateClasspathJob = null;
@@ -121,7 +130,11 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		removeJobListener();
 	}
 
-	public void joinUpdateClasspathJob() {
+	/**
+	 * Join on the job that updates the classpath after a manifest change. 
+	 * The calling thread will effectively wait for that job to finish.
+	 */
+	protected void joinUpdateClasspathJob() {
 		try {
 			// Pseudo fence to make sure that we see what we want to see.
 			synchronized (this) {
@@ -136,6 +149,9 @@ public class TestedWorkspaceWithJDT extends TestedWorkspace {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void joinJobsBeforeBuild() {
 		joinUpdateClasspathJob();
