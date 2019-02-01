@@ -145,10 +145,23 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	public void testBuildWithJarsContainingIndexedResources() throws Exception {
 		final String project1name = "project1";
 		// create a project with a bunch of jars
-		IProject project1 = createPluginProject(project1name, "org.eclipse.core.runtime", "org.eclipse.core.jobs",
-				"org.eclipse.core.variables", "org.eclipse.debug.core", "org.eclipse.debug.ui", "org.eclipse.emf.edit",
-				"org.eclipse.emf.ecore", "org.eclipse.emf.common", "org.eclipse.emf.ecore.xmi", "org.antlr.generator", "org.eclipse.jdt.ui",
-				"org.eclipse.emf.mwe.core", "org.eclipse.jdt.core", "org.eclipse.xtext.xbase.lib", "org.eclipse.xtend.lib");
+		IProject project1 = createPluginProject(
+				project1name, 
+				"org.eclipse.core.runtime", 
+				"org.eclipse.core.jobs",
+				"org.eclipse.core.variables", 
+				"org.eclipse.debug.core", 
+				"org.eclipse.debug.ui",
+				"org.eclipse.emf.edit",
+				"org.eclipse.emf.ecore",
+				"org.eclipse.emf.common",
+				"org.eclipse.emf.ecore.xmi", 
+				"org.antlr.generator",
+				"org.eclipse.jdt.ui",
+				"org.eclipse.emf.mwe.core",
+				"org.eclipse.jdt.core",
+				"org.eclipse.xtext.xbase.lib",
+				"org.eclipse.xtend.lib");
 		IJavaProject javaProject1 = JavaCore.create(project1);
 
 		IFile file = copyAndGetXtendExampleJar(javaProject1);
@@ -196,23 +209,19 @@ public class BuilderPerformanceTest extends AbstractBuilderTest {
 	public void testBuildWithManyNonXtextRelatedJars() throws Exception {
 		final String project1name = "project1";
 		// create a project with a bunch of jars
-		IProject project1 = createPluginProject(project1name, "org.eclipse.core.runtime", "org.eclipse.core.jobs",
-				"org.eclipse.core.variables", "org.eclipse.debug.core", "org.eclipse.debug.ui",
-//				"org.eclipse.emf.edit", 
-//				"org.eclipse.emf.ecore", 
-//				"org.eclipse.emf.common", 
-//				"org.eclipse.emf.ecore.xmi", 
-				"org.antlr.generator", "org.eclipse.jdt.ui",
-//				"org.eclipse.emf.mwe.core", 
-				"org.eclipse.jdt.core", "org.eclipse.xtext.xbase.lib", "org.eclipse.xtend.lib");
+		IProject project1 = createPluginProject(
+				project1name,
+				"org.eclipse.core.runtime",
+				"org.eclipse.core.jobs",
+				"org.eclipse.core.variables",
+				"org.eclipse.debug.core",
+				"org.eclipse.debug.ui",
+				"org.antlr.generator",
+				"org.eclipse.jdt.ui",
+				"org.eclipse.jdt.core",
+				"org.eclipse.xtext.xbase.lib",
+				"org.eclipse.xtend.lib");
 		IJavaProject javaProject1 = JavaCore.create(project1);
-
-//		IFile file = javaProject1.getProject().getFile("XtendExample.jar");
-//		
-//		InputStream inputStream = CachedJarInfoTest.class.getResourceAsStream("XtendExample.jar");
-//		file.create(inputStream, IResource.FORCE, null);
-//		IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(file.getFullPath(), null, null);
-//		addToClasspath(javaProject1, libraryEntry);
 
 		if (doPrint) {
 			System.out.println("Clean Java first - " + cleanBuildTakes());
