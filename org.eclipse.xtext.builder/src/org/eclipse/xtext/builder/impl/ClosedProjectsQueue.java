@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.eclipse.emf.common.util.URI;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Singleton;
 
@@ -23,6 +24,7 @@ import com.google.inject.Singleton;
  * 
  * @since 2.17
  */
+@Beta
 @Singleton
 public class ClosedProjectsQueue {
 
@@ -33,11 +35,11 @@ public class ClosedProjectsQueue {
 		/**
 		 * The names of the projects as encapsulated by this task.
 		 */
-		public final ImmutableSet<String> projectNames;
+		private final ImmutableSet<String> projectNames;
 		/**
 		 * The built data for this task.
 		 */
-		public final ToBeBuilt toBeBuilt;
+		private final ToBeBuilt toBeBuilt;
 
 		protected Task(ImmutableSet<String> projectNames, ToBeBuilt toBeBuilt) {
 			this.projectNames = projectNames;
@@ -58,6 +60,14 @@ public class ClosedProjectsQueue {
 		 */
 		public void reschedule() {
 			insert(projectNames, toBeBuilt);
+		}
+		
+		public ImmutableSet<String> getProjectNames() {
+			return projectNames;
+		}
+		
+		public ToBeBuilt getToBeBuilt() {
+			return toBeBuilt;
 		}
 	}
 
