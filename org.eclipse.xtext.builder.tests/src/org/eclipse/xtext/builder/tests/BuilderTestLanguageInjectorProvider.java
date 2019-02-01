@@ -13,6 +13,12 @@ import org.eclipse.xtext.testing.IInjectorProvider;
 import com.google.inject.Injector;
 
 /**
+ * An injector provider that allows to inject values from the 
+ * <code>org.eclipse.xtext.builder.tests.BuilderTestLanguage</code> into a test class.
+ * 
+ * Use along with <code>@InjectWith</code>.
+ * 
+ * @see TestsActivator#ORG_ECLIPSE_XTEXT_BUILDER_TESTS_BUILDERTESTLANGUAGE
  * @author Sebastian Zarnekow - Initial contribution and API
  */
 public class BuilderTestLanguageInjectorProvider implements IInjectorProvider {

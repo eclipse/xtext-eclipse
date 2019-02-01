@@ -10,13 +10,28 @@ package org.eclipse.xtext.builder.impl;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+
+import com.google.common.annotations.Beta;
 
 /**
+ * Utility to discard builder state for a given set of projects.
+ * 
+ * It'll access the {@link XtextBuilder} assigned to the given projects and invoke
+ * {@link IncrementalProjectBuilder#forgetLastBuiltState()}.
+ * 
+ * Clients are usually not expected to call this manually.
+ * 
  * @author Sebastian Zarnekow - Initial contribution and API
  * @since 2.17
  */
+@Beta
 public class BuilderStateDiscarder {
 
+	/**
+	 * Returns true, if the given builderArguments indicate that we should discard the built state
+	 * for the given projects.
+	 */
 	public boolean forgetLastBuildState(Iterable<IProject> toUpdate, Map<String, String> builderArguments) {
 		if (canHandleBuildFlag(builderArguments)) {
 			for (IProject project : toUpdate) {

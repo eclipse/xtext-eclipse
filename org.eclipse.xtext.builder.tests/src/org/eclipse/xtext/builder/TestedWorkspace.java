@@ -40,8 +40,16 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 
 /**
+ * A tested workspace encapsulates pairwise logic that is supposed to be executed around a
+ * test methods. One may think of it as a utility to achieve a consistent setup and tearDown 
+ * for tests, that do use a workspace.
+ * 
  * @author Sebastian Zarnekow - Initial contribution and API
  * 
+ * @see TestedWorkspaceWithJDT
+ * @see org.eclipse.xtext.builder.noJdt.TestedWorkspaceWithoutJdt
+ * @see TestWatcher
+ * @see org.junit.rules.TestRule
  * @since 2.17
  */
 @Beta

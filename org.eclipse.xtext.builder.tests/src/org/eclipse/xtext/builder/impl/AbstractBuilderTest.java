@@ -41,6 +41,7 @@ public abstract class AbstractBuilderTest implements IResourceDescription.Event.
 	
 	protected final String F_EXT = ".buildertestlanguage";
 	
+	/* Must be public because it's a Junit4 rule */
 	@Inject
 	@Rule
 	@Extension

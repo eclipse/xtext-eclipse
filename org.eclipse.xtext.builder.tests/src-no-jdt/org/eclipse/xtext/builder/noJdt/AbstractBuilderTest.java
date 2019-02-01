@@ -41,6 +41,7 @@ public abstract class AbstractBuilderTest extends Assert implements IResourceDes
 	
 	public final String F_EXT = ".nojdt";
 	
+	/* Must be public because it's a Junit4 rule */
 	@Inject
 	@Rule
 	@Extension
