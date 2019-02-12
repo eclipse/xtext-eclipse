@@ -21,30 +21,45 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Region;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.undo.CreateMarkersOperation;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.testing.InjectWith;
+import org.eclipse.xtext.testing.RepeatedTest;
+import org.eclipse.xtext.testing.XtextRunner;
 import org.eclipse.xtext.ui.MarkerTypes;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.hover.ProblemAnnotationHover;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.validation.MarkerCreator;
 import org.eclipse.xtext.ui.testing.AbstractEditorTest;
-import org.eclipse.xtext.ui.testing.util.IResourcesSetupUtil;
-import org.eclipse.xtext.ui.tests.internal.TestsActivator;
+import org.eclipse.xtext.ui.testing.util.TestedWorkspaceWithJDT;
+import org.eclipse.xtext.ui.tests.ui.tests.TestLanguageUiInjectorProvider;
 import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import org.eclipse.xtext.validation.CheckMode;
 import org.eclipse.xtext.validation.Issue;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Christoph Kulla - Initial contribution and API
  * @author Holger Schill
  */
+@RepeatedTest(times=500)
+@RunWith(XtextRunner.class)
+@InjectWith(TestLanguageUiInjectorProvider.class)
 public class ProblemHoverTest extends AbstractEditorTest {
 
+	@Rule
+	@Inject
+	public TestedWorkspaceWithJDT testedWorkspace; 
+	
 	private static final String CUSTOM_MARKER_ID = "org.eclipse.xtext.ui.tests.customMarker";
 
 	private static final String CUSTOM_MARKER_TEST_MESSAGE = "CustomMarkerTest";
@@ -53,34 +68,44 @@ public class ProblemHoverTest extends AbstractEditorTest {
 	
 	protected IXtextDocument document;
 
-	protected String modelAsText;
+	protected String modelAsText = "stuff mystuff\nstuff yourstuff refs _mystuff stuff hisstuff refs _yourstuff// Comment";
+	
+	@Inject
+	private Provider<ProblemAnnotationHover> hoverProvider;
+	
+	@Inject
+	private MarkerCreator markerCreator;
 	
 	private ProblemAnnotationHover hover;
 
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-		modelAsText = "stuff mystuff\nstuff yourstuff refs _mystuff stuff hisstuff refs _yourstuff// Comment";
-		IFile file = IResourcesSetupUtil.createFile("test/test.testlanguage", modelAsText);
+	@Before
+	public void prepareTest() throws Exception {
+		IFile file = testedWorkspace.createFile("test/test.testlanguage", modelAsText);
 		editor = openEditor(file);
 		document = editor.getDocument();
-		hover = TestsActivator.getInstance().getInjector(getEditorId()).getInstance(ProblemAnnotationHover.class);
+		hover = hoverProvider.get();
 		hover.setSourceViewer(editor.getInternalSourceViewer());
+		// file is in a project without Xtext nature - we need to create the markers manually
 		List<Issue> issues = document.readOnly(new IUnitOfWork<List<Issue>, XtextResource>() {
 			@Override
 			public List<Issue> exec(XtextResource state) throws Exception {
 				return state.getResourceServiceProvider().getResourceValidator().validate(state, CheckMode.ALL, null);
 			}	
 		});
-		MarkerCreator markerCreator =  TestsActivator.getInstance().getInjector(getEditorId()).getInstance(MarkerCreator.class);
 		for (Issue issue : issues) {
 			markerCreator.createMarker(issue, file, MarkerTypes.forCheckType(issue.getType()));
 		}
 	}
-
+	
 	@Override
-	protected String getEditorId() {
-		return "org.eclipse.xtext.ui.tests.TestLanguage";
+	public void setUp() throws Exception {
+		// disabled since the testedWorkspace takes care of it
+	}
+	
+	@Override
+	public void tearDown() throws Exception {
+		closeEditors();
+		// only close the editor, since the testedWorkspace takes care of the other cleanup
 	}
 
 	@SuppressWarnings("deprecation")
@@ -103,7 +128,7 @@ public class ProblemHoverTest extends AbstractEditorTest {
 		createCustomMarkerOnResource(resource, IMarker.SEVERITY_WARNING);
 		String hoverInfo = hover.getHoverInfo(editor.getInternalSourceViewer(), 0);
 		assertNotNull(hoverInfo);
-		assertTrue(hoverInfo.contains(CUSTOM_MARKER_TEST_MESSAGE));
+		assertTrue(hoverInfo, hoverInfo.contains(CUSTOM_MARKER_TEST_MESSAGE));
 	}
 	
 	@Test public void testBug357516_error() throws Exception {
@@ -149,10 +174,4 @@ public class ProblemHoverTest extends AbstractEditorTest {
 		MarkerUtilities.createMarker(resource, attributes, CUSTOM_MARKER_ID);
 	}
 	
-	
-
-	protected void activate(IWorkbenchPart part) {
-		editor.getSite().getPage().activate(part);
-	}
-		
 }
