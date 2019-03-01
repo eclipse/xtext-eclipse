@@ -20,6 +20,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.xtext.ui.editor.XtextEditor;
+import org.eclipse.xtext.util.Strings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.AfterEach;
@@ -64,13 +65,21 @@ public abstract class AbstractAutoEditTest extends AbstractEditorTest {
 		return editor;
 	}
 	
-	protected void assertState(String string, XtextEditor editor) {
+	final protected void assertState(String string, XtextEditor editor) {
 		assertState(editor, string);
 	}
 	
-	protected void assertState(XtextEditor editor, String string) {
+	final protected void assertStateOriginalDelimiters(String string, XtextEditor editor) {
+		assertState(editor, string, editor.getDocument().get());
+	}
+	
+	private void assertState(XtextEditor editor, String string) {
+		assertState(editor, string, Strings.toUnixLineSeparator(editor.getDocument().get()));
+	}
+
+	protected void assertState(XtextEditor editor, String string, String content) {
 		int cursor = string.indexOf('|');
-		assertEquals(string.replace("|", ""), editor.getDocument().get());
+		assertEquals(string.replace("|", ""), content);
 		ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 		assertEquals("unexpected cursor position:",cursor, selection.getOffset());
 	}

@@ -237,9 +237,9 @@ public class IResourcesSetupUtil {
 					InterruptedException {
 				create(file.getParent());
 				file.delete(true, monitor());
-				try {
-					file.create(new StringInputStream(s, file.getCharset(true)), true, monitor());
-				} catch (UnsupportedEncodingException exc) {
+				try (StringInputStream stream = new StringInputStream(s, file.getCharset(true))) {
+					file.create(stream, true, monitor());
+				} catch (IOException exc) {
 					throw new CoreException(new Status(IStatus.ERROR, "org.eclipse.xtext.ui.testing", exc.getMessage(), exc));
 				}
 			}

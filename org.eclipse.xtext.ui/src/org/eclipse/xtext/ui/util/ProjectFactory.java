@@ -308,15 +308,13 @@ public class ProjectFactory {
 		final IFile file = container.getFile(new Path(name));
 		createRecursive(file.getParent());
 		SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 1);
-		try {
-			final InputStream stream = new ByteArrayInputStream(content.getBytes(file.getCharset()));
+		try (InputStream stream = new ByteArrayInputStream(content.getBytes(file.getCharset()))) {
 			if (file.exists()) {
 				logger.debug("Overwriting content of '" + file.getFullPath() + "'");
 				file.setContents(stream, true, true, subMonitor.newChild(1));
 			} else {
 				file.create(stream, true, subMonitor.newChild(1));
 			}
-			stream.close();
 		} catch (final Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {

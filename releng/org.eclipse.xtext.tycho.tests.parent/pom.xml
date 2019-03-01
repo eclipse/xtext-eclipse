@@ -108,8 +108,9 @@
 					<version>${tycho-version}</version>
 					<configuration>
 						<!-- <forkedProcessTimeoutInSeconds>1200</forkedProcessTimeoutInSeconds> -->
-						<useUIHarness>true</useUIHarness>
+						<useUIHarness>false</useUIHarness>
 						<useUIThread>true</useUIThread>
+						<failIfNoTests>true</failIfNoTests>
 						<argLine>${memory-settings} ${os-jvm-flags}</argLine>
 						<includes>
 							<include>**/Test*.java</include>

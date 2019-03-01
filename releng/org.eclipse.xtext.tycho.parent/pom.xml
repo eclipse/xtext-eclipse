@@ -22,6 +22,19 @@
 		<JENKINS_URL>https://ci.eclipse.org/xtext</JENKINS_URL>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.eclipse.xtext</groupId>
+				<artifactId>xtext-dev-bom</artifactId>
+				<version>2.19.0-SNAPSHOT</version>
+				<!-- Does not work for plugins with special version: <version>${project.version}</version> -->
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<profiles>
 		<!--
 			dont forget to adapt
@@ -66,11 +79,17 @@
 		</profile>
 		<profile>
 			<id>oxygen</id>
+			<properties>
+				<target-platform-classifier>org.eclipse.xtext.target-oxygen</target-platform-classifier>
+			</properties>
+		</profile>
+		<profile>
+			<id>build</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<target-platform-classifier>org.eclipse.xtext.target-oxygen</target-platform-classifier>
+				<target-platform-classifier>org.eclipse.xtext.target-build</target-platform-classifier>
 			</properties>
 		</profile>
 	</profiles>
@@ -156,6 +175,86 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>attached-p2-metadata</id>
+						<phase>package</phase>
+						<goals>
+							<goal>p2-metadata</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<execution>
+						<id>generate-source-feature</id>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+						<configuration>
+							<excludes>
+								<plugin id="org.eclipse.xtext.xbase.lib" />
+								<plugin id="org.eclipse.xtext.xbase.lib.gwt" />
+								<plugin id="org.eclipse.xtext" />
+								<plugin id="org.eclipse.xtext.generator" />
+								<plugin id="org.eclipse.xtext.xtext.generator" />
+								<plugin id="org.eclipse.xtext.util" />
+								<plugin id="org.eclipse.xtext.logging" />
+								<plugin id="org.eclipse.xtext.common.types" />
+								<plugin id="org.eclipse.xtext.builder" />
+								<plugin id="org.eclipse.xtext.ecore" />
+								<plugin id="org.eclipse.xtext.smap" />
+								<plugin id="org.eclipse.xtext.xtext.wizard" />
+								<plugin id="org.eclipse.xtext.builder.standalone" />
+								<plugin id="org.eclipse.xtext.java" />
+								<plugin id="org.eclipse.xtext.ide" />
+								<plugin id="org.antlr.runtime" />
+								<plugin id="org.apache.log4j" />
+								<plugin id="org.apache.commons.lang" />
+								<plugin id="org.eclipse.xtext.doc" />
+								<plugin id="org.eclipse.xtext.xbase" />
+								<plugin id="org.eclipse.xtext.xbase.ide" />
+								<plugin id="org.eclipse.xtext.purexbase" />
+								<plugin id="org.eclipse.xtend.lib" />
+								<plugin id="org.eclipse.xtend.lib.macro" />
+								<plugin id="org.eclipse.xtend2.lib" />
+								<plugin id="org.eclipse.xtend.examples" />
+								<plugin id="org.eclipse.xtend.doc" />
+								<plugin id="org.eclipse.xtend.lib.gwt" />
+								<feature id="org.eclipse.xtext.runtime" />
+								<feature id="org.eclipse.xtext.xbase.lib" />
+								<feature id="org.eclipse.xtext.xbase" />
+								<feature id="org.eclipse.xtext.ui" />
+								<feature id="org.eclipse.xtext.examples" />
+								<feature id="org.eclipse.xtext.docs" />
+								<feature id="org.eclipse.xtext.xtext.ui" />
+								<feature id="org.eclipse.xtext.gwt" />
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>3.0.0</version>
@@ -196,9 +295,19 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>3.0.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-packaging-plugin</artifactId>
+					<version>${tycho-version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>

@@ -226,20 +226,10 @@ public class XtextProjectCreator extends WorkspaceModifyOperation implements IPr
 
 		private IFile createBinaryFile(IFileCreator fileWriter, String path, URL url) {
 			IFile created = fileWriter.writeToFile("", path);
-			InputStream stream = null;
-			try {
-				stream = url.openStream();
+			try (InputStream stream = url.openStream()) {
 				created.setContents(stream, IResource.FORCE, new NullProgressMonitor());
 			} catch (Exception e) {
 				LOG.error("Failed to create binary file " + created.getFullPath().toOSString(), e);
-			} finally {
-				if (stream != null) {
-					try {
-						stream.close();
-					} catch (IOException e) {
-						LOG.warn("Failed to close stream for " + created.getFullPath().toOSString(), e);
-					}
-				}
 			}
 			return created;
 		}
