@@ -51,6 +51,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.xtext.parser.IEncodingProvider;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.XtextReadonlyEditorInput;
 import org.eclipse.xtext.ui.editor.quickfix.IssueResolutionProvider;
 import org.eclipse.xtext.ui.editor.quickfix.XtextResourceMarkerAnnotationModel;
 import org.eclipse.xtext.ui.editor.validation.AnnotationIssueProcessor;
@@ -449,6 +450,9 @@ public class XtextDocumentProvider extends FileDocumentProvider {
 	
 	@Override
 	public boolean isReadOnly(Object element) {
+		if (element instanceof XtextReadonlyEditorInput) {
+			return true;
+		}
 		if (isWorkspaceExternalEditorInput(element)) {
 			URIInfo info= (URIInfo) getElementInfo(element);
 			if (info != null) {
