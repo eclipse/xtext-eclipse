@@ -6,10 +6,16 @@ package org.eclipse.xtext.xtext.ui.labeling;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
+import java.net.URL;
 import java.util.List;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
 import org.eclipse.jface.preference.JFacePreferences;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.DecorationOverlayIcon;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.xtext.AbstractElement;
@@ -29,6 +35,7 @@ import org.eclipse.xtext.NegatedToken;
 import org.eclipse.xtext.ParserRule;
 import org.eclipse.xtext.ReferencedMetamodel;
 import org.eclipse.xtext.RuleCall;
+import org.eclipse.xtext.TerminalRule;
 import org.eclipse.xtext.TypeRef;
 import org.eclipse.xtext.UnorderedGroup;
 import org.eclipse.xtext.UntilToken;
@@ -39,6 +46,7 @@ import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider;
 import org.eclipse.xtext.ui.label.StylerFactory;
 import org.eclipse.xtext.util.Strings;
+import org.eclipse.xtext.xtext.ui.Activator;
 import org.eclipse.xtext.xtext.ui.editor.syntaxcoloring.SemanticHighlightingConfiguration;
 
 /**
@@ -235,6 +243,49 @@ public class XtextLabelProvider extends DefaultEObjectLabelProvider {
 		}
 		return classifierName;
 	}
+	
+	
+	private static final ImageDescriptor DATATYPE_OVERLAY = ImageDescriptor.createFromURL(makeImageURL("icons/ovr16/","default_co.png"));
+	private static final ImageDescriptor TERMINAL_OVERLAY = ImageDescriptor.createFromURL(makeImageURL("icons/ovr16/","transient_co.png"));
+	private static final ImageDescriptor FRAGMENT_OVERLAY = ImageDescriptor.createFromURL(makeImageURL("icons/ovr16/","final_co.png"));
+	private static final ImageDescriptor BASE_IMAGE = ImageDescriptor.createFromURL(makeImageURL("icons/","rule.gif"));
+	private static final ImageDescriptor DATATYPE_IMAGE = new DecorationOverlayIcon(BASE_IMAGE, DATATYPE_OVERLAY, IDecoration.TOP_LEFT);
+	private static final ImageDescriptor TERMINAL_IMAGE = new DecorationOverlayIcon(BASE_IMAGE, TERMINAL_OVERLAY, IDecoration.TOP_LEFT);
+	private static final ImageDescriptor FRAGMENT_IMAGE = new DecorationOverlayIcon(BASE_IMAGE, FRAGMENT_OVERLAY, IDecoration.TOP_LEFT);
+	private static final ImageDescriptor DATATYPE_FRAGMENT_IMAGE = new DecorationOverlayIcon(DATATYPE_IMAGE, FRAGMENT_OVERLAY, IDecoration.TOP_RIGHT);
+	private static final ImageDescriptor TERMINAL_FRAGMENT_IMAGE = new DecorationOverlayIcon(TERMINAL_IMAGE, FRAGMENT_OVERLAY, IDecoration.TOP_RIGHT);
+//	
+//	@Override
+//	protected Object doGetImage(Object element) {
+//		Object image = super.doGetImage(element);
+//		if (image != null) {
+//			if (image instanceof String) {
+//				if (element instanceof TerminalRule) {
+//					ImageDescriptor baseImage = convertToImageDescriptor(image);
+//					ImageDescriptor decorated = new DecorationOverlayIcon(baseImage, TERMINAL_OVERLAY, IDecoration.TOP_LEFT);
+//					return decorated;
+//				}
+//				if (element instanceof ParserRule && GrammarUtil.isDatatypeRule((ParserRule)element)) {
+//					ImageDescriptor baseImage = convertToImageDescriptor(image);
+//					ImageDescriptor decorated = new DecorationOverlayIcon(baseImage, DATATYPE_OVERLAY, IDecoration.TOP_LEFT);
+//					return decorated;
+//				}
+//				ImageDescriptor baseImage = convertToImageDescriptor(image);
+//				ImageDescriptor decorated = new DecorationOverlayIcon(baseImage, FRAGMENT_OVERLAY, IDecoration.TOP_LEFT);
+//				return decorated;
+//			}
+//			System.err.println(image.getClass());
+//			System.err.println(image);
+//			return image;
+//		}
+//		return null;
+//	}
+	
+	private static URL makeImageURL(String prefix, String name) {
+		String path = "/" + prefix + name; //$NON-NLS-1$
+		URL find = FileLocator.find(Activator.getDefault().getBundle(), new Path(path), null);
+		return find;
+	}
 
 	String image(Grammar grammar) {
 		return "language.gif";
@@ -248,11 +299,31 @@ public class XtextLabelProvider extends DefaultEObjectLabelProvider {
 		return "import.gif";
 	}
 
-	String image(AbstractRule rule) {
+	Object image(AbstractRule rule) {
+		if (rule instanceof ParserRule) {
+			if (GrammarUtil.isDatatypeRule(rule)) {
+				if (((ParserRule) rule).isFragment()) {
+					return DATATYPE_FRAGMENT_IMAGE;
+				}
+				return DATATYPE_IMAGE;
+			}
+			if (((ParserRule) rule).isFragment()) {
+				return FRAGMENT_IMAGE;
+			}
+			return BASE_IMAGE;
+		} else if (rule instanceof TerminalRule) {
+			if (((TerminalRule) rule).isFragment()) {
+				return TERMINAL_FRAGMENT_IMAGE;
+			}
+			return TERMINAL_IMAGE;
+		}
 		return "rule.gif";
 	}
 
-	String image(RuleCall ruleCall) {
+	Object image(RuleCall ruleCall) {
+		if (ruleCall.getRule() != null && !ruleCall.getRule().eIsProxy()) {
+			return image(ruleCall.getRule());
+		}
 		return "rule.gif";
 	}
 
