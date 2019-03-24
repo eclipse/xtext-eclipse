@@ -245,7 +245,10 @@ public abstract class AbstractQuickfixTest extends AbstractEditorTest {
     final IXtextDocument document = editor.getDocument();
     final String originalText = document.get();
     final Issue issue = this.getValidationIssue(document, issueCode);
-    final List<IssueResolution> actualIssueResolutions = this._issueResolutionProvider.getResolutions(issue);
+    final Function1<IssueResolution, String> _function = (IssueResolution it) -> {
+      return it.getLabel();
+    };
+    final List<IssueResolution> actualIssueResolutions = IterableExtensions.<IssueResolution, String>sortBy(this._issueResolutionProvider.getResolutions(issue), _function);
     Assert.assertEquals("The number of quickfixes does not match!", ((List<AbstractQuickfixTest.Quickfix>)Conversions.doWrapArray(expected)).size(), actualIssueResolutions.size());
     int _size = actualIssueResolutions.size();
     ExclusiveRange _doubleDotLessThan = new ExclusiveRange(0, _size, true);

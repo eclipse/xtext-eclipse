@@ -40,25 +40,11 @@ class RuleEngineQuickfixTest extends AbstractQuickfixTest {
 			Rule 'rule1' when foo then
 				fire(Heater.off)
 		'''.testQuickfixesOn(LINKING_DIAGNOSTIC,
-			new Quickfix("Change to 'Window.open'", "Change to 'Window.open'", '''
+			new Quickfix("Change to 'Heater.error'", "Change to 'Heater.error'", '''
 				Device Window can be open, closed
 				Device Heater can be on, off, error
 				
-				Rule 'rule1' when Window.open then
-					fire(Heater.off)
-			'''),
-			new Quickfix("Change to 'Window.closed'", "Change to 'Window.closed'", '''
-				Device Window can be open, closed
-				Device Heater can be on, off, error
-				
-				Rule 'rule1' when Window.closed then
-					fire(Heater.off)
-			'''),
-			new Quickfix("Change to 'Heater.on'", "Change to 'Heater.on'", '''
-				Device Window can be open, closed
-				Device Heater can be on, off, error
-				
-				Rule 'rule1' when Heater.on then
+				Rule 'rule1' when Heater.error then
 					fire(Heater.off)
 			'''),
 			new Quickfix("Change to 'Heater.off'", "Change to 'Heater.off'", '''
@@ -68,11 +54,25 @@ class RuleEngineQuickfixTest extends AbstractQuickfixTest {
 				Rule 'rule1' when Heater.off then
 					fire(Heater.off)
 			'''),
-			new Quickfix("Change to 'Heater.error'", "Change to 'Heater.error'", '''
+			new Quickfix("Change to 'Heater.on'", "Change to 'Heater.on'", '''
 				Device Window can be open, closed
 				Device Heater can be on, off, error
 				
-				Rule 'rule1' when Heater.error then
+				Rule 'rule1' when Heater.on then
+					fire(Heater.off)
+			'''),
+			new Quickfix("Change to 'Window.closed'", "Change to 'Window.closed'", '''
+				Device Window can be open, closed
+				Device Heater can be on, off, error
+				
+				Rule 'rule1' when Window.closed then
+					fire(Heater.off)
+			'''),
+			new Quickfix("Change to 'Window.open'", "Change to 'Window.open'", '''
+				Device Window can be open, closed
+				Device Heater can be on, off, error
+				
+				Rule 'rule1' when Window.open then
 					fire(Heater.off)
 			''')
 		)

@@ -100,11 +100,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_2.append("resetEvents");
     _builder_2.newLine();
     _builder_2.append("\t");
-    _builder_2.append("drawerOpened");
+    _builder_2.append("doorOpened");
     _builder_2.newLine();
     _builder_2.append("end");
     _builder_2.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'drawerOpened\'", "Change to \'drawerOpened\'", _builder_2.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'doorOpened\'", "Change to \'doorOpened\'", _builder_2.toString());
     StringConcatenation _builder_3 = new StringConcatenation();
     _builder_3.append("events");
     _builder_3.newLine();
@@ -129,11 +129,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_3.append("resetEvents");
     _builder_3.newLine();
     _builder_3.append("\t");
-    _builder_3.append("lightOn");
+    _builder_3.append("drawerOpened");
     _builder_3.newLine();
     _builder_3.append("end");
     _builder_3.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'lightOn\'", "Change to \'lightOn\'", _builder_3.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'drawerOpened\'", "Change to \'drawerOpened\'", _builder_3.toString());
     StringConcatenation _builder_4 = new StringConcatenation();
     _builder_4.append("events");
     _builder_4.newLine();
@@ -158,11 +158,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_4.append("resetEvents");
     _builder_4.newLine();
     _builder_4.append("\t");
-    _builder_4.append("doorOpened");
+    _builder_4.append("lightOn");
     _builder_4.newLine();
     _builder_4.append("end");
     _builder_4.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'doorOpened\'", "Change to \'doorOpened\'", _builder_4.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'lightOn\'", "Change to \'lightOn\'", _builder_4.toString());
     StringConcatenation _builder_5 = new StringConcatenation();
     _builder_5.append("events");
     _builder_5.newLine();
@@ -243,11 +243,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_1.append("state idle");
     _builder_1.newLine();
     _builder_1.append("\t");
-    _builder_1.append("actions {unlockPanel}");
+    _builder_1.append("actions {lockDoor}");
     _builder_1.newLine();
     _builder_1.append("end");
     _builder_1.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix = new AbstractQuickfixTest.Quickfix("Change to \'unlockPanel\'", "Change to \'unlockPanel\'", _builder_1.toString());
+    AbstractQuickfixTest.Quickfix _quickfix = new AbstractQuickfixTest.Quickfix("Change to \'lockDoor\'", "Change to \'lockDoor\'", _builder_1.toString());
     StringConcatenation _builder_2 = new StringConcatenation();
     _builder_2.append("commands");
     _builder_2.newLine();
@@ -295,11 +295,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_3.append("state idle");
     _builder_3.newLine();
     _builder_3.append("\t");
-    _builder_3.append("actions {lockDoor}");
+    _builder_3.append("actions {unlockDoor}");
     _builder_3.newLine();
     _builder_3.append("end");
     _builder_3.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'lockDoor\'", "Change to \'lockDoor\'", _builder_3.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'unlockDoor\'", "Change to \'unlockDoor\'", _builder_3.toString());
     StringConcatenation _builder_4 = new StringConcatenation();
     _builder_4.append("commands");
     _builder_4.newLine();
@@ -321,11 +321,11 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_4.append("state idle");
     _builder_4.newLine();
     _builder_4.append("\t");
-    _builder_4.append("actions {unlockDoor}");
+    _builder_4.append("actions {unlockPanel}");
     _builder_4.newLine();
     _builder_4.append("end");
     _builder_4.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'unlockDoor\'", "Change to \'unlockDoor\'", _builder_4.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'unlockPanel\'", "Change to \'unlockPanel\'", _builder_4.toString());
     this.testQuickfixesOn(_builder, Diagnostic.LINKING_DIAGNOSTIC, _quickfix, _quickfix_1, _quickfix_2, _quickfix_3);
   }
   
@@ -466,7 +466,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_2.append("state idle");
     _builder_2.newLine();
     _builder_2.append("\t");
-    _builder_2.append("drawerOpened => active");
+    _builder_2.append("doorOpened => active");
     _builder_2.newLine();
     _builder_2.append("end");
     _builder_2.newLine();
@@ -475,7 +475,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_2.newLine();
     _builder_2.append("end");
     _builder_2.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'drawerOpened\'", "Change to \'drawerOpened\'", _builder_2.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'doorOpened\'", "Change to \'doorOpened\'", _builder_2.toString());
     StringConcatenation _builder_3 = new StringConcatenation();
     _builder_3.append("events");
     _builder_3.newLine();
@@ -500,7 +500,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_3.append("state idle");
     _builder_3.newLine();
     _builder_3.append("\t");
-    _builder_3.append("lightOn => active");
+    _builder_3.append("drawerOpened => active");
     _builder_3.newLine();
     _builder_3.append("end");
     _builder_3.newLine();
@@ -509,7 +509,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_3.newLine();
     _builder_3.append("end");
     _builder_3.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'lightOn\'", "Change to \'lightOn\'", _builder_3.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_2 = new AbstractQuickfixTest.Quickfix("Change to \'drawerOpened\'", "Change to \'drawerOpened\'", _builder_3.toString());
     StringConcatenation _builder_4 = new StringConcatenation();
     _builder_4.append("events");
     _builder_4.newLine();
@@ -534,7 +534,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_4.append("state idle");
     _builder_4.newLine();
     _builder_4.append("\t");
-    _builder_4.append("doorOpened => active");
+    _builder_4.append("lightOn => active");
     _builder_4.newLine();
     _builder_4.append("end");
     _builder_4.newLine();
@@ -543,7 +543,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_4.newLine();
     _builder_4.append("end");
     _builder_4.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'doorOpened\'", "Change to \'doorOpened\'", _builder_4.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_3 = new AbstractQuickfixTest.Quickfix("Change to \'lightOn\'", "Change to \'lightOn\'", _builder_4.toString());
     StringConcatenation _builder_5 = new StringConcatenation();
     _builder_5.append("events");
     _builder_5.newLine();
@@ -616,7 +616,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_1.append("state idle");
     _builder_1.newLine();
     _builder_1.append("\t");
-    _builder_1.append("doorClosed => idle");
+    _builder_1.append("doorClosed => active");
     _builder_1.newLine();
     _builder_1.append("end");
     _builder_1.newLine();
@@ -625,7 +625,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_1.newLine();
     _builder_1.append("end");
     _builder_1.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix = new AbstractQuickfixTest.Quickfix("Change to \'idle\'", "Change to \'idle\'", _builder_1.toString());
+    AbstractQuickfixTest.Quickfix _quickfix = new AbstractQuickfixTest.Quickfix("Change to \'active\'", "Change to \'active\'", _builder_1.toString());
     StringConcatenation _builder_2 = new StringConcatenation();
     _builder_2.append("events");
     _builder_2.newLine();
@@ -638,7 +638,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_2.append("state idle");
     _builder_2.newLine();
     _builder_2.append("\t");
-    _builder_2.append("doorClosed => active");
+    _builder_2.append("doorClosed => idle");
     _builder_2.newLine();
     _builder_2.append("end");
     _builder_2.newLine();
@@ -647,7 +647,7 @@ public class StatemachineQuickfixTest extends AbstractQuickfixTest {
     _builder_2.newLine();
     _builder_2.append("end");
     _builder_2.newLine();
-    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'active\'", "Change to \'active\'", _builder_2.toString());
+    AbstractQuickfixTest.Quickfix _quickfix_1 = new AbstractQuickfixTest.Quickfix("Change to \'idle\'", "Change to \'idle\'", _builder_2.toString());
     this.testQuickfixesOn(_builder, Diagnostic.LINKING_DIAGNOSTIC, _quickfix, _quickfix_1);
   }
 }

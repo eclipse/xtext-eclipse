@@ -43,6 +43,19 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 					doorClosed
 				end
 			'''),
+			new Quickfix("Change to 'doorOpened'", "Change to 'doorOpened'", '''
+				events
+					doorClosed   D1CL
+					drawerOpened D2OP
+					lightOn      L1ON
+					doorOpened   D1OP
+					panelClosed  PNCL
+				end
+				
+				resetEvents
+					doorOpened
+				end
+			'''),
 			new Quickfix("Change to 'drawerOpened'", "Change to 'drawerOpened'", '''
 				events
 					doorClosed   D1CL
@@ -67,19 +80,6 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				
 				resetEvents
 					lightOn
-				end
-			'''),
-			new Quickfix("Change to 'doorOpened'", "Change to 'doorOpened'", '''
-				events
-					doorClosed   D1CL
-					drawerOpened D2OP
-					lightOn      L1ON
-					doorOpened   D1OP
-					panelClosed  PNCL
-				end
-				
-				resetEvents
-					doorOpened
 				end
 			'''),
 			new Quickfix("Change to 'panelClosed'", "Change to 'panelClosed'", '''
@@ -111,7 +111,7 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				actions {foo}
 			end
 		'''.testQuickfixesOn(LINKING_DIAGNOSTIC,
-			new Quickfix("Change to 'unlockPanel'", "Change to 'unlockPanel'", '''
+			new Quickfix("Change to 'lockDoor'", "Change to 'lockDoor'", '''
 				commands
 					unlockPanel PNUL
 					lockPanel   NLK
@@ -120,7 +120,7 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				end
 				
 				state idle
-					actions {unlockPanel}
+					actions {lockDoor}
 				end
 			'''),
 			new Quickfix("Change to 'lockPanel'", "Change to 'lockPanel'", '''
@@ -135,18 +135,6 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 					actions {lockPanel}
 				end
 			'''),
-			new Quickfix("Change to 'lockDoor'", "Change to 'lockDoor'", '''
-				commands
-					unlockPanel PNUL
-					lockPanel   NLK
-					lockDoor    D1LK
-					unlockDoor  D1UL
-				end
-				
-				state idle
-					actions {lockDoor}
-				end
-			'''),
 			new Quickfix("Change to 'unlockDoor'", "Change to 'unlockDoor'", '''
 				commands
 					unlockPanel PNUL
@@ -157,6 +145,18 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				
 				state idle
 					actions {unlockDoor}
+				end
+			'''),
+			new Quickfix("Change to 'unlockPanel'", "Change to 'unlockPanel'", '''
+				commands
+					unlockPanel PNUL
+					lockPanel   NLK
+					lockDoor    D1LK
+					unlockDoor  D1UL
+				end
+				
+				state idle
+					actions {unlockPanel}
 				end
 			''')
 		)
@@ -217,6 +217,22 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				state active
 				end
 			'''),
+			new Quickfix("Change to 'doorOpened'", "Change to 'doorOpened'", '''
+				events
+					doorClosed   D1CL
+					drawerOpened D2OP
+					lightOn      L1ON
+					doorOpened   D1OP
+					panelClosed  PNCL
+				end
+				
+				state idle
+					doorOpened => active
+				end
+				
+				state active
+				end
+			'''),
 			new Quickfix("Change to 'drawerOpened'", "Change to 'drawerOpened'", '''
 				events
 					doorClosed   D1CL
@@ -244,22 +260,6 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				
 				state idle
 					lightOn => active
-				end
-				
-				state active
-				end
-			'''),
-			new Quickfix("Change to 'doorOpened'", "Change to 'doorOpened'", '''
-				events
-					doorClosed   D1CL
-					drawerOpened D2OP
-					lightOn      L1ON
-					doorOpened   D1OP
-					panelClosed  PNCL
-				end
-				
-				state idle
-					doorOpened => active
 				end
 				
 				state active
@@ -297,18 +297,6 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 			state active
 			end
 		'''.testQuickfixesOn(LINKING_DIAGNOSTIC,
-			new Quickfix("Change to 'idle'", "Change to 'idle'", '''
-				events
-					doorClosed   D1CL
-				end
-				
-				state idle
-					doorClosed => idle
-				end
-				
-				state active
-				end
-			'''),
 			new Quickfix("Change to 'active'", "Change to 'active'", '''
 				events
 					doorClosed   D1CL
@@ -316,6 +304,18 @@ class StatemachineQuickfixTest extends AbstractQuickfixTest {
 				
 				state idle
 					doorClosed => active
+				end
+				
+				state active
+				end
+			'''),
+			new Quickfix("Change to 'idle'", "Change to 'idle'", '''
+				events
+					doorClosed   D1CL
+				end
+				
+				state idle
+					doorClosed => idle
 				end
 				
 				state active

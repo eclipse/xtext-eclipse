@@ -116,7 +116,7 @@ abstract class AbstractQuickfixTest extends AbstractEditorTest {
 		val originalText = document.get
 		val issue = document.getValidationIssue(issueCode)
 
-		val actualIssueResolutions = issue.getResolutions
+		val actualIssueResolutions = issue.getResolutions.sortBy[label]
 		assertEquals("The number of quickfixes does not match!", expected.size, actualIssueResolutions.size)
 		for (i : 0..< actualIssueResolutions.size) {
 			val actualIssueResolution = actualIssueResolutions.get(i)
