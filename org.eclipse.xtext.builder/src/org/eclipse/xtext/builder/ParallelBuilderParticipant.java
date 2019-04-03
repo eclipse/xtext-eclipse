@@ -387,7 +387,7 @@ public class ParallelBuilderParticipant extends BuilderParticipant {
 			final IBuildContext context, Set<IFile> derivedResources, FileSystemAccessQueue fileSystemAccessQueue, IFileSystemAccess2 delegate) {
 		String currentSourceFolder = getCurrentSourceFolder(context, delta);
 		IFileCallback postProcessor = getPostProcessor(delta, context, derivedResources);
-		return new ParallelFileSystemAccess(delegate, delta, fileSystemAccessQueue, currentSourceFolder, postProcessor);
+		return new ParallelFileSystemAccess(delegate, delta, fileSystemAccessQueue, currentSourceFolder, postProcessor, context, getOutputConfigurationProvider());
 	}
 
 }

@@ -1,15 +1,24 @@
 package org.eclipse.xtext.builder;
 
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2;
+import org.eclipse.xtext.builder.IXtextBuilderParticipant;
 import org.eclipse.xtext.generator.AbstractFileSystemAccess;
+import org.eclipse.xtext.generator.AbstractFileSystemAccess2;
 import org.eclipse.xtext.generator.FileSystemAccessQueue;
+import org.eclipse.xtext.generator.IContextualOutputConfigurationProvider;
 import org.eclipse.xtext.generator.IFileSystemAccess2;
+import org.eclipse.xtext.generator.IOutputConfigurationProvider;
+import org.eclipse.xtext.generator.OutputConfiguration;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.util.RuntimeIOException;
+import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1;
 
 /**
@@ -28,17 +37,31 @@ public class ParallelFileSystemAccess implements IFileSystemAccess2 {
   
   private final EclipseResourceFileSystemAccess2.IFileCallback fileCallback;
   
+  private final IXtextBuilderParticipant.IBuildContext buildContext;
+  
+  private final IOutputConfigurationProvider outputConfigurationProvider;
+  
   /**
    * @since 2.9
+   * @deprecated Use other constructor
+   */
+  public ParallelFileSystemAccess(final IFileSystemAccess2 delegate, final IResourceDescription.Delta delta, final FileSystemAccessQueue fileSystemAccessQueue, final String sourceFolder, final EclipseResourceFileSystemAccess2.IFileCallback fileCallback) {
+    this(delegate, delta, fileSystemAccessQueue, sourceFolder, fileCallback, null, null);
+  }
+  
+  /**
+   * @since 2.18
    */
   @FinalFieldsConstructor
-  public ParallelFileSystemAccess(final IFileSystemAccess2 delegate, final IResourceDescription.Delta delta, final FileSystemAccessQueue fileSystemAccessQueue, final String sourceFolder, final EclipseResourceFileSystemAccess2.IFileCallback fileCallback) {
+  public ParallelFileSystemAccess(final IFileSystemAccess2 delegate, final IResourceDescription.Delta delta, final FileSystemAccessQueue fileSystemAccessQueue, final String sourceFolder, final EclipseResourceFileSystemAccess2.IFileCallback fileCallback, final IXtextBuilderParticipant.IBuildContext buildContext, final IOutputConfigurationProvider outputConfigurationProvider) {
     super();
     this.delegate = delegate;
     this.delta = delta;
     this.fileSystemAccessQueue = fileSystemAccessQueue;
     this.sourceFolder = sourceFolder;
     this.fileCallback = fileCallback;
+    this.buildContext = buildContext;
+    this.outputConfigurationProvider = outputConfigurationProvider;
   }
   
   protected void sendAsync(final Procedure1<? super IFileSystemAccess2> procedure) {
@@ -49,6 +72,20 @@ public class ParallelFileSystemAccess implements IFileSystemAccess2 {
       if ((this.sourceFolder != null)) {
         if ((this.delegate instanceof AbstractFileSystemAccess)) {
           ((AbstractFileSystemAccess)this.delegate).setCurrentSource(this.sourceFolder);
+        }
+      }
+      if ((this.buildContext != null)) {
+        final Resource resource = this.buildContext.getResourceSet().getResource(this.delta.getUri(), false);
+        if ((resource != null)) {
+          if (((this.delegate instanceof AbstractFileSystemAccess2) && (this.outputConfigurationProvider instanceof IContextualOutputConfigurationProvider))) {
+            final Map<String, OutputConfiguration> outputs = CollectionLiterals.<String, OutputConfiguration>newHashMap();
+            final IContextualOutputConfigurationProvider contextualOCP = ((IContextualOutputConfigurationProvider) this.outputConfigurationProvider);
+            Set<OutputConfiguration> _outputConfigurations = contextualOCP.getOutputConfigurations(resource);
+            for (final OutputConfiguration output : _outputConfigurations) {
+              outputs.put(output.getName(), output);
+            }
+            ((AbstractFileSystemAccess2) this.delegate).setOutputConfigurations(outputs);
+          }
         }
       }
       procedure.apply(this.delegate);
