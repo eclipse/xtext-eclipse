@@ -491,6 +491,12 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 	}
 	
 	@Override
+	public void completeXTryCatchFinallyExpression_FinallyExpression(EObject model, Assignment assignment, ContentAssistContext context,
+			ICompletionProposalAcceptor acceptor) {
+		createLocalVariableAndImplicitProposals(model, IExpressionScope.Anchor.WITHIN, context, acceptor);
+	}
+	
+	@Override
 	public void completeXSwitchExpression_Default(EObject model, Assignment assignment, ContentAssistContext context,
 			ICompletionProposalAcceptor acceptor) {
 		createLocalVariableAndImplicitProposals(model, IExpressionScope.Anchor.WITHIN, context, acceptor);
@@ -784,7 +790,7 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 			});
 			// Scope for all static features
 			IScope staticMemberScope = new SimpleScope(IScope.NULLSCOPE, scopedFeatures);
-			proposeFavoritStaticFeatures(model, context, acceptor, staticMemberScope);
+			proposeFavoriteStaticFeatures(model, context, acceptor, staticMemberScope);
 			// Regular proposals
 			createReceiverProposals(((XMemberFeatureCall) model).getMemberCallTarget(), (CrossReference) assignment.getTerminal(),
 					context, acceptor);
@@ -829,7 +835,7 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 		// TODO use the type name information
 		proposeDeclaringTypeForStaticInvocation(context, null /* ignore */, contentAssistContext, acceptor);
 //		System.out.printf("XbaseProposalProvider.proposeDeclaringTypeForStaticInvocation = %d\n", System.currentTimeMillis() - time);
-		if(!(context instanceof XMemberFeatureCall)) {
+		if(context != null && !(context instanceof XMemberFeatureCall)) {
 			Iterable<JvmFeature> featuresToImport = getFavoriteStaticFeatures(context, new Predicate<JvmFeature>() {
 				@Override
 				public boolean apply(JvmFeature input) {
@@ -846,7 +852,7 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 			});
 			// Scope for all static features
 			IScope staticMemberScope = new SimpleScope(IScope.NULLSCOPE, scopedFeatures);
-			proposeFavoritStaticFeatures(context, contentAssistContext, acceptor, staticMemberScope);
+			proposeFavoriteStaticFeatures(context, contentAssistContext, acceptor, staticMemberScope);
 		}
 	}
 	
@@ -859,8 +865,8 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 		if (Strings.isEmpty(pref)) {
 			return result;
 		}
-		String[] favourites= pref.split(";"); //$NON-NLS-1$
-		for(String fav : favourites) {
+		String[] favorites= pref.split(";"); //$NON-NLS-1$
+		for(String fav : favorites) {
 			boolean isWildcard = fav.lastIndexOf("*") > 0; //$NON-NLS-1$
 			int indexOfLastDot = fav.lastIndexOf("."); //$NON-NLS-1$
 			if(indexOfLastDot > 0) {
@@ -904,7 +910,7 @@ public class XbaseProposalProvider extends AbstractXbaseProposalProvider impleme
 	/**
 	 * @since 2.17
 	 */
-	protected void proposeFavoritStaticFeatures(EObject context,ContentAssistContext contentAssistContext,
+	protected void proposeFavoriteStaticFeatures(EObject context,ContentAssistContext contentAssistContext,
 			ICompletionProposalAcceptor acceptor, IScope scopedFeatures) {
 		Function<IEObjectDescription, ICompletionProposal> proposalFactory = getProposalFactory(getFeatureCallRuleName(), contentAssistContext);
 		IReplacementTextApplier textApplier =  new FQNImporter(contentAssistContext.getResource(), contentAssistContext.getViewer(), scopedFeatures, qualifiedNameConverter,
