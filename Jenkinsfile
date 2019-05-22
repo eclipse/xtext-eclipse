@@ -10,6 +10,10 @@ pipeline {
     disableConcurrentBuilds()
   }
 
+  triggers {
+    upstream(upstreamProjects: 'xtext-extras/milestone_2.18.0.Beta', threshold: hudson.model.Result.SUCCESS)
+  }
+
   tools { 
     maven 'M3'
   }
