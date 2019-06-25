@@ -98,15 +98,12 @@ public class JavaProjectSetupUtil {
 	}
 	
 	public static InputStream jarInputStream(@SuppressWarnings("unchecked") Pair<String, InputStream> ...entries) {
-		try {
-			ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-			JarOutputStream jo = new JarOutputStream(new BufferedOutputStream(out2));
+		try (ByteArrayOutputStream out2 = new ByteArrayOutputStream(); JarOutputStream jo = new JarOutputStream(new BufferedOutputStream(out2))) {
 			for (Pair<String, InputStream> entry : entries) {
 				JarEntry je = new JarEntry(entry.getKey());
 				jo.putNextEntry(je);
 				ByteStreams.copy(entry.getValue(), jo);
 			}
-			jo.close();
 			return new ByteArrayInputStream(out2.toByteArray());
 		} catch (IOException e) {
 			throw new WrappedException(e);
