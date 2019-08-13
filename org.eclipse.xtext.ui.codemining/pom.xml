@@ -18,7 +18,7 @@
 		<profile>
 			<id>oxygen</id>
 			<properties>
-				<target-platform-classifier>org.eclipse.xtext.target-photon</target-platform-classifier>
+				<target-platform-classifier>org.eclipse.xtext.target-photon-build</target-platform-classifier>
 			</properties>
 			<activation>
 				<activeByDefault>true</activeByDefault>
