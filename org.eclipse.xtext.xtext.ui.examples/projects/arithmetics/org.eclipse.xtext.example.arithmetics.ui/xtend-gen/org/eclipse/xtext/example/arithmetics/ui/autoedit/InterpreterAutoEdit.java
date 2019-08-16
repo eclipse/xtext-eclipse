@@ -9,6 +9,7 @@ package org.eclipse.xtext.example.arithmetics.ui.autoedit;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
+import com.google.inject.Inject;
 import java.math.BigDecimal;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -30,8 +31,9 @@ import org.eclipse.xtext.xbase.lib.IterableExtensions;
  */
 @SuppressWarnings("all")
 public class InterpreterAutoEdit implements IAutoEditStrategy {
+  @Inject
   @Extension
-  private XtextDocumentUtil _xtextDocumentUtil = new XtextDocumentUtil();
+  private XtextDocumentUtil _xtextDocumentUtil;
   
   @Override
   public void customizeDocumentCommand(final IDocument document, final DocumentCommand command) {

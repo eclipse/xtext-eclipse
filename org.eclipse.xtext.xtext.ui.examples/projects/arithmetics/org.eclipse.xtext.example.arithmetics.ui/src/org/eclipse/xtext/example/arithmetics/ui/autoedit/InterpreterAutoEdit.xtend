@@ -18,13 +18,14 @@ import org.eclipse.xtext.example.arithmetics.interpreter.Calculator
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.ui.editor.model.XtextDocumentUtil
+import com.google.inject.Inject
 
 /** 
  * An interactive interpreter as an {@link IAutoEditStrategy}
  */
 class InterpreterAutoEdit implements IAutoEditStrategy {
 	
-	extension XtextDocumentUtil = new XtextDocumentUtil
+	@Inject extension XtextDocumentUtil
 
 	override void customizeDocumentCommand(IDocument document, DocumentCommand command) {
 		for (lineDelimiter : document.legalLineDelimiters) {
