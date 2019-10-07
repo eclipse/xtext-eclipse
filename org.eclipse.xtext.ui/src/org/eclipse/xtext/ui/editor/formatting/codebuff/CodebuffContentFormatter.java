@@ -8,18 +8,18 @@
 package org.eclipse.xtext.ui.editor.formatting.codebuff;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
@@ -31,6 +31,7 @@ import org.eclipse.xtext.Constants;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.osgi.framework.Bundle;
 
+import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -75,6 +76,7 @@ public class CodebuffContentFormatter implements IContentFormatter {
 	public void format(IDocument document, IRegion region) {
 		ClassLoader loader = initializeLoader();
 		XtextDocument xtextDoc = (XtextDocument) document;
+		File f = null;
 		try {
 			Class<?> lanDescClass = loader.loadClass(LANG_DESCRIPTOR);
 			Constructor<?> langDescConstructor = lanDescClass.getConstructor(String.class, String.class, String.class, Class.class,
@@ -87,7 +89,7 @@ public class CodebuffContentFormatter implements IContentFormatter {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IProject project = root.getProject(projectURI.segment(1));
 			String projectPath = project.getLocationURI().getPath();
-			IPath file = root.getFile(new Path(resourceURI.toPlatformString(true))).getLocation();
+//			IPath file = root.getFile(new Path(resourceURI.toPlatformString(true))).getLocation();
 			String corpusDirString = projectPath + "/" + CORPUSDIR;
 			File corpusDirFile = new File(corpusDirString);
 			Class<?> parser = loader.loadClass(CODEBUFFPARSER);
@@ -97,22 +99,24 @@ public class CodebuffContentFormatter implements IContentFormatter {
 			Field ruleNamesField = parser.getDeclaredField("ruleNames");
 			String[] ruleNames = (String[]) ruleNamesField.get(null);
 			String rootRule = ruleNames[0];
-			Object lanDesc = langDescConstructor.newInstance("XtextGEN", corpusDirString, fileRegex, lexer, parser, rootRule, indent,
+			Object langDesc = langDescConstructor.newInstance("XtextGEN", corpusDirString, fileRegex, lexer, parser, rootRule, indent,
 					commentRuleValue);
 			if (corpusDirFile.exists()) {
 				Object allFiles = getFileNames.invoke(null, corpusDirFile, fileRegex);
 				Method load = tool.getDeclaredMethod("load", List.class, lanDescClass);
-				Object documents = load.invoke(null, allFiles, lanDesc);
+				Object documents = load.invoke(null, allFiles, langDesc);
 				Method parse = tool.getDeclaredMethod("parse", String.class, lanDescClass);
-				Object testDoc = parse.invoke(null, file.toOSString(), lanDesc);
+				f = File.createTempFile("prefix", "suffix");
+				Files.asCharSink(f, StandardCharsets.UTF_8).write(document.get());
+				Object testDoc = parse.invoke(null, f.getAbsolutePath(), langDesc);
 				Class<?> corpusClass = loader.loadClass(CORPUS);
 				Constructor<?> corpusConstructor = corpusClass.getConstructor(List.class, lanDescClass);
-				Object corpus = corpusConstructor.newInstance(documents, lanDesc);
+				Object corpus = corpusConstructor.newInstance(documents, langDesc);
 				Method train = corpusClass.getDeclaredMethod("train");
 				train.invoke(corpus);
 				Class<?> formatterClass = loader.loadClass(FORMATTER);
 				Class<?> featureMetaDataClass = loader.loadClass(FEATURE_META_DATA);
-				Object array = java.lang.reflect.Array.newInstance(featureMetaDataClass, 0);
+				Object array = Array.newInstance(featureMetaDataClass, 0);
 				Constructor<?> formatterConstructor = formatterClass.getConstructor(corpusClass, int.class, int.class, array.getClass(),
 						array.getClass());
 				Field default_k = formatterClass.getDeclaredField("DEFAULT_K");
@@ -128,6 +132,10 @@ public class CodebuffContentFormatter implements IContentFormatter {
 			}
 		} catch (Exception e) {
 			throw new WrappedException(e);
+		} finally {
+			if (f != null) {
+				f.delete();
+			}
 		}
 
 	}
