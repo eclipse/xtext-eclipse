@@ -9,25 +9,25 @@ package org.eclipse.xtext.example.domainmodel.validation
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
+import com.google.inject.Inject
+import org.eclipse.xtext.common.types.JvmGenericType
+import org.eclipse.xtext.common.types.JvmOperation
 import org.eclipse.xtext.example.domainmodel.domainmodel.Entity
 import org.eclipse.xtext.example.domainmodel.domainmodel.Feature
+import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
 import org.eclipse.xtext.example.domainmodel.domainmodel.PackageDeclaration
 import org.eclipse.xtext.example.domainmodel.domainmodel.Property
 import org.eclipse.xtext.util.Strings
 import org.eclipse.xtext.validation.Check
 import org.eclipse.xtext.validation.ValidationMessageAcceptor
+import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.xtext.xbase.typesystem.^override.OverrideHelper
 
 import static org.eclipse.xtext.example.domainmodel.domainmodel.DomainmodelPackage.Literals.*
 import static org.eclipse.xtext.example.domainmodel.validation.IssueCodes.*
 
 import static extension java.lang.Character.isLowerCase
 import static extension java.lang.Character.isUpperCase
-import com.google.inject.Inject
-import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
-import org.eclipse.xtext.common.types.JvmGenericType
-import org.eclipse.xtext.xbase.typesystem.^override.OverrideHelper
-import org.eclipse.xtext.common.types.JvmOperation
-import org.eclipse.xtext.example.domainmodel.domainmodel.Operation
 
 /**
  * This class contains custom validation rules.
