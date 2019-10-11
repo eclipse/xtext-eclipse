@@ -189,14 +189,14 @@ class ValidationTests {
 	@Test def void testDuplicatedOperation() {
 		val model = '''
 			entity E {
-				op m() {}
-				op m() {}
+				op foo() {}
+				op foo() {}
 			}
 		'''
 		model.parse => [
 			assertNumberOfIssues(2)
-			assertError(OPERATION, DUPLICATE_OPERATION, model.indexOf("m"), 1, "Duplicate operation m")
-			assertError(OPERATION, DUPLICATE_OPERATION, model.lastIndexOf("m"), 1, "Duplicate operation m")
+			assertError(OPERATION, DUPLICATE_OPERATION, model.indexOf("foo"), 3, "Duplicate operation foo")
+			assertError(OPERATION, DUPLICATE_OPERATION, model.lastIndexOf("foo"), 3, "Duplicate operation foo")
 		]
 	}
 
