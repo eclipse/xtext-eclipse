@@ -407,8 +407,7 @@ public class ValidationTests {
       _builder.newLine();
       _builder.append("}");
       _builder.newLine();
-      final String model = _builder.toString();
-      this._validationTestHelper.assertNoErrors(this._parseHelper.parse(model));
+      this._validationTestHelper.assertNoErrors(this._parseHelper.parse(_builder));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }
@@ -428,8 +427,7 @@ public class ValidationTests {
       _builder.newLine();
       _builder.append("}");
       _builder.newLine();
-      final String model = _builder.toString();
-      this._validationTestHelper.assertNoErrors(this._parseHelper.parse(model));
+      this._validationTestHelper.assertNoErrors(this._parseHelper.parse(_builder));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

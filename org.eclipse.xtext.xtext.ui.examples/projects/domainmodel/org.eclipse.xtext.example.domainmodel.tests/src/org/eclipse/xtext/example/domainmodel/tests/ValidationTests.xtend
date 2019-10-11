@@ -201,23 +201,21 @@ class ValidationTests {
 	}
 
 	@Test def void testDuplicatedOperationWithDifferentSignatureIsAllowed() {
-		val model = '''
+		'''
 			entity E {
 				op m(int i) {}
 				op m() {}
 			}
-		'''
-		model.parse.assertNoErrors
+		'''.parse.assertNoErrors
 	}
 
 	@Test def void testFeatureAndOperationWithSameNameIsAllowed() {
-		val model = '''
+		'''
 			entity E {
 				m : String
 				op m() {}
 			}
-		'''
-		model.parse.assertNoErrors
+		'''.parse.assertNoErrors
 	}
 
 	@Test def void testDuplicatedOperationWithDifferentSignatureWithSameTypeErasure() {
