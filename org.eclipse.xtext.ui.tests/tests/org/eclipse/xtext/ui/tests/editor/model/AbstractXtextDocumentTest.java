@@ -12,13 +12,16 @@ import org.eclipse.xtext.parser.antlr.Lexer;
 import org.eclipse.xtext.parser.antlr.XtextAntlrTokenFileProvider;
 import org.eclipse.xtext.resource.OutdatedStateManager;
 import org.eclipse.xtext.service.OperationCanceledManager;
+import org.eclipse.xtext.ui.editor.model.DefaultPartitioningKey;
 import org.eclipse.xtext.ui.editor.model.DocumentPartitioner;
 import org.eclipse.xtext.ui.editor.model.DocumentTokenSource;
 import org.eclipse.xtext.ui.editor.model.PartitionTokenScanner;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.model.TerminalsTokenTypeToPartitionMapper;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.junit.Assert;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 /**
@@ -29,6 +32,9 @@ public abstract class AbstractXtextDocumentTest extends Assert {
 	protected OutdatedStateManager outdatedStateManager = new OutdatedStateManager();
 	protected OperationCanceledManager operationCanceledManager = new OperationCanceledManager();
 
+	@Inject
+	protected PartitioningKey partitioningKey = new DefaultPartitioningKey();
+	
 	public XtextDocument getDocument(String s) {
 		TerminalsTokenTypeToPartitionMapper mapper = new TerminalsTokenTypeToPartitionMapper() {{
 			setTokenDefProvider(new AntlrTokenDefProvider() {
@@ -48,7 +54,7 @@ public abstract class AbstractXtextDocumentTest extends Assert {
 			}
 		});
 		XtextDocument document = new XtextDocument(tokenSource, null, outdatedStateManager, operationCanceledManager);
-		document.setDocumentPartitioner(partitioner);
+		document.setDocumentPartitioner(partitioningKey.getPartitioning(), partitioner);
 		partitioner.connect(document);
 		document.set(s);
 		return document;

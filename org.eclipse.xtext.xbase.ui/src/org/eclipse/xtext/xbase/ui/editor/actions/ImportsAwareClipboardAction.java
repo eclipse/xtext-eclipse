@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.ui.actions.ActionMessages;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRewriteTarget;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
@@ -57,6 +56,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.XtextEditor;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.utils.EditorUtils;
 import org.eclipse.xtext.ui.util.ClipboardUtil;
 import org.eclipse.xtext.ui.util.ClipboardUtil.JavaImportData;
@@ -93,7 +93,10 @@ public class ImportsAwareClipboardAction extends TextEditorAction {
 	private static final XbaseClipboardTransfer TRANSFER_INSTANCE = new XbaseClipboardTransfer();
 	private final int operationCode;
 	private ITextOperationTarget textOperationTarget;
-	private @Inject ImportsUtil importsUtil;
+	@Inject 
+	private ImportsUtil importsUtil;
+	@Inject
+	private PartitioningKey partitioningKey;
 
 	/**
 	 * Creates the action.
@@ -228,9 +231,9 @@ public class ImportsAwareClipboardAction extends TextEditorAction {
 		String typeRight = IDocument.DEFAULT_CONTENT_TYPE;
 		String typeLeft = IDocument.DEFAULT_CONTENT_TYPE;
 		try {
-			typeRight = TextUtilities.getContentType(document, IDocumentExtension3.DEFAULT_PARTITIONING, caretOffset,
+			typeRight = TextUtilities.getContentType(document, partitioningKey.getPartitioning(), caretOffset,
 					false);
-			typeLeft = TextUtilities.getContentType(document, IDocumentExtension3.DEFAULT_PARTITIONING,
+			typeLeft = TextUtilities.getContentType(document, partitioningKey.getPartitioning(),
 					caretOffset > 0 ? caretOffset - 1 : caretOffset, false);
 		} catch (BadLocationException exception) {
 			// Should not happen

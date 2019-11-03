@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextSelection;
@@ -41,8 +42,10 @@ import org.eclipse.xtext.ui.editor.XtextSourceViewerConfiguration;
 import org.eclipse.xtext.ui.editor.contentassist.ConfigurableCompletionProposal;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ReplacementTextApplier;
+import org.eclipse.xtext.ui.editor.model.DefaultPartitioningKey;
 import org.eclipse.xtext.ui.editor.model.DocumentPartitioner;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.testing.util.ResourceLoadHelper;
 import org.eclipse.xtext.util.StringInputStream;
@@ -73,6 +76,11 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 	@Inject(optional = true)
 	private IDirtyStateManager dirtyStateManager;
 	private IDirtyResource dirtyResource;
+	/**
+	 * @since 2.20
+	 */
+	@Inject(optional = true)
+	private PartitioningKey partitioningKey = new DefaultPartitioningKey();
 
 	public static class Factory {
 		private Injector injector;
@@ -388,7 +396,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 		try {
 			ISourceViewer sourceViewer = getSourceViewer(shell, xtextDocument, configuration);
 			IContentAssistant contentAssistant = configuration.getContentAssistant(sourceViewer);
-			String contentType = xtextDocument.getContentType(currentModelToParse.length());
+			String contentType = xtextDocument.getContentType(partitioningKey.getPartitioning(), currentModelToParse.length(), false);
 			if (contentAssistant.getContentAssistProcessor(contentType) != null) {
 				ContentAssistContext.Factory factory = get(ContentAssistContext.Factory.class);
 				ContentAssistContext[] contexts = factory.create(sourceViewer, currentModelToParse.length(), xtextResource);
@@ -494,7 +502,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 	}
 
 	protected ICompletionProposal[] computeCompletionProposals(final IXtextDocument xtextDocument, int cursorPosition)
-			throws BadLocationException {
+			throws BadLocationException, BadPartitioningException {
 		Shell shell = new Shell();
 		try {
 			return computeCompletionProposals(xtextDocument, cursorPosition, shell);
@@ -504,16 +512,16 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 	}
 
 	protected ICompletionProposal[] computeCompletionProposals(final IXtextDocument xtextDocument, int cursorPosition,
-			Shell shell) throws BadLocationException {
+			Shell shell) throws BadLocationException, BadPartitioningException {
 		XtextSourceViewerConfiguration configuration = get(XtextSourceViewerConfiguration.class);
 		ISourceViewer sourceViewer = getSourceViewer(shell, xtextDocument, configuration);
 		return computeCompletionProposals(xtextDocument, cursorPosition, configuration, sourceViewer);
 	}
 
 	protected ICompletionProposal[] computeCompletionProposals(final IXtextDocument xtextDocument, int cursorPosition,
-			XtextSourceViewerConfiguration configuration, ISourceViewer sourceViewer) throws BadLocationException {
+			XtextSourceViewerConfiguration configuration, ISourceViewer sourceViewer) throws BadLocationException, BadPartitioningException {
 		IContentAssistant contentAssistant = configuration.getContentAssistant(sourceViewer);
-		String contentType = xtextDocument.getContentType(cursorPosition);
+		String contentType = xtextDocument.getContentType(partitioningKey.getPartitioning(), cursorPosition, false);
 		IContentAssistProcessor processor = contentAssistant.getContentAssistProcessor(contentType);
 		if (processor != null) {
 			return processor.computeCompletionProposals(sourceViewer, cursorPosition);
@@ -595,7 +603,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 		document.setInput(xtextResource);
 		DocumentPartitioner partitioner = get(DocumentPartitioner.class);
 		partitioner.connect(document);
-		document.setDocumentPartitioner(partitioner);
+		document.setDocumentPartitioner(partitioningKey.getPartitioning(), partitioner);
 		return document;
 	}
 

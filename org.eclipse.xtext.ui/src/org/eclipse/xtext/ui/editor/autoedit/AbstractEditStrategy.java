@@ -7,21 +7,18 @@
  *******************************************************************************/
 package org.eclipse.xtext.ui.editor.autoedit;
 
-import java.util.Arrays;
-
 import org.apache.log4j.Logger;
 import org.eclipse.jface.bindings.keys.IKeyLookup;
 import org.eclipse.jface.bindings.keys.KeyLookupFactory;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.xtext.ui.editor.model.DocumentUtil;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -49,6 +46,26 @@ public abstract class AbstractEditStrategy implements IAutoEditStrategy, VerifyK
 	
 	private boolean skipNext = false;
 	
+	/**
+	 * @since 2.20
+	 */
+	@Inject
+	protected DocumentUtil util = new DocumentUtil();
+	
+	/**
+	 * @since 2.20
+	 */
+	public void setDocumentUtil(DocumentUtil util) {
+		this.util = util;
+	}
+	
+	/**
+	 * @since 2.20
+	 */
+	public DocumentUtil getDocumentUtil() {
+		return util;
+	}
+	
 	private boolean shouldSkipNext(int keyCode) {
 		IKeyLookup lookUp = KeyLookupFactory.getDefault();
 		return lookUp.getCommand() == keyCode || lookUp.getCtrl() == keyCode;
@@ -67,6 +84,8 @@ public abstract class AbstractEditStrategy implements IAutoEditStrategy, VerifyK
 			internalCustomizeDocumentCommand(document, command);
 		} catch (BadLocationException e) {
 			handleBadLocationException(e);
+		} catch (BadPartitioningException e) {
+			handleBadPartitioningException(e);
 		}
 	}
 	
@@ -79,9 +98,19 @@ public abstract class AbstractEditStrategy implements IAutoEditStrategy, VerifyK
 		if (debug)
 			throw new RuntimeException(e);
 	}
+	
+	/**
+	 * Logs the exception. Will throw a {@link RuntimeException} if {@link #debug} is set to <code>true</code>.
+	 * @since 2.20
+	 */
+	protected void handleBadPartitioningException(BadPartitioningException e) {
+		log.error(e.getMessage(), e);
+		if (debug)
+			throw new RuntimeException(e);
+	}
 
 	protected abstract void internalCustomizeDocumentCommand(IDocument document, DocumentCommand command)
-			throws BadLocationException;
+			throws BadLocationException, BadPartitioningException;
 
 	public int count(String toFind, String searchMe) throws BadLocationException {
 		int count = 0;
@@ -97,20 +126,7 @@ public abstract class AbstractEditStrategy implements IAutoEditStrategy, VerifyK
 	}
 
 	protected String getDocumentContent(IDocument document, DocumentCommand command) throws BadLocationException {
-		final ITypedRegion partition = document.getPartition(command.offset);
-		ITypedRegion[] partitions = document.getDocumentPartitioner().computePartitioning(0, document.getLength());
-		Iterable<ITypedRegion> partitionsOfCurrentType = Iterables.filter(Arrays.asList(partitions),
-				new Predicate<ITypedRegion>() {
-					@Override
-					public boolean apply(ITypedRegion input) {
-						return input.getType().equals(partition.getType());
-					}
-				});
-		StringBuilder builder = new StringBuilder();
-		for (ITypedRegion position : partitionsOfCurrentType) {
-			builder.append(document.get(position.getOffset(), position.getLength()));
-		}
-		return builder.toString();
+		return getDocumentUtil().getDocumentContent(document, command);
 	}
 
 	protected boolean isIdentifierPart(IDocument doc, int offset) throws BadLocationException {

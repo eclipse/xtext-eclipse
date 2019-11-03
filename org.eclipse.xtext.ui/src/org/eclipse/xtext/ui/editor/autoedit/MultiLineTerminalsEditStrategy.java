@@ -9,6 +9,7 @@ package org.eclipse.xtext.ui.editor.autoedit;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -73,7 +74,7 @@ public class MultiLineTerminalsEditStrategy extends AbstractTerminalsEditStrateg
 
 	@Override
 	protected void internalCustomizeDocumentCommand(IDocument document, DocumentCommand command)
-			throws BadLocationException {
+			throws BadLocationException, BadPartitioningException {
 		if (isLineDelimiter(document, command)) {
 			IRegion startTerminal = findStartTerminal(document, command.offset);
 			if (startTerminal == null)
@@ -216,12 +217,13 @@ public class MultiLineTerminalsEditStrategy extends AbstractTerminalsEditStrateg
 	/**
 	 * determines the offset of the next ITypedRegion of type {@link IDocument#DEFAULT_CONTENT_TYPE} starting from the given offset  
 	 * Fix for bug 403812.  
+	 * @throws BadPartitioningException 
 	 */
-	private int findOffsetOfNextDftlContentPartition(IDocument document, int startOffset) throws BadLocationException{
+	private int findOffsetOfNextDftlContentPartition(IDocument document, int startOffset) throws BadLocationException, BadPartitioningException{
 		if (startOffset >= document.getLength()) {
 			return startOffset;
 		}
-		ITypedRegion partition = document.getPartition(startOffset);
+		ITypedRegion partition = getDocumentUtil().getPartition(document, startOffset);
 		if(IDocument.DEFAULT_CONTENT_TYPE.equals(partition.getType())){
 			return startOffset;
 		}else{

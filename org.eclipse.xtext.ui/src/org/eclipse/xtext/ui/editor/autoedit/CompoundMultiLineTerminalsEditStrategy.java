@@ -10,6 +10,7 @@ package org.eclipse.xtext.ui.editor.autoedit;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -69,7 +70,7 @@ public class CompoundMultiLineTerminalsEditStrategy extends AbstractEditStrategy
 
 	@Override
 	protected void internalCustomizeDocumentCommand(IDocument document, DocumentCommand command)
-			throws BadLocationException {
+			throws BadLocationException, BadPartitioningException {
 		if (command.length != 0)
 			return;
 		String[] lineDelimiters = document.getLegalLineDelimiters();

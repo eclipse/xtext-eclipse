@@ -8,6 +8,7 @@
 package org.eclipse.xtext.ui.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 
@@ -47,7 +48,7 @@ public class SingleLineTerminalsStrategy extends AbstractTerminalsEditStrategy {
 		 *             exceptions are not thrown, thrown exceptions are caught and interpreted like return
 		 *             <code>true</code>
 		 */
-		boolean isInsertClosingBracket(IDocument doc, int offset) throws BadLocationException;
+		boolean isInsertClosingBracket(IDocument doc, int offset) throws BadLocationException, BadPartitioningException;
 	}
 
 	public static StrategyPredicate DEFAULT = new StrategyPredicate() {
@@ -103,7 +104,7 @@ public class SingleLineTerminalsStrategy extends AbstractTerminalsEditStrategy {
 	protected boolean isInsertClosingTerminal(IDocument document, int i) {
 		try {
 			return strategy.isInsertClosingBracket(document, i);
-		} catch (BadLocationException e) {
+		} catch (BadLocationException | BadPartitioningException e) {
 			if (debug)
 				throw new RuntimeException(e);
 			return true;

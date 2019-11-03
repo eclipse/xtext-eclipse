@@ -32,7 +32,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
@@ -854,6 +853,13 @@ public class XtextEditor extends TextEditor implements IDirtyStateEditorSupportC
 	protected SmartLineStartAction createSmartLineStartAction(final StyledText textWidget, boolean doSelect) {
 		return new SmartLineStartAction(textWidget, doSelect);
 	}
+	
+	/**
+	 * @since 2.20
+	 */
+	protected String getDocumentPartitioning() {
+		return ((XtextSourceViewer) getSourceViewer()).getDocumentPartitioning();
+	}
 
 	// CODE BELOW WAS INITIALLY COPIED FROM JavaEditor
 
@@ -1372,7 +1378,7 @@ public class XtextEditor extends TextEditor implements IDirtyStateEditorSupportC
 
 			String type = IDocument.DEFAULT_CONTENT_TYPE;
 			try {
-				type = TextUtilities.getContentType(document, IDocumentExtension3.DEFAULT_PARTITIONING, offset, false);
+				type = TextUtilities.getContentType(document, getDocumentPartitioning(), offset, false);
 			} catch (BadLocationException exception) {
 				// Should not happen
 			}

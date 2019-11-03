@@ -8,6 +8,7 @@
 package org.eclipse.xtext.ui.tests.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -33,11 +34,11 @@ public class TerminalsEditStrategyTest extends Assert {
 				throws BadLocationException {
 		}
 		@Override
-		public IRegion findStartTerminal(IDocument document, int offset) throws BadLocationException {
+		public IRegion findStartTerminal(IDocument document, int offset) throws BadLocationException, BadPartitioningException {
 			return super.findStartTerminal(document, offset);
 		}
 		@Override
-		public IRegion findStopTerminal(IDocument document, int offset) throws BadLocationException {
+		public IRegion findStopTerminal(IDocument document, int offset) throws BadLocationException, BadPartitioningException {
 			return super.findStopTerminal(document, offset);
 		}
 	}

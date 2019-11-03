@@ -170,4 +170,14 @@ public class XtextSourceViewer extends ProjectionViewer implements IAdaptable {
 	public IXtextDocument getXtextDocument() {
 		return xtextDocumentUtil.getXtextDocument(getDocument());
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @since 2.20
+	 */
+	@Override
+	protected String getDocumentPartitioning() {
+		return super.getDocumentPartitioning();
+	}
 }

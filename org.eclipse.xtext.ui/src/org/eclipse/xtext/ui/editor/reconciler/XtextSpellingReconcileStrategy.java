@@ -8,7 +8,6 @@
 package org.eclipse.xtext.ui.editor.reconciler;
 
 import static com.google.common.collect.ObjectArrays.*;
-import static org.eclipse.jface.text.IDocumentExtension3.*;
 import static org.eclipse.xtext.ui.editor.model.TerminalsTokenTypeToPartitionMapper.*;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -24,6 +23,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingContext;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 import org.eclipse.xtext.ui.editor.model.ITokenTypeToPartitionTypeMapperExtension;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 
 import com.google.inject.Inject;
 
@@ -35,13 +35,23 @@ public class XtextSpellingReconcileStrategy extends SpellingReconcileStrategy {
 
 	public static class Factory implements IReconcileStrategyFactory {
 		
+		/**
+		 * @since 2.20
+		 */
 		@Inject
-		private ITokenTypeToPartitionTypeMapperExtension partitionMapperExtension;
+		protected ITokenTypeToPartitionTypeMapperExtension partitionMapperExtension;
+		
+		/**
+		 * @since 2.20
+		 */
+		@Inject
+		protected PartitioningKey partitioningKey;
 		
 		@Override
 		public XtextSpellingReconcileStrategy create(ISourceViewer sourceViewer) {
 			XtextSpellingReconcileStrategy result = new XtextSpellingReconcileStrategy(sourceViewer);
 			result.setPartitionMapperExtension(partitionMapperExtension);
+			result.setPartitioningKey(partitioningKey);
 			return result;
 		}
 	}
@@ -51,6 +61,7 @@ public class XtextSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	private SpellingContext spellingContext = new SpellingContext();
 	private NullProgressMonitor progressMonitor = new NullProgressMonitor();
 	private ITokenTypeToPartitionTypeMapperExtension partitionMapperExtension;
+	private PartitioningKey partitioningKey;
 
 	protected XtextSpellingReconcileStrategy(ISourceViewer viewer) {
 		super(viewer, EditorsUI.getSpellingService());
@@ -62,6 +73,13 @@ public class XtextSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	 */
 	protected void setPartitionMapperExtension(ITokenTypeToPartitionTypeMapperExtension partitionMapperExtension) {
 		this.partitionMapperExtension = partitionMapperExtension;
+	}
+	
+	/**
+	 * @since 2.20
+	 */
+	protected void setPartitioningKey(PartitioningKey partitioningKey) {
+		this.partitioningKey = partitioningKey;
 	}
 
 	@Override
@@ -75,7 +93,7 @@ public class XtextSpellingReconcileStrategy extends SpellingReconcileStrategy {
 		if (!isSpellingEnabled()) {
 			return;
 		}
-		ITypedRegion[] regions = computePartitioning(0, getDocument().getLength(), DEFAULT_PARTITIONING);
+		ITypedRegion[] regions = computePartitioning(0, getDocument().getLength(), partitioningKey.getPartitioning());
 		spellingService.check(getDocument(), regions, spellingContext, spellingProblemCollector, progressMonitor);
 	}
 

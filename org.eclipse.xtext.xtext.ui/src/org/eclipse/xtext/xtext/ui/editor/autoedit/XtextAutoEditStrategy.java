@@ -11,12 +11,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.xtext.ui.editor.autoedit.DefaultAutoEditStrategyProvider;
 import org.eclipse.xtext.ui.editor.autoedit.MultiLineTerminalsEditStrategy;
 import org.eclipse.xtext.ui.editor.autoedit.SingleLineTerminalsStrategy.StrategyPredicate;
 import org.eclipse.xtext.ui.editor.model.DocumentUtil;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
+
+import com.google.inject.Inject;
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -27,12 +31,19 @@ public class XtextAutoEditStrategy extends DefaultAutoEditStrategyProvider {
 	private static final Pattern returnsPattern = Pattern.compile("\\sreturns\\s");
 	private static final Pattern doubleColonPattern = Pattern.compile("::");
 	
+	private PartitioningKey partitioningKey;
+
+	@Inject
+	public XtextAutoEditStrategy(PartitioningKey partitioningKey) {
+		this.partitioningKey = partitioningKey;
+	}
+	
 	@Override
 	protected void configure(IEditStrategyAcceptor acceptor) {
 		super.configure(acceptor);
 		acceptor.accept(singleLineTerminals.newInstance(":", ";", new StrategyPredicate() {
 			@Override
-			public boolean isInsertClosingBracket(IDocument doc, final int offset) throws BadLocationException {
+			public boolean isInsertClosingBracket(IDocument doc, final int offset) throws BadLocationException, BadPartitioningException {
 				String currentRuleUptoOffset = getCurrentRuleUptoOffset(offset, doc);
 				Matcher matcher = singleColonPattern.matcher(currentRuleUptoOffset);
 				boolean isInsideRuleBody = matcher.find();
@@ -50,7 +61,7 @@ public class XtextAutoEditStrategy extends DefaultAutoEditStrategyProvider {
 	protected MultiLineTerminalsEditStrategy createColonSemicolonStrategy() {
 		MultiLineTerminalsEditStrategy configure = multiLineTerminals.newInstance(":", null, ";", false);
 		// the following is a cheap but working hack, which replaces any double colons '::' by whitespace '  ' temporarily.
-		configure.setDocumentUtil(new DocumentUtil() {
+		configure.setDocumentUtil(new DocumentUtil(partitioningKey) {
 			@Override
 			protected String preProcessSearchString(String string) {
 				return string.replace("::", "  ");
@@ -65,8 +76,8 @@ public class XtextAutoEditStrategy extends DefaultAutoEditStrategyProvider {
 				.and(createColonSemicolonStrategy()), IDocument.DEFAULT_CONTENT_TYPE);
 	}
 
-	protected String getCurrentRuleUptoOffset(int offset, IDocument doc) throws BadLocationException {
-		ITypedRegion currentPartition = doc.getPartition(offset);
+	protected String getCurrentRuleUptoOffset(int offset, IDocument doc) throws BadLocationException, BadPartitioningException {
+		ITypedRegion currentPartition = partitioningKey.getPartition(doc, offset);
 		String partitionType = currentPartition.getType();
 		String currentSegment = doc.get(currentPartition.getOffset(), offset - currentPartition.getOffset());
 		StringBuilder ruleAsString = new StringBuilder(); 
@@ -76,7 +87,7 @@ public class XtextAutoEditStrategy extends DefaultAutoEditStrategyProvider {
 				if(currentPartition.getOffset()==0) {
 					return ruleAsString.toString();
 				}
-				currentPartition = doc.getPartition(currentPartition.getOffset()-1);
+				currentPartition = partitioningKey.getPartition(doc, currentPartition.getOffset()-1);
 				currentSegment = doc.get(currentPartition.getOffset(), currentPartition.getLength());
 			} while(!partitionType.equals(currentPartition.getType()));
 		}

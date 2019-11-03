@@ -38,9 +38,11 @@ import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.IEditorInput;
@@ -125,6 +127,12 @@ public class XtextDocumentProvider extends FileDocumentProvider {
 	private IEncodingProvider encodingProvider;
 	
 	/**
+	 * @since 2.20
+	 */
+	@Inject
+	private PartitioningKey partitioningKey;
+	
+	/**
 	 * @since 2.4
 	 */
 	protected IStorage2UriMapper getStorage2UriMapper() {
@@ -151,7 +159,11 @@ public class XtextDocumentProvider extends FileDocumentProvider {
 		if (document != null) {
 			IDocumentPartitioner partitioner = documentPartitioner.get();
 			partitioner.connect(document);
-			document.setDocumentPartitioner(partitioner);
+			if (document instanceof IDocumentExtension3) {
+				((IDocumentExtension3)document).setDocumentPartitioner(partitioningKey.getPartitioning(), partitioner);
+			} else {
+				document.setDocumentPartitioner(partitioner);
+			}
 		}
 		return document;
 	}

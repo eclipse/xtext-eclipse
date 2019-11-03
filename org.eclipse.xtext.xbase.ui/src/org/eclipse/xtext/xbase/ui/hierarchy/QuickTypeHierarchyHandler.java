@@ -13,13 +13,13 @@ import org.eclipse.jdt.internal.ui.text.JavaElementProvider;
 import org.eclipse.jdt.ui.text.IJavaPartitions;
 import org.eclipse.jface.text.AbstractInformationControlManager;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.information.InformationPresenter;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.xtext.resource.ILocationInFileProvider;
 import org.eclipse.xtext.ui.editor.XtextEditor;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.util.ITextRegion;
 import org.eclipse.xtext.xbase.ui.editor.AbstractJvmElementHandler;
 
@@ -31,8 +31,17 @@ import com.google.inject.Inject;
 @SuppressWarnings("restriction")
 public class QuickTypeHierarchyHandler extends AbstractJvmElementHandler {
 
+	/**
+	 * @since 2.20
+	 */
 	@Inject
-	ILocationInFileProvider locationInFileProvider;
+	protected ILocationInFileProvider locationInFileProvider;
+	
+	/**
+	 * @since 2.20
+	 */
+	@Inject 
+	protected PartitioningKey partitioningKey;
 
 	@Override
 	protected void openPresentation(final XtextEditor editor, final IJavaElement javaElement,
@@ -40,7 +49,7 @@ public class QuickTypeHierarchyHandler extends AbstractJvmElementHandler {
 		final ISourceViewer sourceViewer = editor.getInternalSourceViewer();
 		ITextRegion significantTextRegion = locationInFileProvider.getSignificantTextRegion(selectedElement);
 		InformationPresenter presenter = new HierarchyInformationPresenter(sourceViewer, javaElement, new Region(significantTextRegion.getOffset(),significantTextRegion.getLength()));
-		presenter.setDocumentPartitioning(IDocumentExtension3.DEFAULT_PARTITIONING);
+		presenter.setDocumentPartitioning(partitioningKey.getPartitioning());
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new JavaElementProvider(editor, false);
 		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);

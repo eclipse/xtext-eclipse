@@ -42,6 +42,7 @@ import org.eclipse.xtext.ui.editor.doubleClicking.DoubleClickStrategyProvider;
 import org.eclipse.xtext.ui.editor.formatting.IContentFormatterFactory;
 import org.eclipse.xtext.ui.editor.hyperlinking.SingleHoverShowingHyperlinkPresenter;
 import org.eclipse.xtext.ui.editor.model.ITokenTypeToPartitionTypeMapper;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.quickfix.XtextQuickAssistAssistant;
 import org.eclipse.xtext.ui.editor.reconciler.XtextReconciler;
 import org.eclipse.xtext.ui.editor.toggleComments.ISingleLineCommentHelper;
@@ -104,6 +105,12 @@ public class XtextSourceViewerConfiguration extends TextSourceViewerConfiguratio
 
 	@Inject
 	private XtextInformationProvider informationProvider;
+	
+	/**
+	 * @since 2.20
+	 */
+	@Inject
+	private PartitioningKey partitioningKey;
 
 	/**
 	 * @since 2.4
@@ -264,6 +271,15 @@ public class XtextSourceViewerConfiguration extends TextSourceViewerConfiguratio
 
 	public Provider<XtextPresentationReconciler> getPresentationReconcilerProvider() {
 		return presentationReconcilerProvider;
+	}
+	
+	/**
+	 * @since 2.20
+	 * @see PartitioningKey
+	 */
+	@Override
+	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
+		return partitioningKey.getPartitioning();
 	}
 	
 	@Inject

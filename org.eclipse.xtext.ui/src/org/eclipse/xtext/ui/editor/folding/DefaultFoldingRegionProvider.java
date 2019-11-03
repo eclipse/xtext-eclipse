@@ -21,7 +21,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.resource.DerivedStateAwareResource;
@@ -29,6 +28,7 @@ import org.eclipse.xtext.resource.ILocationInFileProvider;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.ui.editor.model.ITokenTypeToPartitionTypeMapperExtension;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.model.TerminalsTokenTypeToPartitionMapper;
 import org.eclipse.xtext.util.CancelIndicator;
 import org.eclipse.xtext.util.ITextRegion;
@@ -57,6 +57,12 @@ public class DefaultFoldingRegionProvider implements IFoldingRegionProvider {
 	 */
 	@Inject
 	private ITokenTypeToPartitionTypeMapperExtension tokenTypeToPartitionTypeMapperExtension;
+	
+	/**
+	 * @since 2.20
+	 */
+	@Inject
+	private PartitioningKey partitioningKey;
 
 	@Deprecated
 	public DefaultFoldingRegionProvider(ILocationInFileProvider locationInFileProvider) {
@@ -158,7 +164,7 @@ public class DefaultFoldingRegionProvider implements IFoldingRegionProvider {
 	protected void computeCommentFolding(IXtextDocument xtextDocument, IFoldingRegionAcceptor<ITextRegion> foldingRegionAcceptor) {
 		try {
 			ITypedRegion[] typedRegions = xtextDocument.computePartitioning(
-					IDocumentExtension3.DEFAULT_PARTITIONING, 0, xtextDocument.getLength(), false);
+					getPartitioning(), 0, xtextDocument.getLength(), false);
 			for (ITypedRegion typedRegion : typedRegions) {
 				if (cancelIndicator.isCanceled())
 					throw new OperationCanceledException();
@@ -174,6 +180,15 @@ public class DefaultFoldingRegionProvider implements IFoldingRegionProvider {
 			// partioning failed
 			log.error(e, e);
 		}
+	}
+
+	/**
+	 * Returns the used partitioning for this folding region provider.
+	 * 
+	 * @since 2.20
+	 */
+	protected String getPartitioning() {
+		return partitioningKey.getPartitioning();
 	}
 
 	/**

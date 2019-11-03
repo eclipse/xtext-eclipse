@@ -8,6 +8,7 @@
 package org.eclipse.xtext.ui.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -46,9 +47,9 @@ public class PartitionInsertEditStrategy extends AbstractEditStrategy {
 	
 	@Override
 	protected void internalCustomizeDocumentCommand(IDocument document, DocumentCommand command)
-			throws BadLocationException {
+			throws BadLocationException, BadPartitioningException {
 		if (left.length() >= command.text.length() && command.text.length() > 0 && left.endsWith(command.text)) {
-			ITypedRegion partition = document.getPartition(command.offset);
+			ITypedRegion partition = getDocumentUtil().getPartition(document, command.offset);
 			if (command.offset != 0 && partition.getLength() == 0 && document.getLength() != 0) {
 				ITypedRegion precedingPartition = document.getPartition(command.offset - 1);
 				partition = precedingPartition;

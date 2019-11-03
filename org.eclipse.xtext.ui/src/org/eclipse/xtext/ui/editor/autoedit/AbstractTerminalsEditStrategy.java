@@ -8,6 +8,7 @@
 package org.eclipse.xtext.ui.editor.autoedit;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.xtext.ui.editor.model.DocumentUtil;
@@ -20,13 +21,6 @@ import com.google.inject.Inject;
 public abstract class AbstractTerminalsEditStrategy extends AbstractEditStrategy {
 	
 	private String leftTerminal, rightTerminal;
-	
-	@Inject
-	protected DocumentUtil util = new DocumentUtil();
-	
-	public void setDocumentUtil(DocumentUtil util) {
-		this.util = util;
-	}
 	
 	public AbstractTerminalsEditStrategy(String leftTerminal, String rightTerminal) {
 		if (leftTerminal==null || rightTerminal==null)
@@ -50,14 +44,11 @@ public abstract class AbstractTerminalsEditStrategy extends AbstractEditStrategy
 		return false;
 	}
 	
-	protected DocumentUtil getDocumentUtil() {
-		return util;
-	}
-
 	/**
 	 * finds the first stop terminal which has not been started after the cursor position.
+	 * @throws BadPartitioningException if the document is properly configured
 	 */
-	protected IRegion findStopTerminal(IDocument document, int offset) throws BadLocationException {
+	protected IRegion findStopTerminal(IDocument document, int offset) throws BadLocationException, BadPartitioningException {
 		String documentText = document.get();
 		int stopOffset = offset;
 		int startOffset = offset;
@@ -77,8 +68,9 @@ public abstract class AbstractTerminalsEditStrategy extends AbstractEditStrategy
 
 	/**
 	 * finds the first start terminal which is not closed before the cursor position.
+	 * @throws BadPartitioningException if the document is properly configured
 	 */
-	protected IRegion findStartTerminal(IDocument document, int offset) throws BadLocationException {
+	protected IRegion findStartTerminal(IDocument document, int offset) throws BadLocationException, BadPartitioningException {
 		String documentText = document.get();
 		int stopOffset = offset;
 		int startOffset = offset;

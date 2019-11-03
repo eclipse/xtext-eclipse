@@ -53,7 +53,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.AbstractInformationControlManager;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.information.IInformationProvider;
@@ -61,9 +60,11 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.xbase.ui.hierarchy.HierarchyInformationPresenter;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 /**
  * @author Holger Schill - Initial contribution and API
@@ -72,6 +73,12 @@ import com.google.common.collect.Lists;
 public class JvmImplementationOpener {
 
 	private final static Logger log = Logger.getLogger(JvmImplementationOpener.class);
+	
+	/**
+	 * @since 2.20
+	 */
+	@Inject
+	protected PartitioningKey partitioningKey;
 
 	/**
 	 * Main parts of the logic is taken from {@link org.eclipse.jdt.internal.ui.javaeditor.JavaElementImplementationHyperlink}
@@ -207,7 +214,7 @@ public class JvmImplementationOpener {
 	protected void openQuickHierarchy(ITextViewer textViewer, IJavaElement element, IRegion region) {
 		HierarchyInformationPresenter presenter = new HierarchyInformationPresenter((ISourceViewer) textViewer,
 				element, region);
-		presenter.setDocumentPartitioning(IDocumentExtension3.DEFAULT_PARTITIONING);
+		presenter.setDocumentPartitioning(partitioningKey.getPartitioning());
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new JavaElementProvider(null, false);
 		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);

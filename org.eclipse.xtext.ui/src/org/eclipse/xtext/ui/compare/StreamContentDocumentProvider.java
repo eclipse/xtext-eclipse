@@ -26,11 +26,13 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.texteditor.AbstractDocumentProvider;
 import org.eclipse.xtext.resource.IResourceFactory;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 
@@ -51,6 +53,8 @@ public class StreamContentDocumentProvider extends AbstractDocumentProvider {
 	private IResourceSetProvider resourceSetProvider;
 	@Inject
 	private IResourceFactory resourceFactory;
+	@Inject
+	private PartitioningKey partitioningKey;
 
 	protected XtextDocument createEmptyDocument() {
 		return documentProvider.get();
@@ -72,7 +76,11 @@ public class StreamContentDocumentProvider extends AbstractDocumentProvider {
 
 		IDocumentPartitioner partitioner = documentPartitioner.get();
 		partitioner.connect(document);
-		document.setDocumentPartitioner(partitioner);
+		if (document instanceof IDocumentExtension3) {
+			((IDocumentExtension3) document).setDocumentPartitioner(partitioningKey.getPartitioning(), partitioner);
+		} else {
+			document.setDocumentPartitioner(partitioner);
+		}
 
 		XtextResource resource = createResource(element);
 		loadResource(element, resource);

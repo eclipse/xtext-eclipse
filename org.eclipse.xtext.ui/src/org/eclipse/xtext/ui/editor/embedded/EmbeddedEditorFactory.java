@@ -55,6 +55,7 @@ import org.eclipse.xtext.ui.editor.XtextSourceViewer;
 import org.eclipse.xtext.ui.editor.XtextSourceViewerConfiguration;
 import org.eclipse.xtext.ui.editor.bracketmatching.BracketMatchingPreferencesInitializer;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
+import org.eclipse.xtext.ui.editor.model.PartitioningKey;
 import org.eclipse.xtext.ui.editor.model.XtextDocument;
 import org.eclipse.xtext.ui.editor.model.XtextDocumentUtil;
 import org.eclipse.xtext.ui.editor.model.edit.IModificationContext;
@@ -133,6 +134,12 @@ public class EmbeddedEditorFactory {
 		
 		@Inject
 		protected HighlightingHelper highlightingHelper;
+		
+		/**
+		 * @since 2.20
+		 */
+		@Inject
+		protected PartitioningKey partitioningKey;
 		
 		/**
 		 * @since 2.19
@@ -275,7 +282,7 @@ public class EmbeddedEditorFactory {
 			final XtextDocument document = this.documentProvider.get();
 			IDocumentPartitioner partitioner = this.documentPartitionerProvider.get();
 			partitioner.connect(document);
-			document.setDocumentPartitioner(partitioner);
+			document.setDocumentPartitioner(partitioningKey.getPartitioning(), partitioner);
 
 			final EmbeddedEditorActions actions = initializeActions(viewer);
 			parent.addDisposeListener(new DisposeListener() {
