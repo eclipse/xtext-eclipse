@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.xtext.ui.editor.model.DefaultPartitioningKey;
 import org.eclipse.xtext.ui.editor.model.DocumentUtil;
 
 import com.google.inject.Inject;
@@ -50,7 +51,7 @@ public abstract class AbstractEditStrategy implements IAutoEditStrategy, VerifyK
 	 * @since 2.20
 	 */
 	@Inject
-	protected DocumentUtil util = new DocumentUtil();
+	protected DocumentUtil util = new DocumentUtil(new DefaultPartitioningKey());
 	
 	/**
 	 * @since 2.20

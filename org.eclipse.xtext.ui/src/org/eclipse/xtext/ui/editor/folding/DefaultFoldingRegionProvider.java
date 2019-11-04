@@ -26,6 +26,7 @@ import org.eclipse.xtext.parser.IParseResult;
 import org.eclipse.xtext.resource.DerivedStateAwareResource;
 import org.eclipse.xtext.resource.ILocationInFileProvider;
 import org.eclipse.xtext.resource.XtextResource;
+import org.eclipse.xtext.ui.editor.model.DefaultPartitioningKey;
 import org.eclipse.xtext.ui.editor.model.ITokenTypeToPartitionTypeMapperExtension;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.PartitioningKey;
@@ -68,6 +69,7 @@ public class DefaultFoldingRegionProvider implements IFoldingRegionProvider {
 	public DefaultFoldingRegionProvider(ILocationInFileProvider locationInFileProvider) {
 		this.locationInFileProvider = locationInFileProvider;
 		this.tokenTypeToPartitionTypeMapperExtension = new TerminalsTokenTypeToPartitionMapper();
+		this.partitioningKey = new DefaultPartitioningKey();
 	}
 
 	@Inject
