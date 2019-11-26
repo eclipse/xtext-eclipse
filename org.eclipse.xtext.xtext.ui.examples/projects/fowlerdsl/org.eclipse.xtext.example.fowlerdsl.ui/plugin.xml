@@ -11,6 +11,10 @@
 			id="org.eclipse.xtext.example.fowlerdsl.Statemachine"
 			name="Statemachine Editor">
 		</editor>
+		<editorContentTypeBinding
+			contentTypeId="org.eclipse.xtext.example.fowlerdsl.Statemachine.contenttype"
+			editorId="org.eclipse.emf.ecore.presentation.EcoreEditorID">
+		</editorContentTypeBinding>
 	</extension>
 	<extension
 		point="org.eclipse.ui.handlers">
