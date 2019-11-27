@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2011, 2020 itemis AG (http://www.itemis.eu) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -55,6 +56,8 @@ public class JavaElementDelegate implements IAdaptable {
 
 	private IEditorPart editor;
 	private IResource resource;
+	private IPackageFragment packageFragment;
+
 	@Inject
 	private IDerivedResourceMarkers derivedResourceMarkers;
 
@@ -86,6 +89,10 @@ public class JavaElementDelegate implements IAdaptable {
 		this.resource = resource;
 	}
 
+	public void initializeWith(IPackageFragment packageFragment) {
+		this.packageFragment = packageFragment;
+	}
+
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (IJavaElement.class.equals(adapter)) {
@@ -97,6 +104,9 @@ public class JavaElementDelegate implements IAdaptable {
 			}
 			if (resource != null && fileExtensionProvider.isValid(resource.getFileExtension())) {
 				return adapter.cast(getJavaElementForResource(resource));
+			}
+			if (packageFragment != null) {
+				return adapter.cast(getJavaElementForPackage(packageFragment));
 			}
 		}
 		return null;
@@ -222,6 +232,14 @@ public class JavaElementDelegate implements IAdaptable {
 				log.debug(e.getMessage(), e);
 			}
 		}
+		return null;
+	}
+	
+	/**
+	 * Subclasses may override.
+	 * @since 2.21 
+	 */
+	protected IJavaElement getJavaElementForPackage(IPackageFragment packageFragment) {
 		return null;
 	}
 

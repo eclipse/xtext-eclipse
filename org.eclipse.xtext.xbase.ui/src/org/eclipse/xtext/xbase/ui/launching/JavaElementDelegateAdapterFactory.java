@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2011, 2020 itemis AG (http://www.itemis.eu) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.eclipse.xtext.xbase.ui.launching;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdapterFactory;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
@@ -54,6 +55,10 @@ public class JavaElementDelegateAdapterFactory implements IAdapterFactory {
 			}
 			if (adaptableObject instanceof IEditorPart) {
 				result.initializeWith((IEditorPart) adaptableObject);
+				return adapterType.cast(result);
+			}
+			if (adaptableObject instanceof IPackageFragment) {
+				result.initializeWith((IPackageFragment) adaptableObject);
 				return adapterType.cast(result);
 			}
 		}
