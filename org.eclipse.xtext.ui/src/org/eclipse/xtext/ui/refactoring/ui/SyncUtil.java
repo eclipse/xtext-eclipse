@@ -40,6 +40,7 @@ import com.google.inject.Inject;
  */
 public class SyncUtil {
 	private static final Logger LOG = Logger.getLogger(SyncUtil.class);
+	private static final boolean SKIP_WAIT_FOR_BUILD = Boolean.getBoolean("xtext.skipWaitForBuild");
 
 	@Inject(optional = true)
 	private IWorkbench workbench;
@@ -147,7 +148,9 @@ public class SyncUtil {
 
 	public void waitForBuild(IProgressMonitor monitor) {
 		try {
-			workspace.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
+			if ( !SKIP_WAIT_FOR_BUILD) {
+				workspace.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, monitor);
+			}
 		} catch (CoreException e) {
 			throw new OperationCanceledException(e.getMessage());
 		}
