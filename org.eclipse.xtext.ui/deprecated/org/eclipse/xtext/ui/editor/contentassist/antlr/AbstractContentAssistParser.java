@@ -28,7 +28,9 @@ import com.google.inject.name.Named;
  * This class if effectively deprecated and clients should use the equivalent from the ide package instead.
  * 
  * @author Sebastian Zarnekow - Initial contribution and API
+ * @deprecated Use {@link org.eclipse.xtext.ide.editor.contentassist.antlr.AbstractContentAssistParser} instead
  */
+@Deprecated
 public abstract class AbstractContentAssistParser extends
 		BaseContentAssistParser<FollowElement, LookAheadTerminal, AbstractInternalContentAssistParser> implements IContentAssistParser {
 

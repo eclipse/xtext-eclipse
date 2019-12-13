@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 itemis AG (http://www.itemis.eu) and others.
+ * Copyright (c) 2014, 2020 itemis AG (http://www.itemis.eu) and others.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
@@ -15,7 +15,9 @@ import org.eclipse.xtext.parser.IParseResult;
 /**
  * A content assist parser that can skip parts of the document for faster parsing
  * @since 2.7
+ * @deprecated Use {@link org.eclipse.xtext.ide.editor.contentassist.antlr.IPartialContentAssistParser} instead
  */
+@Deprecated
 public interface IPartialContentAssistParser extends IContentAssistParser {
 
 	/**

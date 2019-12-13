@@ -86,7 +86,9 @@ import com.google.inject.name.Named;
  * This class is effetively deprecated. It is strongly recommend to use the {@link ContentAssistContextFactory} instead.
  * 
  * @author Sebastian Zarnekow - Initial contribution and API
+ * @deprecated Use {@link org.eclipse.xtext.ide.editor.contentassist.antlr.ContentAssistContextFactory} instead
  */
+@Deprecated
 @Singleton
 public class ParserBasedContentAssistContextFactory extends AbstractContentAssistContextFactory {
 	

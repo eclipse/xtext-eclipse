@@ -18,7 +18,9 @@ import org.apache.log4j.Logger;
 
 /**
  * @author Sebastian Zarnekow - Initial contribution and API
+ * @deprecated Use {@link org.eclipse.xtext.ide.editor.contentassist.antlr.internal.Lexer} instead
  */
+@Deprecated
 public abstract class Lexer extends org.antlr.runtime.Lexer {
 
 	private static final Logger logger = Logger.getLogger(Lexer.class);
