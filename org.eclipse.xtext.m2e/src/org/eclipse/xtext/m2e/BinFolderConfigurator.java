@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -41,7 +42,7 @@ public class BinFolderConfigurator extends AbstractProjectConfigurator {
 			for(int i = 0; i < rawClasspath.length; i++) {
 				IClasspathEntry entry = rawClasspath[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-					if (entry.isTest()) {
+					if (isTest(entry)) {
 						rawClasspath[i] = copyWithOutput(entry, binTestPath);
 					} else {
 						rawClasspath[i] = copyWithOutput(entry, binPath);
@@ -50,6 +51,18 @@ public class BinFolderConfigurator extends AbstractProjectConfigurator {
 			}
 			javaProject.setRawClasspath(rawClasspath, monitor);
 		}
+	}
+	
+	/**
+	 * IClasspathEntry.isTest is not avaiable on Oxygen.
+	 */
+	@Deprecated
+	private boolean isTest(IClasspathEntry entry) {
+		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+			if (IClasspathAttribute.TEST.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
+				return true;
+		}
+		return false;
 	}
 
 	/**
