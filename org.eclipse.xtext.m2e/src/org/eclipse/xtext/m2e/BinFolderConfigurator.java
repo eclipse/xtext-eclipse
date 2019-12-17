@@ -21,7 +21,9 @@ import org.eclipse.m2e.core.project.configurator.AbstractProjectConfigurator;
 import org.eclipse.m2e.core.project.configurator.ProjectConfigurationRequest;
 
 /**
- * Optionally compile everything to bin
+ * Optionally compile everything to {@code bin} and {@code bin-test} instead of {@code target/classes} and {@code target/test-classes}.
+ * 
+ * @since 2.21
  */
 public class BinFolderConfigurator extends AbstractProjectConfigurator {
 
@@ -40,11 +42,9 @@ public class BinFolderConfigurator extends AbstractProjectConfigurator {
 				IClasspathEntry entry = rawClasspath[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 					if (entry.isTest()) {
-						IClasspathEntry copy = JavaCore.newSourceEntry(entry.getPath(), entry.getInclusionPatterns(), entry.getExclusionPatterns(), binTestPath, entry.getExtraAttributes());
-						rawClasspath[i] = copy;
+						rawClasspath[i] = copyWithOutput(entry, binTestPath);
 					} else {
-						IClasspathEntry copy = JavaCore.newSourceEntry(entry.getPath(), entry.getInclusionPatterns(), entry.getExclusionPatterns(), binPath, entry.getExtraAttributes());
-						rawClasspath[i] = copy;
+						rawClasspath[i] = copyWithOutput(entry, binPath);
 					}
 				}
 			}
@@ -53,8 +53,17 @@ public class BinFolderConfigurator extends AbstractProjectConfigurator {
 	}
 
 	/**
-	 * @param project
-	 * @return 
+	 * Copy a classpath entry and sets the given output path instead of the original path.
+	 */
+	private IClasspathEntry copyWithOutput(IClasspathEntry entry, IPath output) {
+		return JavaCore.newSourceEntry(entry.getPath(), entry.getInclusionPatterns(), entry.getExclusionPatterns(), output, entry.getExtraAttributes());
+	}
+
+	/**
+	 * Read a setting from the project scope (higher prio) or the instance scope (lower prio) to decide if Eclipse should use its own output
+	 * dir or compile to the maven standard output directories.
+	 * 
+	 * Defaults to {@code false}.
 	 */
 	private boolean compileToBin(IProject project) {
 		String pluginId = "org.eclipse.xtext.m2e";
