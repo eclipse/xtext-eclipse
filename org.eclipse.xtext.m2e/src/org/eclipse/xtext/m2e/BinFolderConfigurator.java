@@ -59,7 +59,7 @@ public class BinFolderConfigurator extends AbstractProjectConfigurator {
 	@Deprecated
 	private boolean isTest(IClasspathEntry entry) {
 		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
-			if (IClasspathAttribute.TEST.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
+			if ("test".equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
 				return true;
 		}
 		return false;
