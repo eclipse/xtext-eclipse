@@ -4,7 +4,7 @@
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
- * SPDX-License-Identifier: EPL-2.0
+ * SPDX-License-Identifier: EPL-2.0 
  *******************************************************************************/
 package org.eclipse.xtext.xtext.ui.editor.autoedit;
 
@@ -267,11 +267,11 @@ public class XtextAutoEditStrategyTest extends AbstractCStyleLanguageAutoEditTes
 	@Test public void testXtendIssue163() throws Exception {
 		XtextEditor editor = openEditor(
 				"/*******************************************************************************\n" +
-				" * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.\n" +
-				" * All rights reserved. This program and the accompanying materials\n" +
-				" * are made available under the terms of the Eclipse Public License v2.0\n" +
-				" * which accompanies this distribution, and is available at\n" +
-				" * http://www.eclipse.org/legal/epl-2.0|\n" +
+				" * This program and the accompanying materials are made available under the\n" + 
+				" * terms of the Eclipse Public License 2.0 which is available at\n" + 
+				" * http://www.eclipse.org/legal/epl-2.0.\n" + 
+				" *\n" + 
+				" * SPDX-License-Identifier: EPL-2.0 |\n" +
 				" *******************************************************************************/\n" +
 				"grammar org.xtext.example.mydsl.MyDsl with org.eclipse.xtext.common.Terminals\n" +
 				"\n" +
@@ -285,11 +285,11 @@ public class XtextAutoEditStrategyTest extends AbstractCStyleLanguageAutoEditTes
 		pressKey(editor, '\n');
 		assertState(
 				"/*******************************************************************************\n" +
-				" * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.\n" +
-				" * All rights reserved. This program and the accompanying materials\n" +
-				" * are made available under the terms of the Eclipse Public License v1.0\n" +
-				" * which accompanies this distribution, and is available at\n" +
-				" * http://www.eclipse.org/legal/epl-2.0\n" +
+				" * This program and the accompanying materials are made available under the\n" + 
+				" * terms of the Eclipse Public License 2.0 which is available at\n" + 
+				" * http://www.eclipse.org/legal/epl-2.0.\n" + 
+				" *\n" + 
+				" * SPDX-License-Identifier: EPL-2.0 \n" +
 				" * |\n" +
 				" *******************************************************************************/\n" +
 				"grammar org.xtext.example.mydsl.MyDsl with org.eclipse.xtext.common.Terminals\n" +
