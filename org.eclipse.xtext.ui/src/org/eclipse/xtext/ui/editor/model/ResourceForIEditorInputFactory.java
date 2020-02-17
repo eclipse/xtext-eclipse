@@ -10,10 +10,13 @@ package org.eclipse.xtext.ui.editor.model;
 
 import java.util.Collections;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.util.URI;
@@ -22,6 +25,7 @@ import org.eclipse.emf.ecore.resource.ContentHandler;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.xtext.resource.IExternalContentSupport;
@@ -75,11 +79,22 @@ public class ResourceForIEditorInputFactory implements IResourceForEditorInputFa
 		try {
 			if (editorInput instanceof IStorageEditorInput) {
 				IStorage storage = ((IStorageEditorInput) editorInput).getStorage();
+				if (storage.getFullPath() == null) {					
+					IFile file = Adapters.adapt(editorInput, IFile.class);
+					if (file != null) 
+						storage = file;
+				}
 				Resource result = createResource(storage);
 				if (result != null)
 					return result;
 			} else if (editorInput instanceof IURIEditorInput) {
 				Resource result = createResource(((IURIEditorInput) editorInput).getURI());
+				if (result != null)
+					return result;
+			} else if (editorInput instanceof IPathEditorInput) {
+				IPath path = ((IPathEditorInput) editorInput).getPath();
+				IFileStore fileStorage = EFS.getLocalFileSystem().getStore(path);
+				Resource result = createResource(fileStorage.toURI());
 				if (result != null)
 					return result;
 			}
@@ -107,8 +122,15 @@ public class ResourceForIEditorInputFactory implements IResourceForEditorInputFa
 	}
 
 	protected Resource createResourceFor(IStorage storage) throws CoreException {
+		String path = null;
+		if (storage.getFullPath() != null)
+			path = storage.getFullPath().toString();
+		if (path == null)
+			path = storage.getName();
+		if (path == null)
+			throw new IllegalArgumentException("Couldn't create EMF Resource for storage " + storage);
 		ResourceSet resourceSet = getResourceSet(storage);
-		URI uri = URI.createPlatformResourceURI(storage.getFullPath().toString(), true);
+		URI uri = URI.createPlatformResourceURI(path, true);
 		configureResourceSet(resourceSet, uri);
 		URI uriForResource = uri; 
 		if (!uri.isPlatform()) {
@@ -119,7 +141,7 @@ public class ResourceForIEditorInputFactory implements IResourceForEditorInputFa
 		resource.setValidationDisabled(isValidationDisabled(uri, storage));
 		return resource;
 	}
-
+	
 	/**
 	 * Checks whether syntax validation should be disabled for {@code uri}.
 	 * This is called when creating a resource for {@code uri}.
