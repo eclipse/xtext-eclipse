@@ -133,6 +133,7 @@ public class XtextReconciler extends Job implements IReconciler {
 		public boolean performNecessaryUpdates(Processor processor) {
 			boolean hadUpdates = false;
 			try {
+				System.err.println("pendingChanges " + pendingChanges.size());
 				if (!pendingChanges.isEmpty()) {
 					hadUpdates = processor.process(new IUnitOfWork<Boolean, XtextResource>() {
 						@Override
@@ -307,7 +308,7 @@ public class XtextReconciler extends Job implements IReconciler {
 		if (log.isTraceEnabled())
 			log.trace("Reconciler cancelled");
 		reallyEnqueueEvent(event);
-		schedule(delay);
+		schedule(5000);
 		if (log.isTraceEnabled())
 			log.trace("Reconciler scheduled with delay: " + delay);
 	}
@@ -330,6 +331,7 @@ public class XtextReconciler extends Job implements IReconciler {
 	 */
 	private void reallyEnqueueEvent(DocumentEvent event) {
 		try {
+			System.err.println("put put put");
 			pendingChanges.put(event);
 		} catch (InterruptedException e) {
 			reallyEnqueueEvent(event);
@@ -396,6 +398,7 @@ public class XtextReconciler extends Job implements IReconciler {
 	private ReconcilerReplaceRegion getMergedReplaceRegion(XtextResource resource) {
 		List<DocumentEvent> events = newArrayListWithExpectedSize(pendingChanges.size());
 		pendingChanges.drainTo(events);
+		System.err.println("drained to");
 		if (events.isEmpty() || resource == null)
 			return null;
 		String resourceText = getResourceText(resource);

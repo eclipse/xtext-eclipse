@@ -31,6 +31,7 @@ import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.DocumentRewriteSessionEvent;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.swt.widgets.Display;
@@ -228,10 +229,32 @@ public class XtextDocument extends Document implements IXtextDocument {
 			}
 		}
 	}
-
+	
+	
 	@Override
 	public void addXtextDocumentContentObserver(IXtextDocumentContentObserver observer) {
 		addDocumentListener(observer);
+		addDocumentListener(new IDocumentListener() {
+			
+			@Override
+			public void documentChanged(DocumentEvent event) {
+				XtextDocument.this.readOnly(new IUnitOfWork<String, XtextResource>() {
+
+					@Override
+					public String exec(XtextResource state) throws Exception {
+						return "mimimi";
+					}
+					
+				});
+				
+			}
+			
+			@Override
+			public void documentAboutToBeChanged(DocumentEvent event) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		xtextDocumentObservers.add(observer);
 	}
 
@@ -251,6 +274,7 @@ public class XtextDocument extends Document implements IXtextDocument {
 		for (int i = 0; i < listeners.length; i++) {
 			hadUpdates |= ((IXtextDocumentContentObserver) listeners[i]).performNecessaryUpdates(stateAccess);
 		}
+		System.err.println("updateContentBeforeRead " + hadUpdates);
 		return hadUpdates;
 	}
 	
