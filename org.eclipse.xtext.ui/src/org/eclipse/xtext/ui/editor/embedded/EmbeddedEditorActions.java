@@ -10,6 +10,7 @@ package org.eclipse.xtext.ui.editor.embedded;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.action.GroupMarker;
@@ -151,24 +152,31 @@ public class EmbeddedEditorActions {
 		final IContextService contextService = workbench.getAdapter(IContextService.class);
 		Shell shell = viewer.getTextWidget().getShell();
 		final ActiveShellExpression expression = new ActiveShellExpression(shell);
-		final IContextActivation contextActivation = contextService.activateContext(EMBEDDED_TEXT_EDITOR_SCOPE, expression);
+		
+		AtomicReference<IContextActivation> contextActivationHolder = new AtomicReference<>();
+		
 		shell.addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				handlerService.deactivateHandlers(handlerActivations);
-				contextService.deactivateContext(contextActivation);
 			}
 		});
 
 		viewer.getTextWidget().addFocusListener(new FocusListener() {
 			@Override
 			public void focusLost(FocusEvent e) {
+				IContextActivation contextActivation = contextActivationHolder.get();
+				if (contextActivation != null) {
+					contextService.deactivateContext(contextActivation);
+				}
 				handlerService.deactivateHandlers(handlerActivations);
 				handlerActivations.clear();
 			}
 
 			@Override
 			public void focusGained(FocusEvent e) {
+				final IContextActivation contextActivation = contextService.activateContext(EMBEDDED_TEXT_EDITOR_SCOPE, expression);
+				contextActivationHolder.set(contextActivation);
 				for(final IAction action: allActions.values()) {
 					handlerActivations.add(handlerService.activateHandler(
 							action.getActionDefinitionId(), new ActionHandler(action), expression, true));
