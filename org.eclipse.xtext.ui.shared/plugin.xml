@@ -13,6 +13,8 @@
               class="org.eclipse.xtext.ui.shared.internal.ExecutableExtensionFactory">
              <parameter name="guicekey" value="org.eclipse.core.resources.IncrementalProjectBuilder"/>
         </run>
+        <dynamicReference class="org.eclipse.xtext.ui.shared.internal.ExecutableExtensionFactory:org.eclipse.core.resources.IDynamicReferenceProvider">
+        </dynamicReference>
      </builder>
   </extension>
   <extension

@@ -8,6 +8,7 @@
  *******************************************************************************/
 package org.eclipse.xtext.ui.shared.internal;
 
+import org.eclipse.core.resources.IDynamicReferenceProvider;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -24,6 +25,7 @@ import org.eclipse.xtext.builder.impl.QueuedBuildData;
 import org.eclipse.xtext.builder.impl.RegistryBuilderParticipant;
 import org.eclipse.xtext.builder.impl.ToBeBuiltComputer;
 import org.eclipse.xtext.builder.impl.XtextBuilder;
+import org.eclipse.xtext.builder.impl.XtextBuilderDynamicReferenceProvider;
 import org.eclipse.xtext.builder.resourceloader.IResourceLoader;
 import org.eclipse.xtext.builder.resourceloader.ResourceLoaderProviders;
 import org.eclipse.xtext.generator.trace.DefaultTraceURIConverter;
@@ -113,6 +115,7 @@ public class SharedModule extends AbstractModule {
 		bind(IStateChangeEventBroker.class).to(StateChangeEventBroker.class).in(Scopes.SINGLETON);
 
 		bind(IncrementalProjectBuilder.class).to(XtextBuilder.class);
+		bind(IDynamicReferenceProvider.class).to(XtextBuilderDynamicReferenceProvider.class);
 		bind(IStorage2UriMapper.class).to(IStorage2UriMapperExtension.class);
 		bind(IStorage2UriMapperExtension.class).to(Storage2UriMapperImpl.class).in(Scopes.SINGLETON);
 		
