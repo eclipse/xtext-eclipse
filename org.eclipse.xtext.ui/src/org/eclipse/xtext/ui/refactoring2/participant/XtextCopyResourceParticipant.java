@@ -16,13 +16,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.CopyArguments;
 import org.eclipse.ltk.core.refactoring.participants.CopyParticipant;
 import org.eclipse.ltk.core.refactoring.participants.ISharableParticipant;
-import org.eclipse.ltk.core.refactoring.participants.MoveArguments;
 import org.eclipse.ltk.core.refactoring.participants.RefactoringArguments;
 import org.eclipse.xtext.ide.refactoring.ResourceRelocationContext;
 
@@ -66,22 +66,17 @@ public class XtextCopyResourceParticipant extends CopyParticipant implements ISh
 		addElement(element, getArguments());
 		return true;
 	}
-	
+
 	@Override
-    public void addElement(Object element, RefactoringArguments arguments) {
-        if ((arguments instanceof CopyArguments)) {
-            if ((element instanceof IResource)) {
-                Object destination = ((CopyArguments) arguments).getDestination();
-                if (destination instanceof IFolder || destination instanceof IProject) {
-                    IFile destinationFile = null;
-                    if (destination instanceof IFolder) {
-                        destinationFile = ((IFolder) destination).getFile(((IResource) element).getName());
-                    } else if (destination instanceof IProject) {
-                        destinationFile = ((IProject) destination).getFile(((IResource) element).getName());
-                    }
-                    processor.addChangedResource(((IResource) element), ((IResource) element).getFullPath(), destinationFile.getFullPath());
-                }
-            }
-        }
-    }
+	public void addElement(Object element, RefactoringArguments arguments) {
+		if ((arguments instanceof CopyArguments)) {
+			if ((element instanceof IResource)) {
+				Object destination = ((CopyArguments) arguments).getDestination();
+				if (destination instanceof IFolder || destination instanceof IProject) {
+					IFile destinationFile = ((IContainer) destination).getFile(new Path(((IResource) element).getName()));
+					processor.addChangedResource(((IResource) element), ((IResource) element).getFullPath(), destinationFile.getFullPath());
+				}
+			}
+		}
+	}
 }

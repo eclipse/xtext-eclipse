@@ -37,14 +37,14 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
 
 	@Override
 	public RefactoringStatus checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
-			try {
-				change = processor.createChange(getName(), ResourceRelocationContext.ChangeType.RENAME, pm);
-				return processor.getIssues().getRefactoringStatus();
-			} catch (OperationCanceledException e) {
-				throw e;
-			} catch (CoreException e) {
-				return RefactoringStatus.createFatalErrorStatus("Error rename resource participant");
-			}
+		try {
+			change = processor.createChange(getName(), ResourceRelocationContext.ChangeType.RENAME, pm);
+			return processor.getIssues().getRefactoringStatus();
+		} catch (OperationCanceledException e) {
+			throw e;
+		} catch (CoreException e) {
+			return RefactoringStatus.createFatalErrorStatus("Error rename resource participant");
+		}
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class XtextRenameResourceParticipant extends RenameParticipant implements
 		addElement(element, getArguments());
 		return true;
 	}
-	
+
 	@Override
 	public void addElement(Object element, RefactoringArguments arguments) {
 		if (arguments instanceof RenameArguments) {

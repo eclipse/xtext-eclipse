@@ -8,6 +8,8 @@
  */
 package org.eclipse.xtext.ui.refactoring2.rename;
 
+import java.util.Objects;
+
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -46,7 +48,7 @@ public interface ISimpleNameProvider {
 
 		protected EAttribute getNameEAttribute(EObject target) {
 			for (EAttribute eAttribute : target.eClass().getEAllAttributes()) {
-				if (eAttribute.getName().equals("name") && eAttribute.getEType() == EcorePackage.Literals.ESTRING) {
+				if (Objects.equals(eAttribute.getName(), "name") && eAttribute.getEType() == EcorePackage.Literals.ESTRING) {
 					return eAttribute;
 				}
 			}

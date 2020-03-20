@@ -8,6 +8,7 @@
  */
 package org.eclipse.xtext.ui.refactoring2.participant;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -15,6 +16,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -71,20 +73,15 @@ public class XtextMoveResourceParticipant extends MoveParticipant implements ISh
 	}
 
 	@Override
-    public void addElement(Object element, RefactoringArguments arguments) {
-        if ((arguments instanceof MoveArguments)) {
-            if ((element instanceof IResource)) {
-                Object destination = ((MoveArguments) arguments).getDestination();
-                if (destination instanceof IFolder || destination instanceof IProject) {
-                    IFile destinationFile = null;
-                    if (destination instanceof IFolder) {
-                        destinationFile = ((IFolder) destination).getFile(((IResource) element).getName());
-                    } else if (destination instanceof IProject) {
-                        destinationFile = ((IProject) destination).getFile(((IResource) element).getName());
-                    }
-                    processor.addChangedResource(((IResource) element), ((IResource) element).getFullPath(), destinationFile.getFullPath());
-                }
-            }
-        }
-    }
+	public void addElement(Object element, RefactoringArguments arguments) {
+		if ((arguments instanceof MoveArguments)) {
+			if ((element instanceof IResource)) {
+				Object destination = ((MoveArguments) arguments).getDestination();
+				if (destination instanceof IFolder || destination instanceof IProject) {
+					IFile destinationFile = ((IContainer) destination).getFile(new Path(((IResource) element).getName()));
+					processor.addChangedResource(((IResource) element), ((IResource) element).getFullPath(), destinationFile.getFullPath());
+				}
+			}
+		}
+	}
 }

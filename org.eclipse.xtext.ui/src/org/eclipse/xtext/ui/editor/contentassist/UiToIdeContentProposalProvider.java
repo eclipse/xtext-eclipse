@@ -8,8 +8,8 @@
  */
 package org.eclipse.xtext.ui.editor.contentassist;
 
-import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.text.Region;
