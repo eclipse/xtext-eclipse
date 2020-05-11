@@ -48,12 +48,50 @@ public class DirtyStateManager extends AbstractResourceDescriptionChangeEventSou
 			notifyListeners(dirtyResource, true);
 		}
 	}
+	
+	/**
+	 * @since 2.22
+	 */
+	protected void announceDirtyStateChanged(IResourceDescription prevDirtyDescription, IDirtyResource dirtyResource) {
+		// avoid putting a dirtyResource into the map that wasn't managed before
+		if (managedResources.replace(dirtyResource.getURI(), dirtyResource) != null) {
+			notifyListeners(prevDirtyDescription, dirtyResource);
+		}
+	}
 
 	@Override
 	public void discardDirtyState(IDirtyResource dirtyResource) {
 		if (managedResources.remove(dirtyResource.getURI(), dirtyResource)) {
 			notifyListeners(dirtyResource, false);
 		}
+	}
+	
+	/**
+	 * @since 2.22
+	 */
+	protected void notifyListeners(IResourceDescription prevDirtyDescription, IDirtyResource dirtyResource) {
+		IResourceDescription.Delta delta = new IResourceDescription.Delta() {
+			@Override
+			public boolean haveEObjectDescriptionsChanged() {
+				return true;
+			}
+			
+			@Override
+			public IResourceDescription getOld() {
+				return prevDirtyDescription;
+			}
+			
+			@Override
+			public IResourceDescription getNew() {
+				return dirtyResource.getDescription();
+			}
+
+			@Override
+			public URI getUri() {
+				return dirtyResource.getURI();
+			}
+		};
+		notifyListeners(new ResourceDescriptionChangeEvent(Collections.singletonList(delta)));
 	}
 
 	protected void notifyListeners(final IDirtyResource dirtyResource, boolean managed) {

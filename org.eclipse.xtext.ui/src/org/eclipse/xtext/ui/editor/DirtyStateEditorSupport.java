@@ -546,6 +546,7 @@ public class DirtyStateEditorSupport implements IResourceDescription.Event.Liste
 							else 
 								state = State.CLEAN;
 						}
+						IResourceDescription oldDescription = dirtyResource.getDescription();
 						dirtyResource.copyState(newDescription);
 						if (resoureStorageFacade != null && (resource instanceof StorageAwareResource)) {
 							try {
@@ -573,7 +574,11 @@ public class DirtyStateEditorSupport implements IResourceDescription.Event.Liste
 								LOG.warn("Cannot persist storage for " + resource.getURI(), e);
 							}
 						}
-						dirtyStateManager.announceDirtyStateChanged(clientAwareResource);
+						if (dirtyStateManager instanceof DirtyStateManager) {
+							((DirtyStateManager)dirtyStateManager).announceDirtyStateChanged(oldDescription, clientAwareResource);
+						} else {
+							dirtyStateManager.announceDirtyStateChanged(clientAwareResource);
+						}
 					}
 				}
 			}
