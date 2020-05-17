@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 
 /**
  * @author cdietrich - Initial contribution and API
+ * @since 2.22
  */
 public class CodetemplatesEmbeddedEditorActions extends EmbeddedEditorActions {
 
