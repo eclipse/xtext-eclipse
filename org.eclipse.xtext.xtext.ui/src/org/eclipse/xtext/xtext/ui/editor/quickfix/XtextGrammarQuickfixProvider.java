@@ -44,6 +44,7 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.URIHandlerImpl;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Region;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
@@ -73,6 +74,7 @@ import org.eclipse.xtext.resource.IEObjectDescription;
 import org.eclipse.xtext.resource.IResourceDescriptions;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.impl.ResourceDescriptionsProvider;
+import org.eclipse.xtext.services.XtextGrammarAccess;
 import org.eclipse.xtext.ui.editor.model.IXtextDocument;
 import org.eclipse.xtext.ui.editor.model.edit.IModification;
 import org.eclipse.xtext.ui.editor.model.edit.IModificationContext;
@@ -86,6 +88,7 @@ import org.eclipse.xtext.util.concurrent.IUnitOfWork;
 import org.eclipse.xtext.util.internal.Nullable;
 import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xtext.RuleWithoutInstantiationInspector;
+import org.eclipse.xtext.xtext.XtextConfigurableIssueCodes;
 import org.eclipse.xtext.xtext.XtextLinkingDiagnosticMessageProvider;
 
 import com.google.common.base.CaseFormat;
@@ -155,6 +158,39 @@ public class XtextGrammarQuickfixProvider extends DefaultQuickfixProvider {
 		createLinkingIssueResolutions(issue, acceptor);
 	}
 
+	@Fix(XtextLinkingDiagnosticMessageProvider.UNRESOLVED_TERMINAL_RULE)
+	public void fixUnresolvedTerminalRule(final Issue issue, IssueResolutionAcceptor acceptor) {
+		final String ruleName = issue.getData()[0];
+		acceptor.accept(issue, "Create terminal rule '" + ruleName + "'", "Create terminal rule '" + ruleName + "'", NULL_QUICKFIX_IMAGE,
+				(element, context) -> {
+					TerminalRule terminalRule = EcoreUtil2.getContainerOfType(element, TerminalRule.class);
+					ICompositeNode node = NodeModelUtils.getNode(terminalRule);
+					int offset = node.getEndOffset();
+					String nl = context.getXtextDocument().getLineDelimiter(0);
+					StringBuilder builder = new StringBuilder(nl + nl);
+					String newRule = builder.append("terminal ").append(ruleName).append(":" + nl + "\t" + nl + ";").toString();
+					context.getXtextDocument().replace(offset, 0, newRule);
+				});
+		createLinkingIssueResolutions(issue, acceptor);
+	}
+
+	@Fix(XtextLinkingDiagnosticMessageProvider.UNRESOLVED_TERMINAL_RULE)
+	public void fixUnresolvedTerminalFragmentRule(final Issue issue, IssueResolutionAcceptor acceptor) {
+		final String ruleName = issue.getData()[0];
+		acceptor.accept(issue, "Create terminal fragment rule '" + ruleName + "'", "Create terminal fragment rule '" + ruleName + "'",
+				NULL_QUICKFIX_IMAGE, (element, context) -> {
+					TerminalRule terminalRule = EcoreUtil2.getContainerOfType(element, TerminalRule.class);
+					ICompositeNode node = NodeModelUtils.getNode(terminalRule);
+					int offset = node.getEndOffset();
+					String nl = context.getXtextDocument().getLineDelimiter(0);
+					StringBuilder builder = new StringBuilder(nl + nl);
+					String newRule = builder.append("terminal fragment ").append(ruleName).append(":" + nl + "\t" + nl + ";").toString();
+					context.getXtextDocument().replace(offset, 0, newRule);
+				});
+		createLinkingIssueResolutions(issue, acceptor);
+	}
+	
+	
 	@Fix(INVALID_METAMODEL_NAME)
 	public void fixInvalidMetaModelName(final Issue issue, IssueResolutionAcceptor acceptor) {
 		final String metaModelName = issue.getData()[0];
@@ -600,4 +636,64 @@ public class XtextGrammarQuickfixProvider extends DefaultQuickfixProvider {
 				});
 	}
 
+	@Fix(ILLEGAL_RULE_REFERENCE)
+	public void fixConvertTerminalFragmentToTerminalRule(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, //
+				"Convert terminal fragment to terminal rule", //
+				"Convert terminal fragment to terminal rule", //
+				NULL_QUICKFIX_IMAGE, //
+				(context) -> {
+					IXtextDocument xtextDocument = context.getXtextDocument();
+					xtextDocument.modify(new IUnitOfWork.Void<XtextResource>() {
+
+						@Override
+						public void process(XtextResource state) throws Exception {
+							if (state == null) {
+								return;
+							}
+
+							XtextGrammarAccess grammarAccess = state.getResourceServiceProvider().get(XtextGrammarAccess.class);
+							RuleCall ruleCall = (RuleCall) state.getEObject(issue.getUriToProblem().fragment());
+							ICompositeNode ruleNode = NodeModelUtils.findActualNodeFor(ruleCall.getRule());
+							for (INode node : ruleNode.getAsTreeIterable()) {
+								if (node.getGrammarElement() != null && node.getGrammarElement() == grammarAccess.getTerminalRuleAccess()
+										.getFragmentFragmentKeyword_2_0_0_0()) {
+									Region fragmentRegion = new Region(node.getOffset(), node.getLength());
+									xtextDocument.replace(fragmentRegion.getOffset(), fragmentRegion.getLength() + 1, "");
+									break;
+								}
+							}
+						}
+					});
+				});
+	}
+
+	@Fix(XtextConfigurableIssueCodes.INVALID_HIDDEN_TOKEN_FRAGMENT)
+	public void fixInvalidHiddenTokenFragment(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, //
+				"Remove hidden token definition", // 
+				"Remove hidden token definition", //
+				NULL_QUICKFIX_IMAGE, //
+				(element, context) -> {
+					ParserRule parserRule = (ParserRule) element;
+					if (issue.getData().length > 0) {
+						parserRule.getHiddenTokens().remove(Integer.valueOf(issue.getData()[0]).intValue());
+					}
+				});
+	}
+
+	@Fix(XtextConfigurableIssueCodes.INVALID_HIDDEN_TOKEN)
+	public void fixInvalidHiddenToken(Issue issue, IssueResolutionAcceptor acceptor) {
+		acceptor.accept(issue, //
+				"Remove hidden token definition", // 
+				"Remove hidden token definition", //
+				NULL_QUICKFIX_IMAGE, //
+				(element, context) -> {
+					ParserRule parserRule = (ParserRule) element;
+					if (issue.getData().length > 0) {
+						parserRule.getHiddenTokens().remove(Integer.valueOf(issue.getData()[0]).intValue());
+					}
+				});
+	}
+	
 }

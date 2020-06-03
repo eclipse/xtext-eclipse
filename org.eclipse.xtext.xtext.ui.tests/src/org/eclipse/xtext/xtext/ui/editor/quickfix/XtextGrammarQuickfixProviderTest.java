@@ -184,6 +184,30 @@ public class XtextGrammarQuickfixProviderTest extends AbstractQuickfixTest {
 				"Add actions to ensure object creation");
 	}
 
+	@Test
+	public void testConvertTerminalFragmentToTerminalRule() throws Exception {
+		assertAndApplySingleResolution(editorForGrammar("Model: digit=ABC;", "terminal fragment ABC: '0'..'9';"), ILLEGAL_RULE_REFERENCE, 0,
+				"Convert terminal fragment to terminal rule");
+	}
+
+	@Test
+	public void testFixInvalidTerminalFragmentHiddenToken() throws Exception {
+		assertAndApplySingleResolution(editorForGrammar("Model hidden(ABC): a=ID;", "terminal fragment ABC: '0'..'9';"),
+				INVALID_HIDDEN_TOKEN_FRAGMENT, 1, "Remove hidden token definition");
+	}
+
+	@Test
+	public void testfixInvalidEnumRuleHiddenToken() throws Exception {
+		assertAndApplySingleResolution(editorForGrammar("Model hidden(ABC): a=ID;", "enum ABC: A|B|C;"), INVALID_HIDDEN_TOKEN, 1,
+				"Remove hidden token definition");
+	}
+
+	@Test
+	public void testfixInvalidPerserRuleHiddenToken() throws Exception {
+		assertAndApplySingleResolution(editorForGrammar("Model hidden(Greeting): a=ID;", "Greeting: name=ID;"), INVALID_HIDDEN_TOKEN, 1,
+				"Remove hidden token definition");
+	}
+	
 	private void assertCleanAfterResolution(String issueCode, String resolutionLabel, List<String> grammarBodyContent)
 			throws PartInitException, CoreException {
 		assertAndApplySingleResolution(editorForGrammar(grammarBodyContent.toArray(new String[0])), issueCode, 0, resolutionLabel);
