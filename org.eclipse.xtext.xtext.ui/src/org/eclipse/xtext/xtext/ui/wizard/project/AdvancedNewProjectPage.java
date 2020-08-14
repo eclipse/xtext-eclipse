@@ -442,7 +442,7 @@ public class AdvancedNewProjectPage extends WizardPage {
 	}
 
 	public boolean isCreateUiProject() {
-		return createUiProject.getSelection();
+		return createUiProject == null || createUiProject.getSelection();
 	}
 
 	public boolean isCreateTestProject() {

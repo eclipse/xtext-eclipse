@@ -196,7 +196,7 @@ public class WizardNewXtextProjectCreationPage extends WizardNewProjectCreationP
 		}
 		return candidate;
 	}
-
+	
 	@Override
 	protected boolean validatePage() {
 		if (!super.validatePage())
@@ -231,6 +231,10 @@ public class WizardNewXtextProjectCreationPage extends WizardNewProjectCreationP
 		JavaVersion javaVersion = JavaVersion.fromBree(breeCombo.getText());
 		if (javaVersion != null && !javaVersion.isAtLeast(JavaVersion.JAVA8)) {
 			setMessage(Messages.WizardNewXtextProjectCreationPage_MessageAtLeastJava8, IStatus.WARNING);
+			return true;
+		}
+		if (javaVersion != null && !javaVersion.isAtLeast(JavaVersion.JAVA11) && ((AdvancedNewProjectPage)getWizard().getPages()[1]).isCreateUiProject()) {
+			setMessage(Messages.WizardNewXtextProjectCreationPage_MessageAtLeastJava11, IStatus.INFO);
 			return true;
 		}
 		if (!Sets.newHashSet(JREContainerProvider.getConfiguredBREEs()).contains(breeCombo.getText())) {
@@ -313,5 +317,13 @@ public class WizardNewXtextProjectCreationPage extends WizardNewProjectCreationP
 		String selected = breeCombo.getText();
 		JavaVersion version = JavaVersion.fromBree(selected);
 		return version;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			validatePage();
+		}
 	}
 }
