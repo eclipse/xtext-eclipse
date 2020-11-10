@@ -758,6 +758,7 @@ public class HighlightingPresenter implements ITextPresentationListener, ITextIn
 		if (fSourceViewer != null) {
 			fSourceViewer.removeTextPresentationListener(this);
 			releaseDocument(fSourceViewer.getDocument());
+			resetState();
 			invalidateTextPresentation();
 			resetState();
 
