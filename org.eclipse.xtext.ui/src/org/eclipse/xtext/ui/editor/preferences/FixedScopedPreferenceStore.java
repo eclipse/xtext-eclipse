@@ -380,7 +380,7 @@ public class FixedScopedPreferenceStore extends EventManager implements IPersist
 		// important: create intermediate array to protect against listeners
 		// being added/removed during the notification
 		final Object[] list = getListeners();
-		if (list.length == 0) {
+		if (list.length == 0 || Objects.equal(oldValue, newValue)) {
 			return;
 		}
 		final PropertyChangeEvent event = new PropertyChangeEvent(this, name,
