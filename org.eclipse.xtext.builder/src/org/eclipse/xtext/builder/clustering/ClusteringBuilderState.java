@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -115,6 +117,31 @@ public class ClusteringBuilderState extends AbstractBuilderState {
      */
     @Override
     protected Collection<Delta> doUpdate(BuildData buildData, ResourceDescriptionsData newData, IProgressMonitor monitor) {
+    	CompletableFuture<Collection<Delta>> future
+  	  = CompletableFuture.supplyAsync(() -> doUpdateX(buildData, newData, monitor));
+    	
+    	try {
+			return future.get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+    }
+    
+    public static void main(String[] args) {
+		CompletableFuture<String> f = CompletableFuture.supplyAsync(()-> "Hello");
+		try {
+			System.out.println(f.get());
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+    
+    protected Collection<Delta> doUpdateX(BuildData buildData, ResourceDescriptionsData newData, IProgressMonitor monitor) {
         // We assume that we have 101 ticks to work with:
     	// 20 for writeNewResourceDescription
     	// 1 for queueAffectedResources
