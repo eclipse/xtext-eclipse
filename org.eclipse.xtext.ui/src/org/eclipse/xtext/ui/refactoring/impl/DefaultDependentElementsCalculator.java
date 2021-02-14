@@ -41,23 +41,31 @@ public class DefaultDependentElementsCalculator implements IDependentElementsCal
 		List<URI> elementURIs = Lists.newArrayList();
 		int counter = 0;
 		for (Iterator<EObject> iterator = EcoreUtil.getAllProperContents(baseElement, false); iterator.hasNext();) {
-			if(progress.isCanceled()) {
-				throw new OperationCanceledException();
-			}
-			EObject childElement = iterator.next();
-			if (nameProvider.getFullyQualifiedName(childElement)!=null) {
-				URI childURI = EcoreUtil.getURI(childElement);
-				if (childURI != null) {
-					elementURIs.add(childURI);
-				}
-			}
+			tryAddDependentElement(iterator.next(), elementURIs);
 			counter++;
 			if (counter % MONITOR_CHUNK_SIZE == 0) {
+				if(progress.isCanceled()) {
+					throw new OperationCanceledException();
+				}
 				progress.worked(1);
 				progress.setWorkRemaining(2);
 			}
 		}
 		return elementURIs;
+	}
+	
+	/**
+	 * @since 2.25
+	 */
+	protected boolean tryAddDependentElement(EObject element, List<URI> result) {
+		if (nameProvider.getFullyQualifiedName(element)!=null) {
+			URI childURI = EcoreUtil.getURI(element);
+			if (childURI != null) {
+				result.add(childURI);
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -42,6 +42,17 @@ public class JvmModelDependentElementsCalculator extends DefaultDependentElement
 		}
 		return dependentElementURIs;
 	}
+	
+	/**
+	 * @since 2.25
+	 */
+	@Override
+	protected boolean tryAddDependentElement(EObject element, List<URI> result) {
+		if (super.tryAddDependentElement(element, result)) {
+			addURIsIfNotNull(result, jvmModelAssociations.getJvmElements(element));
+		}
+		return false;
+	}
 
 	protected void addURIsIfNotNull(List<URI> dependentElementURIs, Iterable<? extends EObject> dependentElements) {
 		for (EObject dependentElement : dependentElements) {
