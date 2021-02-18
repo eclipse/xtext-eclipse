@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2014, 2019 itemis AG (http://www.itemis.eu) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.eclipse.xtext.ui.editor.contentassist.antlr;
 
 import java.util.Collection;
@@ -11,8 +18,9 @@ import com.google.inject.Inject;
  * position without any impact on the follow set.
  * 
  * @since 2.7
- * @author Sebastian Zarnekow
+ * @deprecated Use {@link org.eclipse.xtext.ide.editor.contentassist.antlr.AbstractPartialContentAssistParser} instead
  */
+@Deprecated
 public abstract class AbstractPartialContentAssistParser extends AbstractContentAssistParser implements IPartialContentAssistParser {
 	
 	@Inject
