@@ -18,6 +18,22 @@
     </pluginExecution>
     <pluginExecution>
       <pluginExecutionFilter>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <versionRange>[1.5,)</versionRange>
+        <goals>
+          <goal>compile</goal>
+          <goal>testCompile</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <configurator>
+          <id>org.eclipse.xtext.m2e.tychoBinFolderConfigurator</id>
+        </configurator>
+      </action>
+    </pluginExecution>
+    <pluginExecution>
+      <pluginExecutionFilter>
         <groupId>org.eclipse.xtext</groupId>
         <artifactId>xtext-maven-plugin</artifactId>
         <versionRange>[2.4.0,)</versionRange>
