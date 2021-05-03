@@ -43,17 +43,25 @@ public class BuilderStateDiscarder {
 				XtextBuilder builder = BuildManagerAccess.findBuilder(project);
 				if (builder != null) {
 					builder.forgetLastBuiltState();
-					try {
-						// Touch the project such that the auto-build knows it should be rebuild
-						project.touch(null);
-					} catch (CoreException e) {
-						logger.error("Failed to refresh project while forgetting its builder state", e);
-					}
+					touchProject(project);
 				}
 			}
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Touch a given project such that the auto-build knows it should be rebuild.
+	 *
+	 * @since 2.26
+	 */
+	protected void touchProject(IProject project) {
+		try {
+			project.touch(null);
+		} catch (CoreException e) {
+			logger.error("Failed to refresh project while forgetting its builder state", e);
+		}
 	}
 
 	protected boolean canHandleBuildFlag(Map<String, String> builderArguments) {
