@@ -10,8 +10,10 @@ package org.eclipse.xtext.builder.impl;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
 
 import com.google.common.annotations.Beta;
 
@@ -29,6 +31,8 @@ import com.google.common.annotations.Beta;
 @Beta
 public class BuilderStateDiscarder {
 
+	private static final Logger logger = Logger.getLogger(BuilderStateDiscarder.class);
+
 	/**
 	 * Returns true, if the given builderArguments indicate that we should discard the built state
 	 * for the given projects.
@@ -39,6 +43,12 @@ public class BuilderStateDiscarder {
 				XtextBuilder builder = BuildManagerAccess.findBuilder(project);
 				if (builder != null) {
 					builder.forgetLastBuiltState();
+					try {
+						// Touch the project such that the auto-build knows it should be rebuild
+						project.touch(null);
+					} catch (CoreException e) {
+						logger.error("Failed to refresh project while forgetting its builder state", e);
+					}
 				}
 			}
 			return true;
