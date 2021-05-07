@@ -14,6 +14,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import com.google.common.annotations.Beta;
 
@@ -57,10 +59,26 @@ public class BuilderStateDiscarder {
 	 * @since 2.26
 	 */
 	protected void touchProject(IProject project) {
-		try {
-			project.touch(null);
-		} catch (CoreException e) {
-			logger.error("Failed to refresh project while forgetting its builder state", e);
+		if (!project.getWorkspace().isTreeLocked()) {
+			try {
+				project.touch(null);
+			} catch (CoreException e) {
+				logger.error("Failed to refresh project while forgetting its builder state", e);
+			}
+		} else {
+			Job touchJob = Job.create("Touch project " + project.getName(), progressMonitor -> {
+				try {
+					project.touch(progressMonitor);
+					return Status.OK_STATUS;
+				} catch (CoreException e) {
+					logger.error("Failed to refresh project while forgetting its builder state", e);
+					return Status.CANCEL_STATUS;
+				}
+			});
+			touchJob.setRule(project);
+			touchJob.setUser(false);
+			touchJob.setSystem(true);
+			touchJob.schedule(0);
 		}
 	}
 
