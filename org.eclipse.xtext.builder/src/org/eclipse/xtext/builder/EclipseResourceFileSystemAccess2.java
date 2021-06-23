@@ -266,9 +266,9 @@ public class EclipseResourceFileSystemAccess2 extends AbstractFileSystemAccess2 
 					}
 					if (traceFile != null)
 						updateTraceInformation(traceFile, traceContent, outputConfig.isSetDerivedProperty());
-					if (callBack != null)
-						callBack.afterFileUpdate(file);
 				}
+				if (callBack != null)
+					callBack.afterFileUpdate(file);
 			} else {
 				ensureParentExists(file);
 				file.create(content, true, monitor);
