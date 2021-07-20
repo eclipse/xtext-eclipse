@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.IImageHelper.IImageDescriptorHelper;
 import org.osgi.framework.BundleEvent;
@@ -65,6 +66,8 @@ public class PluginImageHelper implements IImageHelper, IImageDescriptorHelper, 
 	@Named("org.eclipse.xtext.ui.PluginImageHelper.notFound")
 	private String notFound = "notFound.gif"; //$NON-NLS-1$
 
+	private boolean displayDisposedRunnableInitialized = false;
+
 	/**
 	 * Returns the image associated with the given image descriptor.
 	 * 
@@ -83,6 +86,10 @@ public class PluginImageHelper implements IImageHelper, IImageDescriptorHelper, 
 		Image result = registry.get(descriptor);
 		if (result != null) {
 			return result;
+		}
+		if (!displayDisposedRunnableInitialized  ) {
+			Display.getCurrent().disposeExec(()->this.dispose());
+			displayDisposedRunnableInitialized = true;
 		}
 		result = descriptor.createImage();
 		if (result != null) {
@@ -166,6 +173,10 @@ public class PluginImageHelper implements IImageHelper, IImageDescriptorHelper, 
 		for(Map.Entry<ImageDescriptor, Image> entry : registry.entrySet()) {
 			if(entry.getValue().equals(image))
 				return entry.getKey();
+		}
+		if (!displayDisposedRunnableInitialized  ) {
+			Display.getCurrent().disposeExec(()->this.dispose());
+			displayDisposedRunnableInitialized = true;
 		}
 		ImageDescriptor newDescriptor = ImageDescriptor.createFromImage(image);
 		registry.put(newDescriptor, image);
