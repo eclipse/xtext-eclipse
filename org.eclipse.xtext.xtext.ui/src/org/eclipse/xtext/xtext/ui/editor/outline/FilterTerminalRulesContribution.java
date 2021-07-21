@@ -51,7 +51,7 @@ public class FilterTerminalRulesContribution extends AbstractFilterOutlineContri
 		action.setText(Messages.FilterTerminalRulesContribution_title);
 		action.setDescription(Messages.FilterTerminalRulesContribution_description);
 		action.setToolTipText(Messages.FilterTerminalRulesContribution_tooltip);
-		action.setImageDescriptor(Activator.getImageDescriptor("icons/filter_rule.gif"));  
-		action.setDisabledImageDescriptor(Activator.getImageDescriptor("icons/filter_rule.gif"));
+		action.setImageDescriptor(Activator.getImageDescriptor("icons/filter_terminals.gif"));  
+		action.setDisabledImageDescriptor(Activator.getImageDescriptor("icons/filter_terminals.gif"));
 	}
 }
