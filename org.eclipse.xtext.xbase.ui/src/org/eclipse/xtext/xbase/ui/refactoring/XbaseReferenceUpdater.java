@@ -109,7 +109,7 @@ public class XbaseReferenceUpdater extends JvmModelReferenceUpdater {
 				JvmDeclaredType type = (JvmDeclaredType) newTargetElement;
 
 				ImportAwareUpdateAcceptor importAwareUpdateAcceptor = (ImportAwareUpdateAcceptor) updateAcceptor;
-				importAwareUpdateAcceptor.removeImport(type, isStatic, isExtension, memberName);
+				importAwareUpdateAcceptor.removeImport(importedType, isStatic, isExtension, memberName);
 				importAwareUpdateAcceptor.acceptImport(type, isStatic, isExtension, memberName);
 				return;
 			}
