@@ -185,7 +185,7 @@ public class ParallelResourceLoader extends AbstractResourceLoader {
 
 				// push resource to the queue, wait if queue is full
 				try {
-					resourceQueue.put(Tuples.create(uri, resource, exception));
+					getResourceQueue().put(Tuples.create(uri, resource, exception));
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
@@ -198,8 +198,8 @@ public class ParallelResourceLoader extends AbstractResourceLoader {
 				throw new NoSuchElementException("The resource queue is empty or the execution was cancelled.");
 			Triple<URI, Resource, Throwable> result = null;
 			try {
-				result = resourceQueue.poll(waitTime, TimeUnit.MILLISECONDS);
-				toProcess--;
+				result = getResourceQueue().poll(waitTime, TimeUnit.MILLISECONDS);
+				setToProcess(getToProcess() - 1);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 			}
@@ -231,19 +231,19 @@ public class ParallelResourceLoader extends AbstractResourceLoader {
 
 		@Override
 		public boolean hasNext() {
-			return toProcess > 0;
+			return getToProcess() > 0;
 		}
 
 		@Override
 		public void load(Collection<URI> uris) {
 			synchronizeResources(uris);
 			
-			toProcess += uris.size();
+			setToProcess(getToProcess() + uris.size());
 			Collection<URI> workload = getSorter().sort(uris);
 			for(URI uri : workload) {
-				executor.execute(new ResourceLoadJob(uri));
+				getExecutor().execute(new ResourceLoadJob(uri));
 			}
-			executor.shutdown();
+			getExecutor().shutdown();
 		}
 		
 		/**
@@ -266,8 +266,8 @@ public class ParallelResourceLoader extends AbstractResourceLoader {
 
 		@Override
 		public Collection<URI> cancel() {
-			toProcess = 0;
-			List<Runnable> jobs = executor.shutdownNow();
+			setToProcess(0);
+			List<Runnable> jobs = getExecutor().shutdownNow();
 			List<URI> ret = Lists.newArrayList();
 			for (Runnable job : jobs) {
 				if (job instanceof ResourceLoadJob) {
@@ -275,6 +275,34 @@ public class ParallelResourceLoader extends AbstractResourceLoader {
 				}
 			}
 			return ret;
+		}
+
+		/**
+		 * @since 2.26
+		 */
+		protected ExecutorService getExecutor() {
+			return executor;
+		}
+
+		/**
+		 * @since 2.26
+		 */
+		protected int getToProcess() {
+			return toProcess;
+		}
+
+		/**
+		 * @since 2.26
+		 */
+		protected void setToProcess(int toProcess) {
+			this.toProcess = toProcess;
+		}
+
+		/**
+		 * @since 2.26
+		 */
+		protected BlockingQueue<Triple<URI, Resource, Throwable>> getResourceQueue() {
+			return resourceQueue;
 		}
 
 	}
