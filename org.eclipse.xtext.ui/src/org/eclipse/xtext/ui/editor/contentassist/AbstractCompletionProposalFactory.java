@@ -11,6 +11,8 @@ package org.eclipse.xtext.ui.editor.contentassist;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.parsetree.reconstr.impl.TokenUtil;
 
 import com.google.inject.Inject;
 
@@ -26,6 +28,9 @@ public abstract class AbstractCompletionProposalFactory implements ICompletionPr
 
 	@Inject
 	private IProposalConflictHelper conflictHelper;
+	
+	@Inject
+	private TokenUtil tokenUtil;
 
 	public ICompletionProposal createCompletionProposal(String proposal, String displayString, Image image,
 			ContentAssistContext contentAssistContext) {
@@ -103,6 +108,16 @@ public abstract class AbstractCompletionProposalFactory implements ICompletionPr
 	}
 	
 	protected int getReplacementContextLength(ContentAssistContext context) {
+		INode cn = context.getCurrentNode();
+		if (cn != null) {
+			if (tokenUtil.isWhitespaceNode(cn)) {
+				// if ca is in the middle of whitespace, we don't replace right
+				int co = context.getOffset();
+				if (co >= cn.getOffset() && co < cn.getEndOffset()) { // am not sure if there is situation where co > cn.offset is needed, the = is needed for xxxxx.|
+					return context.getPrefix().length();
+				}
+			}
+		}
 		return context.getReplaceContextLength();
 	}
 
