@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -392,10 +393,15 @@ public class JdtBasedTypeFactory extends AbstractDeclaredTypeFactory implements 
 			
 			options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
 			parser.setCompilerOptions(options);
-	
+			ICompilationUnit compilationUnit = jdtType.getCompilationUnit();
+			if (compilationUnit != null && !compilationUnit.isConsistent()) {
+				compilationUnit.makeConsistent(null);
+			}
 			IBinding[] bindings = parser.createBindings(new IJavaElement[] { jdtType }, null);
 			resolveBinding.stop();
 			return bindings[0];
+		} catch (JavaModelException e) {
+			throw new RuntimeException(e);
 		} finally {
 			abortOnMissingSource.set(wasAbortOnMissingSource);
 		}
