@@ -32,6 +32,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.xtext.resource.IResourceDescription;
 import org.eclipse.xtext.resource.XtextResource;
@@ -496,7 +497,7 @@ public class ContentAssistProcessorTestBuilder implements Cloneable {
 
 	protected ICompletionProposal[] computeCompletionProposals(final IXtextDocument xtextDocument, int cursorPosition)
 			throws BadLocationException {
-		Shell shell = new Shell();
+		Shell shell = new Shell((Display)null, SWT.NONE);
 		try {
 			return computeCompletionProposals(xtextDocument, cursorPosition, shell);
 		} finally {

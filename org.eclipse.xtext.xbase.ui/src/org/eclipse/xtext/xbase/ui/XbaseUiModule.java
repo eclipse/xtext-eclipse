@@ -3,13 +3,16 @@
  */
 package org.eclipse.xtext.xbase.ui;
 
-import com.google.inject.Binder;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContextFactoryWithSharedPool;
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContextFactoryWithSharedPool.SharedExecutorServiceAccess;
 import org.eclipse.xtext.ui.editor.copyqualifiedname.CopyQualifiedNameService;
 import org.eclipse.xtext.ui.editor.hover.html.IEObjectHoverDocumentationProvider;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.resource.ResourceServiceDescriptionLabelProvider;
+import org.eclipse.xtext.ui.shared.Access;
 import org.eclipse.xtext.validation.IssueSeveritiesProvider;
 import org.eclipse.xtext.xbase.typesystem.internal.IFeatureScopeTracker;
 import org.eclipse.xtext.xbase.typesystem.internal.OptimizingFeatureScopeTrackerProvider;
@@ -19,6 +22,9 @@ import org.eclipse.xtext.xbase.ui.hover.XbaseHoverDocumentationProvider;
 import org.eclipse.xtext.xbase.ui.labeling.XbaseDescriptionLabelProvider;
 import org.eclipse.xtext.xbase.ui.labeling.XbaseLabelProvider;
 import org.eclipse.xtext.xbase.ui.validation.XbaseIssueSeveritiesProvider;
+
+import com.google.inject.Binder;
+import com.google.inject.Provider;
 
 /** 
  * Use this class to register components to be used within the IDE.
@@ -62,5 +68,14 @@ public class XbaseUiModule extends AbstractXbaseUiModule {
 	@Override
 	public Class<? extends IFeatureScopeTracker.Provider> bindIFeatureScopeTracker$Provider() {
 		return OptimizingFeatureScopeTrackerProvider.class;
+	}
+	
+	@Override
+	public Class<? extends ContentAssistContext.Factory> bindContentAssistContext$Factory() {
+		return ContentAssistContextFactoryWithSharedPool.class;
+	}
+
+	public Provider<? extends SharedExecutorServiceAccess> provideSharedExecutorServiceAccess() {
+		return Access.provider(SharedExecutorServiceAccess.class);
 	}
 }
