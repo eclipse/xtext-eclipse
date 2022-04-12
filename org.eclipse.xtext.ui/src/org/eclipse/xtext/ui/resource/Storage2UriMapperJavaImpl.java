@@ -669,6 +669,7 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 				@Override
 				public void run(IProgressMonitor monitor) throws CoreException {
 					if(!isInitialized) {
+						JavaCore.initializeAfterLoad(monitor);
 						for(IProject project: workspace.getRoot().getProjects()) {
 							if(project.isAccessible() && org.eclipse.jdt.internal.core.JavaProject.hasJavaNature(project)) {
 								IJavaProject javaProject = JavaCore.create(project);
