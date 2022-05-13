@@ -25,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.internal.runtime.DataArea;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -312,7 +313,8 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 	 * @since 2.4
 	 */
 	protected PackageFragmentRootData initializeData(final IPackageFragmentRoot root) {
-		final PackageFragmentRootData data = new PackageFragmentRootData(computeModificationStamp(root));
+		Object modificationStamp = computeModificationStamp(root);
+		final PackageFragmentRootData data = createPackageFragmentRootData(modificationStamp);
 		data.addRoot(root);
 		if (shouldHandle(root)) {
 			try {
@@ -354,7 +356,14 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 		}
 		return data;
 	}
-	
+
+	/**
+	 * @since 2.27
+	 */
+	protected PackageFragmentRootData createPackageFragmentRootData(Object modificationStamp) {
+		return new PackageFragmentRootData(modificationStamp);
+	}
+
 	/* @NonNull */
 	@Override
 	public Iterable<Pair<IStorage, IProject>> getStorages(/* @NonNull */ URI uri) {
@@ -456,14 +465,14 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 		for(IJavaElementDelta projectDelta: getProjectDeltas(event.getDelta())) {
 			IJavaProject project = (IJavaProject) projectDelta.getElement();
 			if((projectDelta.getKind() & IJavaElementDelta.REMOVED) != 0) {
-				clearCache(project, Collections.<PackageFragmentRootData>emptySet());
+				clearCache(project, Collections.<String>emptySet());
 			} 
 			switch(projectDelta.getFlags()) {
 				case IJavaElementDelta.F_OPENED: 
 					updateCache(project);
 					break;
 				case IJavaElementDelta.F_CLOSED:
-					clearCache(project, Collections.<PackageFragmentRootData>emptySet());
+					clearCache(project, Collections.<String>emptySet());
 					break;
 			}
 		}
@@ -483,13 +492,14 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 	 * @since 2.4
 	 */
 	protected void updateCache(IJavaProject project) {
-		Set<PackageFragmentRootData> datas = newHashSet();
+		Set<String> datas = newHashSet();
 		try {
 			if (project.exists() && project.getProject().isAccessible()) {
 				for(IPackageFragmentRoot root: project.getPackageFragmentRoots()) {
 					boolean isCachable = shouldHandle(root);
 					if(isCachable) {
-						datas.add(getCachedData(root));
+						PackageFragmentRootData cachedData = getCachedData(root);
+						datas.add(cachedData.toString());
 					}
 				}
 			}
@@ -501,14 +511,15 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 		}
 	}
 	
-	protected void clearCache(IJavaProject project, Set<PackageFragmentRootData> toBeKept) {
+	protected void clearCache(IJavaProject project, Set<String> toBeKept) {
 		Collection<PackageFragmentRootData> values;
 		synchronized (cachedPackageFragmentRootData) {
 			values = newArrayList(cachedPackageFragmentRootData.values());
 		}
 		List<PackageFragmentRootData> toBeRemoved = newArrayList();
 		for (PackageFragmentRootData data : values) {
-			if (toBeKept.contains(data)) {
+			String dataStringRep = data.toString();
+			if (toBeKept.contains(dataStringRep)) {
 				continue;
 			}
 			Map<String, IPackageFragmentRoot> associatedRoots = data.associatedRoots;
