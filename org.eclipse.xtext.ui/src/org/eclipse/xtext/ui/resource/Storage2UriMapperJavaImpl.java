@@ -36,6 +36,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -244,7 +246,7 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 	
 	protected PackageFragmentRootData getData(IPackageFragmentRoot root) {
 		final boolean isCachable = shouldHandle(root);
-		if (isCachable) {
+		if (isCachable && isInitialized) {
 			return getCachedData(root);
 		}
 		PackageFragmentRootData data = initializeData(root);
@@ -708,7 +710,12 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 			if (workspace.isTreeLocked()) {
 				runnable.run(null);
 			} else {
-				workspace.run(runnable, null, IWorkspace.AVOID_UPDATE, null);
+				ISchedulingRule currentRule = Job.getJobManager().currentRule();
+				ISchedulingRule rule = null;
+				if (currentRule == null) {
+					rule = workspace.getRoot();
+				}
+				workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
 			}
 		}
 	}
