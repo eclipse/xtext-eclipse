@@ -368,7 +368,7 @@ public class Storage2UriMapperJavaImpl implements IStorage2UriMapperJdtExtension
 		// Pessimistic copy of the cachedPackageFragmentRootData
 		Collection<PackageFragmentRootData> packageFragmentRootDatas;
 		synchronized(cachedPackageFragmentRootData) {
-			packageFragmentRootDatas = cachedPackageFragmentRootData.values();
+			packageFragmentRootDatas = newArrayList(cachedPackageFragmentRootData.values());
 		}
 		
 		/* 
