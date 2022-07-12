@@ -10,8 +10,6 @@
    <bundle id="org.eclipse.xtext.common.types.edit.source" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
    <bundle id="org.eclipse.xtext.common.types.shared" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
    <bundle id="org.eclipse.xtext.common.types.shared.source" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
-   <bundle id="org.eclipse.xtext.common.types.shared.jdt38" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
-   <bundle id="org.eclipse.xtext.common.types.shared.jdt38.source" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
    <bundle id="org.eclipse.xtext.common.types.ui" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
    <bundle id="org.eclipse.xtext.common.types.ui.source" version="2.28.0.qualifier"><category name="Xtext"/></bundle>
    <bundle id="org.eclipse.xtext.doc" version="2.28.0.qualifier"><category name="Xtext"/></bundle>

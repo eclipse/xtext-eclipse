@@ -34,7 +34,8 @@ Require-Bundle: org.eclipse.xtext.xbase;visibility:=reexport,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: org.eclipse.xtext.xbase.ui.internal.XbaseActivator
 Import-Package: org.apache.log4j;version="1.2.19"
-Export-Package: org.eclipse.xtext.xbase.annotations.ui;x-internal:=true,
+Export-Package: org.eclipse.xtext.common.types.shared.jdt38;x-internal:=true,
+ org.eclipse.xtext.xbase.annotations.ui;x-internal:=true,
  org.eclipse.xtext.xbase.annotations.ui.contentassist;x-friends:="org.eclipse.xtend.ide",
  org.eclipse.xtext.xbase.annotations.ui.labeling;x-internal:=true,
  org.eclipse.xtext.xbase.annotations.ui.outline;x-internal:=true,
