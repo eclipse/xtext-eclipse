@@ -8,7 +8,10 @@
  *******************************************************************************/
 package org.eclipse.xtext.ui.tests.editor.model.edit;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.xtext.AbstractRule;
+import org.eclipse.xtext.Annotation;
 import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.Grammar;
 import org.eclipse.xtext.Group;
@@ -90,14 +93,14 @@ public class XtextDocumentModifyTest extends AbstractXtextTests {
 			}
 		});
 		String newContent = document.get();
-		assertContainsExactlyOnce(newContent,"foobars");
-		assertContainsExactlyOnce(newContent,"// comment in Foo");
-		assertContainsExactlyOnce(newContent,"// comment before Assignment");
-		assertContainsExactlyOnce(newContent,"/* comment in assignment */");
-		assertContainsExactlyOnce(newContent,"// comment after assignment");
-		assertContainsExactlyOnce(newContent,"// comment before keywod");
+		assertContainsExactlyOnce(newContent, "foobars");
+		assertContainsExactlyOnce(newContent, "// comment in Foo");
+		assertContainsExactlyOnce(newContent, "// comment before Assignment");
+		assertContainsExactlyOnce(newContent, "/* comment in assignment */");
+		assertContainsExactlyOnce(newContent, "// comment after assignment");
+		assertContainsExactlyOnce(newContent, "// comment before keywod");
 	}
-	
+
 	private void assertContainsExactlyOnce(String content, String onlyOnce) {
 		int index = content.indexOf(onlyOnce);
 		assertTrue("Missing: " + onlyOnce, index >= 0);
@@ -168,6 +171,33 @@ public class XtextDocumentModifyTest extends AbstractXtextTests {
 			assertTrue(e.getMessage().contains("Cannot modify document textually and semantically"));
 			assertEquals(grammar, document.get());
 		}
+	}
+
+	@Test
+	public void testComments() throws Exception {
+		// @formatter:off
+		final String grammar = text(
+				"grammar foo.Foo", 
+				"generate foo \"http://foo.net/foo\"",
+				"@Ann // Ann",
+				"@Ann2 // Ann2",
+				" Foo: 'foo';"
+				);
+		// @formatter:on
+		final IXtextDocument document = createDocument(grammar);
+		document.modify(new IUnitOfWork.Void<XtextResource>() {
+			@Override
+			public void process(XtextResource state) throws Exception {
+				Grammar grammar = (Grammar) state.getContents().get(0);
+				AbstractRule abstractRule = grammar.getRules().get(0);
+				EList<Annotation> annotations = abstractRule.getAnnotations();
+				annotations.get(1).setName("Ann3");
+			}
+		});
+		
+		
+		String result = document.get();
+		assertEquals(grammar.replace("@Ann2", "@Ann3"), result);
 	}
 
 	private IXtextDocument createDocument(String model) throws Exception {
