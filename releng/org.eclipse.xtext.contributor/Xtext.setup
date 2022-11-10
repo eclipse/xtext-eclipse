@@ -554,6 +554,76 @@
         name="master"/>
     <description>Provide the core grammar infrastructure, core framework and Language Server support</description>
   </project>
+  <project name="extras"
+      label="Extras">
+    <setupTask
+        xsi:type="git:GitCloneTask"
+        id="git.clone.xtext.extras"
+        remoteURI="eclipse/xtext-extras"
+        pushURI=""
+        checkoutBranch="${xtext.git.branch}">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        <detail
+            key="inherit">
+          <value>github.remoteURIs</value>
+        </detail>
+        <detail
+            key="label">
+          <value>Github Repository</value>
+        </detail>
+        <detail
+            key="target">
+          <value>remoteURI</value>
+        </detail>
+      </annotation>
+      <description>${scope.project.label}</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:TextModifyTask"
+        id="adaptLocationPropertiesForExtras"
+        excludedTriggers="BOOTSTRAP"
+        url="file://${git.clone.xtext.umbrella.location}/locations.properties"
+        encoding="UTF-8">
+      <modification
+          pattern="(gitclonextextextraslocationprototype)">
+        <substitution>${git.clone.xtext.extras.location|property}</substitution>
+      </modification>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:StringSubstitutionTask"
+        name="git.xtext.extras.location"
+        value="${git.clone.xtext.extras.location}"/>
+    <setupTask
+        xsi:type="launching:LaunchTask"
+        id="buildship.xtext-extras"
+        launcher="GenerateBuildshipPreferences"/>
+    <setupTask
+        xsi:type="projects:ProjectsImportTask">
+      <sourceLocator
+          rootFolder="${git.clone.xtext.extras.location}"
+          locateNestedProjects="true"/>
+      <description>Maven Dependencies</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup.workingsets:WorkingSetTask">
+      <workingSet
+          name="Extras">
+        <predicate
+            xsi:type="predicates:AndPredicate">
+          <operand
+              xsi:type="predicates:RepositoryPredicate"
+              project="org.eclipse.xtext.xbase"/>
+          <operand
+              xsi:type="workingsets:ExclusionPredicate"
+              excludedWorkingSet="//'xtext.working.sets'/@workingSets[name='Root%20Projects']"/>
+        </predicate>
+      </workingSet>
+    </setupTask>
+    <stream
+        name="master"/>
+    <description>Additional editor-independent features, mostly Java support</description>
+  </project>
   <project name="lib"
       label="Xbase/Xtend Libraries">
     <setupTask
@@ -625,76 +695,6 @@
     <stream
         name="master"/>
     <description>Libraries for Xbase and Xtend</description>
-  </project>
-  <project name="extras"
-      label="Extras">
-    <setupTask
-        xsi:type="git:GitCloneTask"
-        id="git.clone.xtext.extras"
-        remoteURI="eclipse/xtext-extras"
-        pushURI=""
-        checkoutBranch="${xtext.git.branch}">
-      <annotation
-          source="http://www.eclipse.org/oomph/setup/InducedChoices">
-        <detail
-            key="inherit">
-          <value>github.remoteURIs</value>
-        </detail>
-        <detail
-            key="label">
-          <value>Github Repository</value>
-        </detail>
-        <detail
-            key="target">
-          <value>remoteURI</value>
-        </detail>
-      </annotation>
-      <description>${scope.project.label}</description>
-    </setupTask>
-    <setupTask
-        xsi:type="setup:TextModifyTask"
-        id="adaptLocationPropertiesForExtras"
-        excludedTriggers="BOOTSTRAP"
-        url="file://${git.clone.xtext.umbrella.location}/locations.properties"
-        encoding="UTF-8">
-      <modification
-          pattern="(gitclonextextextraslocationprototype)">
-        <substitution>${git.clone.xtext.extras.location|property}</substitution>
-      </modification>
-    </setupTask>
-    <setupTask
-        xsi:type="setup:StringSubstitutionTask"
-        name="git.xtext.extras.location"
-        value="${git.clone.xtext.extras.location}"/>
-    <setupTask
-        xsi:type="launching:LaunchTask"
-        id="buildship.xtext-extras"
-        launcher="GenerateBuildshipPreferences"/>
-    <setupTask
-        xsi:type="projects:ProjectsImportTask">
-      <sourceLocator
-          rootFolder="${git.clone.xtext.extras.location}"
-          locateNestedProjects="true"/>
-      <description>Maven Dependencies</description>
-    </setupTask>
-    <setupTask
-        xsi:type="setup.workingsets:WorkingSetTask">
-      <workingSet
-          name="Extras">
-        <predicate
-            xsi:type="predicates:AndPredicate">
-          <operand
-              xsi:type="predicates:RepositoryPredicate"
-              project="org.eclipse.xtext.xbase"/>
-          <operand
-              xsi:type="workingsets:ExclusionPredicate"
-              excludedWorkingSet="//'xtext.working.sets'/@workingSets[name='Root%20Projects']"/>
-        </predicate>
-      </workingSet>
-    </setupTask>
-    <stream
-        name="master"/>
-    <description>Additional editor-independent features, mostly Java support</description>
   </project>
   <project name="eclipse"
       label="Eclipse Support">
@@ -1172,62 +1172,6 @@
         name="master"/>
     <description>Support for Orion, Ace and CodeMirror</description>
   </project>
-  <project name="maven"
-      label="Maven Support">
-    <setupTask
-        xsi:type="git:GitCloneTask"
-        id="git.clone.xtext.maven"
-        remoteURI="eclipse/xtext-maven"
-        checkoutBranch="${xtext.git.branch}">
-      <annotation
-          source="http://www.eclipse.org/oomph/setup/InducedChoices">
-        <detail
-            key="inherit">
-          <value>github.remoteURIs</value>
-        </detail>
-        <detail
-            key="label">
-          <value>Github Repository</value>
-        </detail>
-        <detail
-            key="target">
-          <value>remoteURI</value>
-        </detail>
-      </annotation>
-      <description>${scope.project.label}</description>
-    </setupTask>
-    <setupTask
-        xsi:type="setup:StringSubstitutionTask"
-        name="git.xtext.maven.location"
-        value="${git.clone.xtext.maven.location}">
-      <description></description>
-    </setupTask>
-    <setupTask
-        xsi:type="projects:ProjectsImportTask">
-      <sourceLocator
-          rootFolder="${git.clone.xtext.maven.location}"
-          locateNestedProjects="true"/>
-      <description>Maven Dependencies</description>
-    </setupTask>
-    <setupTask
-        xsi:type="setup.workingsets:WorkingSetTask">
-      <workingSet
-          name="Maven">
-        <predicate
-            xsi:type="predicates:AndPredicate">
-          <operand
-              xsi:type="predicates:RepositoryPredicate"
-              project="org.eclipse.xtext.maven.plugin"/>
-          <operand
-              xsi:type="workingsets:ExclusionPredicate"
-              excludedWorkingSet="//'xtext.working.sets'/@workingSets[name='Root%20Projects']"/>
-        </predicate>
-      </workingSet>
-    </setupTask>
-    <stream
-        name="master"/>
-    <description>Support for Maven</description>
-  </project>
   <project name="xtend"
       label="Xtend Language">
     <setupTask
@@ -1416,6 +1360,62 @@
     <stream
         name="master"/>
     <description>The Xtend language</description>
+  </project>
+  <project name="maven"
+      label="Maven Support">
+    <setupTask
+        xsi:type="git:GitCloneTask"
+        id="git.clone.xtext.maven"
+        remoteURI="eclipse/xtext-maven"
+        checkoutBranch="${xtext.git.branch}">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        <detail
+            key="inherit">
+          <value>github.remoteURIs</value>
+        </detail>
+        <detail
+            key="label">
+          <value>Github Repository</value>
+        </detail>
+        <detail
+            key="target">
+          <value>remoteURI</value>
+        </detail>
+      </annotation>
+      <description>${scope.project.label}</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:StringSubstitutionTask"
+        name="git.xtext.maven.location"
+        value="${git.clone.xtext.maven.location}">
+      <description></description>
+    </setupTask>
+    <setupTask
+        xsi:type="projects:ProjectsImportTask">
+      <sourceLocator
+          rootFolder="${git.clone.xtext.maven.location}"
+          locateNestedProjects="true"/>
+      <description>Maven Dependencies</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup.workingsets:WorkingSetTask">
+      <workingSet
+          name="Maven">
+        <predicate
+            xsi:type="predicates:AndPredicate">
+          <operand
+              xsi:type="predicates:RepositoryPredicate"
+              project="org.eclipse.xtext.maven.plugin"/>
+          <operand
+              xsi:type="workingsets:ExclusionPredicate"
+              excludedWorkingSet="//'xtext.working.sets'/@workingSets[name='Root%20Projects']"/>
+        </predicate>
+      </workingSet>
+    </setupTask>
+    <stream
+        name="master"/>
+    <description>Support for Maven</description>
   </project>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
