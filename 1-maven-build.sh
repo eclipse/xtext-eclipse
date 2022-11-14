@@ -55,6 +55,7 @@ while [ "$1" != "" ]; do
   shift
 done
 
+MVN_ARGS+=(-PuseJenkinsSnapshots)
 MVN_ARGS+=(-P$TARGET_PLATFORM)
 echo "Calling Maven with ARGS: ${MVN_ARGS[@]}"
 
