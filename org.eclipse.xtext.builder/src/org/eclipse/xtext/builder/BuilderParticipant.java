@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.builder.DerivedResourceMarkers.GeneratorIdProvider;
 import org.eclipse.xtext.builder.EclipseResourceFileSystemAccess2.IFileCallback;
 import org.eclipse.xtext.builder.preferences.BuilderPreferenceAccess;
@@ -679,6 +680,7 @@ public class BuilderParticipant implements IXtextBuilderParticipant {
 		if (resource instanceof StorageAwareResource && access instanceof IFileSystemAccessExtension3) {
 			IResourceStorageFacade storageFacade = ((StorageAwareResource) resource).getResourceStorageFacade();
 			if (storageFacade != null) {
+				EcoreUtil2.resolveLazyCrossReferences(resource, CancelIndicator.NullImpl);
 				storageFacade.saveResource((StorageAwareResource)resource, (IFileSystemAccessExtension3)access);
 			}
 		}
