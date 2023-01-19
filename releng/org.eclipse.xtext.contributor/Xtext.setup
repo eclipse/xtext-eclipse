@@ -682,24 +682,9 @@
       <description>${scope.project.label}</description>
     </setupTask>
     <setupTask
-        xsi:type="setup:TextModifyTask"
-        id="adaptLocationPropertiesForCore"
-        excludedTriggers="BOOTSTRAP"
-        url="file://${git.clone.xtext.umbrella.location}/locations.properties"
-        encoding="UTF-8">
-      <modification
-          pattern="(gitclonextextcorelocationprototype)">
-        <substitution>${git.clone.xtext.core.location|property}</substitution>
-      </modification>
-    </setupTask>
-    <setupTask
         xsi:type="setup:StringSubstitutionTask"
         name="git.xtext.core.location"
         value="${git.clone.xtext.core.location}"/>
-    <setupTask
-        xsi:type="launching:LaunchTask"
-        id="buildship.xtext-core"
-        launcher="GenerateBuildshipPreferences"/>
     <setupTask
         xsi:type="projects:ProjectsImportTask">
       <sourceLocator
