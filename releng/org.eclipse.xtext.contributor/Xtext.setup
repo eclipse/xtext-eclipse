@@ -288,7 +288,7 @@
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.m2e.core/eclipse.m2.updateProjects"
-          value="true"/>
+          value="false"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.m2e.core/eclipse.m2.autoUpdateProjects"
@@ -486,6 +486,8 @@
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"/>
       <requirement
           name="org.eclipse.emf.mwe2.launcher.feature.group"/>
+      <requirement
+          name="org.kohsuke.args4j"/>
       <repositoryList
           name="2022-03">
         <repository
