@@ -293,6 +293,10 @@
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.m2e.core/eclipse.m2.autoUpdateProjects"
           value="false"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.m2e.core/eclipse.m2.downloadSources"
+          value="false"/>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
