@@ -772,6 +772,7 @@
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsBuildTask"
+        id="clean-xtext-lib"
         refresh="true"
         clean="true"/>
     <stream
@@ -804,24 +805,9 @@
       <description>${scope.project.label}</description>
     </setupTask>
     <setupTask
-        xsi:type="setup:TextModifyTask"
-        id="adaptLocationPropertiesForExtras"
-        excludedTriggers="BOOTSTRAP"
-        url="file://${git.clone.xtext.umbrella.location}/locations.properties"
-        encoding="UTF-8">
-      <modification
-          pattern="(gitclonextextextraslocationprototype)">
-        <substitution>${git.clone.xtext.extras.location|property}</substitution>
-      </modification>
-    </setupTask>
-    <setupTask
         xsi:type="setup:StringSubstitutionTask"
         name="git.xtext.extras.location"
         value="${git.clone.xtext.extras.location}"/>
-    <setupTask
-        xsi:type="launching:LaunchTask"
-        id="buildship.xtext-extras"
-        launcher="GenerateBuildshipPreferences"/>
     <setupTask
         xsi:type="projects:ProjectsImportTask">
       <sourceLocator
@@ -844,6 +830,12 @@
         </predicate>
       </workingSet>
     </setupTask>
+    <setupTask
+        xsi:type="projects:ProjectsBuildTask"
+        id="clean-xtext-extras"
+        onlyNewProjects="true"
+        refresh="true"
+        clean="true"/>
     <stream
         name="master"/>
     <description>Additional editor-independent features, mostly Java support</description>
