@@ -1230,23 +1230,6 @@
       <description></description>
     </setupTask>
     <setupTask
-        xsi:type="setup:TextModifyTask"
-        id="adaptLocationPropertiesForXtend"
-        excludedTriggers="BOOTSTRAP"
-        url="file://${git.clone.xtext.umbrella.location}/locations.properties"
-        encoding="UTF-8">
-      <modification
-          pattern="(gitclonextextxtendlocationprototype)">
-        <substitution>${git.clone.xtext.xtend.location|property}</substitution>
-      </modification>
-    </setupTask>
-    <setupTask
-        xsi:type="launching:LaunchTask"
-        id="buildship.xtext-xtend"
-        launcher="GenerateBuildshipPreferences">
-      <description></description>
-    </setupTask>
-    <setupTask
         xsi:type="setup.p2:P2Task"
         id="p2.swtbot"
         label="SWTBot"
