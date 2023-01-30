@@ -10,17 +10,16 @@
 	<artifactId>org.eclipse.xtext.logging</artifactId>
 	<version>1.2.24-SNAPSHOT</version>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.eclipse.xtext</groupId>
-				<artifactId>xtext-dev-bom</artifactId>
-				<version>${project.parent.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+	<profiles>
+		<profile>
+			<id>useJenkinsSnapshots</id>
+			<properties>
+				<!-- redefines the property for versions of artifacts not in this Git repository,
+					so that it takes the same snapshot version of this project's parent'. -->
+				<xtext-current-release-version>${project.parent.version}</xtext-current-release-version>
+			</properties>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>
