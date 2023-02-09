@@ -429,32 +429,6 @@
     <description>UI testing framework</description>
   </setupTask>
   <setupTask
-      xsi:type="setup.workingsets:WorkingSetTask"
-      id="xtext.working.sets">
-    <workingSet
-        name="Root Projects"
-        id="">
-      <predicate
-          xsi:type="predicates:OrPredicate">
-        <operand
-            xsi:type="predicates:FilePredicate"
-            filePattern="settings.gradle"/>
-        <operand
-            xsi:type="predicates:NamePredicate"
-            pattern="xtext-eclipse"/>
-      </predicate>
-    </workingSet>
-    <workingSet
-        name="Releng">
-      <predicate
-          xsi:type="predicates:AndPredicate">
-        <operand
-            xsi:type="predicates:RepositoryPredicate"
-            project="org.eclipse.xtext.tycho.parent"/>
-      </predicate>
-    </workingSet>
-  </setupTask>
-  <setupTask
       xsi:type="setup.targlets:TargletTask">
     <targlet
         name="Common Target Platform Repositories"
@@ -1138,6 +1112,42 @@
       </workingSet>
     </setupTask>
     <setupTask
+        xsi:type="git:GitCloneTask"
+        id="git.clone.xtext.umbrella"
+        remoteURI="eclipse/xtext-umbrella"
+        pushURI=""
+        checkoutBranch="${xtext.git.branch}">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        <detail
+            key="inherit">
+          <value>github.remoteURIs</value>
+        </detail>
+        <detail
+            key="label">
+          <value>Github Repository</value>
+        </detail>
+        <detail
+            key="target">
+          <value>remoteURI</value>
+        </detail>
+      </annotation>
+      <description>${scope.project.label}</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:StringSubstitutionTask"
+        name="git.xtext.umbrella.location"
+        value="${git.clone.xtext.umbrella.location}">
+      <description></description>
+    </setupTask>
+    <setupTask
+        xsi:type="projects:ProjectsImportTask">
+      <sourceLocator
+          rootFolder="${git.clone.xtext.umbrella.location}"
+          locateNestedProjects="true"/>
+      <description>Import projects from umbrella repository</description>
+    </setupTask>
+    <setupTask
         xsi:type="setup:EclipseIniTask"
         option="-Doomph.redirection.xtext"
         value="=https://raw.githubusercontent.com/eclipse/xtext-eclipse/master/releng/org.eclipse.xtext.contributor/Xtext.setup->${git.clone.xtext.eclipse.location|uri}/releng/org.eclipse.xtext.contributor/Xtext.setup"
@@ -1147,6 +1157,32 @@
         id="clean-xtext-lib-complete"
         refresh="true"
         clean="true"/>
+    <setupTask
+        xsi:type="setup.workingsets:WorkingSetTask"
+        id="xtext.working.sets">
+      <workingSet
+          name="Root Projects"
+          id="">
+        <predicate
+            xsi:type="predicates:OrPredicate">
+          <operand
+              xsi:type="predicates:FilePredicate"
+              filePattern="settings.gradle"/>
+          <operand
+              xsi:type="predicates:NamePredicate"
+              pattern="xtext-eclipse"/>
+        </predicate>
+      </workingSet>
+      <workingSet
+          name="Releng">
+        <predicate
+            xsi:type="predicates:AndPredicate">
+          <operand
+              xsi:type="predicates:RepositoryPredicate"
+              project="org.eclipse.xtext.tycho.parent"/>
+        </predicate>
+      </workingSet>
+    </setupTask>
     <stream
         name="lb_2052_maven_tycho"/>
     <description>All Projects</description>
