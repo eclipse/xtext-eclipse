@@ -133,19 +133,18 @@
 		<maven-surefire-version>3.0.0-M8</maven-surefire-version>
 
 		<!--
-		This is the version of the currently released latest version that we
-		use during the Maven builds for artifacts that are not in this Git repository
-		(and thus, not in this Maven reactor).
-		It is redefined in the profile "useJenkinsSnapshots" to take the same version
-		of this project.
+		This assumes that the child project has the same version as the parent.
+		This is not the case only for some special cases like org.eclipse.xtext.logging
+		and org.eclipse.emf.mwe2.language.sdk.dummy: in those projects we can redefine
+		this property with ${project.parent.version}.
 		-->
-		<xtext-current-release-version>2.30.0.M1</xtext-current-release-version>
+		<xtext-dev-bom-version>${project.version}</xtext-dev-bom-version>
 
 		<!--
 		This is the version of the currently released latest version of the xtend-maven-plugin that we
 		use during the Maven builds for processing Xtend files.
 		-->
-		<xtend-maven-plugin-version>2.30.0.M1</xtend-maven-plugin-version>
+		<xtend-maven-plugin-version>2.30.0.M2</xtend-maven-plugin-version>
 
 		<root-dir>${basedir}/..</root-dir>
 		<JENKINS_URL>https://ci.eclipse.org/xtext</JENKINS_URL>
@@ -168,21 +167,47 @@
 				TODO: update it
 				The dev BOM should be in the same Git repository of this one
 				-->
-				<version>${xtext-current-release-version}</version>
+				<version>${xtext-dev-bom-version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
+	<repositories>
+		<!-- Sonatype snapshots are the default for Xtext dependencies
+			of other Git repositories. Sonatype snapshots are disabled
+			when using the "useJenkinsSnapshots" profile. -->
+		<repository>
+			<id>sonatype-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+
 	<profiles>
 		<profile>
+			<!-- This is used only for updating versions in test children projects
+				versions:set will scan automatically also these modules
+				even if this profile is not active.
+
+				Don't run a build with this profile explicitly -->
+			<id>update-versions</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>org.eclipse.xtext.p2.releng</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>useJenkinsSnapshots</id>
-			<properties>
-				<!-- redefines the property for versions of artifacts not in this Git repository,
-					so that it takes the same snapshot version of this project. -->
-				<xtext-current-release-version>${project.version}</xtext-current-release-version>
-			</properties>
 			<repositories>
 				<repository>
 					<id>lsp4j-from-jenkins</id>
@@ -203,6 +228,17 @@
 				<repository>
 					<id>xtext-xtend-from-jenkins</id>
 					<url>${JENKINS_URL}/job/xtext-xtend/job/${upstreamBranch}/lastStableBuild/artifact/build/maven-repository/</url>
+				</repository>
+				<!-- Disable sonatype snapshots -->
+				<repository>
+					<id>sonatype-snapshots</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
 				</repository>
 			</repositories>
 		</profile>
@@ -324,8 +360,18 @@
 			<plugins>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.14.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
@@ -402,6 +448,11 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.3.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-install-plugin</artifactId>
 					<version>3.1.0</version>
 				</plugin>
@@ -474,6 +525,25 @@
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<!-- Explicitly bind it to "prepare-package" (instead of the default "package")
+					and before tycho-source-plugin: for pure Maven projects this will generate
+					the JAR with sources, while tycho-source-plugin will no nothing; for
+					bundles, tycho-source-plugin will overwrite the JAR with sources generated
+					by maven-source-plugin. -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+						<phase>prepare-package</phase>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
