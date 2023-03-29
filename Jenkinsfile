@@ -22,13 +22,6 @@ pipeline {
     )
   }
 
-  triggers {
-    parameterizedCron(env.BRANCH_NAME == 'master' ? '''
-      H H(0-1) * * * %TARGET_PLATFORM=r202206;JDK_VERSION=temurin-jdk11-latest;TRIGGER_DOWNSTREAM_BUILD=true
-      H H(3-4) * * * %TARGET_PLATFORM=latest;JDK_VERSION=temurin-jdk17-latest;TRIGGER_DOWNSTREAM_BUILD=true
-      ''' : '')
-  }
-
   options {
     buildDiscarder(logRotator(numToKeepStr:'5'))
     disableConcurrentBuilds()
