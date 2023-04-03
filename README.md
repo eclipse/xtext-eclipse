@@ -1,5 +1,11 @@
 # Eclipse Support For The Xtext Framework
 
+## Notice
+
+The content of this repository (`xtext-eclipse`) has been moved to the [Xtext Monorepo](https://github.com/eclipse/xtext/). Please refer to that repository to find the code, create issues or file pull requests.
+
+## About
+
 This repository contains all Eclipse related code for Xtext, including
  - the [general Eclipse support](https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html) for Xtext languages,
  - the Xtext SDK for Eclipse itself.
